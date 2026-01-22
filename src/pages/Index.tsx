@@ -10,6 +10,7 @@ import { BottomPanel } from '@/components/layout/BottomPanel';
 import { PVDiagram } from '@/components/diagrams/PVDiagram';
 import { TSDiagram } from '@/components/diagrams/TSDiagram';
 import PHDiagram from '@/components/diagrams/PHDiagram';
+import HSDiagram from '@/components/diagrams/HSDiagram';
 import { MetricsPanel } from '@/components/panels/MetricsPanel';
 import { EducationalMode } from '@/components/educational/EducationalMode';
 import { AnimatedCycleDiagram } from '@/components/educational/AnimatedCycleDiagram';
@@ -432,6 +433,7 @@ const Index = () => {
                       <TabsTrigger value="pv">P-V Only</TabsTrigger>
                       <TabsTrigger value="ts">T-S Only</TabsTrigger>
                       <TabsTrigger value="ph">P-H Only</TabsTrigger>
+                      <TabsTrigger value="hs">H-S Only</TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="both">
@@ -460,6 +462,12 @@ const Index = () => {
                     <TabsContent value="ph">
                       <div id="ph-diagram">
                         <PHDiagram className="max-w-3xl mx-auto" />
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="hs">
+                      <div id="hs-diagram">
+                        <HSDiagram className="max-w-3xl mx-auto" />
                       </div>
                     </TabsContent>
                   </Tabs>

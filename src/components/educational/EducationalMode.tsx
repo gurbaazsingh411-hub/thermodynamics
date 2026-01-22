@@ -1,10 +1,24 @@
 import { useState, useEffect } from 'react';
-import { ThermodynamicCycle, ThermodynamicState } from '@/types/thermodynamics';
-import { formatValue } from '@/lib/thermodynamics';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Play, Pause, RotateCcw, Lightbulb } from 'lucide-react';
+import { 
+  Lightbulb, 
+  ChevronLeft, 
+  ChevronRight, 
+  Play, 
+  Pause, 
+  RotateCcw, 
+  AlertTriangle,
+  Info
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { formatValue } from '@/lib/thermodynamics';
+import { 
+  ThermodynamicCycle, 
+  ThermodynamicState,
+  CycleType 
+} from '@/types/thermodynamics';
+
 
 interface EducationalModeProps {
   cycle: ThermodynamicCycle;
@@ -12,6 +26,7 @@ interface EducationalModeProps {
   pressureRatio?: number;
   cutoffRatio?: number;
   gamma: number;
+  showImpossibleCycles?: boolean;
 }
 
 interface EquationStep {
@@ -19,9 +34,23 @@ interface EquationStep {
   title: string;
   description: string;
   equation: string;
-  variables: { symbol: string; value: string; unit: string; color: string }[];
-  result: { symbol: string; value: string; unit: string };
   processType: string;
+  variables: {
+    symbol: string;
+    value: string;
+    unit: string;
+    color: string;
+  }[];
+  result: {
+    symbol: string;
+    value: string;
+    unit: string;
+  };
+}
+
+interface ImpossibleCycleResult {
+  message: string;
+  law: string;
 }
 
 export function EducationalMode({ 
@@ -29,7 +58,8 @@ export function EducationalMode({
   compressionRatio = 8, 
   pressureRatio = 10,
   cutoffRatio = 2,
-  gamma 
+  gamma,
+  showImpossibleCycles = false
 }: EducationalModeProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -76,6 +106,9 @@ export function EducationalMode({
     setShowSubstitution(false);
   };
 
+  // Check for impossible cycles (violations of thermodynamic laws)
+  const impossibleCycleWarning = checkForImpossibleCycle(cycle);
+  
   const step = steps[currentStep];
   const progress = ((currentStep + 1) / steps.length) * 100;
 
@@ -109,6 +142,35 @@ export function EducationalMode({
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </Button>
+        </div>
+      </div>
+      
+      {/* Impossible Cycle Warning */}
+      {impossibleCycleWarning && (
+        <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
+            <div>
+              <h4 className="font-semibold text-destructive">Thermodynamic Law Violation Detected</h4>
+              <p className="text-sm text-destructive/80 mt-1">{impossibleCycleWarning.message}</p>
+              <p className="text-xs text-destructive/70 mt-1">This cycle violates the {impossibleCycleWarning.law} and is physically impossible.</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Common Misconception Warnings */}
+      <div className="p-4 rounded-lg bg-info/10 border border-info/30">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5 text-info mt-0.5" />
+          <div>
+            <h4 className="font-semibold text-info">Common Misconceptions</h4>
+            <ul className="text-sm text-info/80 mt-1 space-y-1 list-disc pl-5">
+              <li>All real processes are reversible (they're not - entropy always increases)</li>
+              <li>Heat can be completely converted to work (violates 2nd law)</li>
+              <li>Perpetual motion machines are possible (violates conservation of energy)</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -260,9 +322,26 @@ export function EducationalMode({
   );
 }
 
+function getProcessTagClass(processType: string): string {
+  switch (processType) {
+    case 'Isentropic':
+      return 'bg-purple-500/20 text-purple-500 border-purple-500/30';
+    case 'Isochoric':
+      return 'bg-red-500/20 text-red-500 border-red-500/30';
+    case 'Isobaric':
+      return 'bg-blue-500/20 text-blue-500 border-blue-500/30';
+    case 'Efficiency':
+      return 'bg-green-500/20 text-green-500 border-green-500/30';
+    case 'Work':
+      return 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30';
+    default:
+      return 'bg-gray-500/20 text-gray-500 border-gray-500/30';
+  }
+}
+
 function ProcessFlowIndicator({ cycle, currentProcess }: { cycle: ThermodynamicCycle; currentProcess: number }) {
   const processes = getProcessNames(cycle.type);
-  
+
   return (
     <div className="flex items-center justify-center gap-2 py-4">
       {processes.map((process, i) => (
@@ -305,7 +384,7 @@ function StatePointsDisplay({ cycle, step }: { cycle: ThermodynamicCycle; step: 
   const processIndex = Math.floor(step / 2);
   const startState = cycle.states[processIndex];
   const endState = cycle.states[(processIndex + 1) % cycle.states.length];
-  
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <motion.div 
@@ -370,17 +449,13 @@ function getProcessNames(cycleType: string): string[] {
       return ['Compression', 'Heat Add', 'Expansion', 'Heat Reject'];
     case 'brayton':
       return ['Compression', 'Combustion', 'Expansion', 'Exhaust'];
+    case 'rankine':
+      return ['Pump', 'Boiler', 'Turbine', 'Condenser'];
+    case 'refrigeration':
+      return ['Evaporation', 'Compression', 'Condensation', 'Expansion'];
     default:
       return ['Process 1', 'Process 2', 'Process 3', 'Process 4'];
   }
-}
-
-function getProcessTagClass(processType: string): string {
-  if (processType.toLowerCase().includes('isentropic')) return 'process-isentropic';
-  if (processType.toLowerCase().includes('isochoric')) return 'process-isochoric';
-  if (processType.toLowerCase().includes('isobaric')) return 'process-isobaric';
-  if (processType.toLowerCase().includes('isothermal')) return 'process-isothermal';
-  return 'process-isentropic';
 }
 
 function generateSteps(
@@ -391,7 +466,7 @@ function generateSteps(
   gamma: number
 ): EquationStep[] {
   const states = cycle.states;
-  
+
   if (cycle.type === 'otto') {
     return [
       {
@@ -498,7 +573,7 @@ function generateSteps(
       },
     ];
   }
-  
+
   // Default/Brayton cycle steps
   return [
     {
@@ -578,4 +653,51 @@ function generateSteps(
       result: { symbol: 'W_net', value: formatValue(cycle.netWork, 1), unit: 'kJ/kg' },
     },
   ];
+}
+
+// Function to check for impossible cycles (violations of thermodynamic laws)
+function checkForImpossibleCycle(cycle: ThermodynamicCycle): ImpossibleCycleResult | null {
+  // Check for violations of second law of thermodynamics
+  if (cycle.efficiency > 100) {
+    return {
+      message: "Efficiency exceeds 100%, which violates the first law of thermodynamics.",
+      law: "First Law (Conservation of Energy)"
+    };
+  }
+
+  // For Carnot cycle, check if efficiency exceeds theoretical maximum
+  if (cycle.type === 'carnot') {
+    // Calculate Carnot efficiency from temperatures
+    if (cycle.states.length >= 2) {
+      const T_hot = Math.max(cycle.states[0].temperature, cycle.states[1].temperature);
+      const T_cold = Math.min(cycle.states[0].temperature, cycle.states[1].temperature);
+      const carnot_efficiency = (1 - T_cold/T_hot) * 100;
+      
+      if (cycle.efficiency > carnot_efficiency) {
+        return {
+          message: `Efficiency (${cycle.efficiency.toFixed(2)}%) exceeds Carnot efficiency (${carnot_efficiency.toFixed(2)}%), violating the second law of thermodynamics.`,
+          law: "Second Law (Carnot Limit)"
+        };
+      }
+    }
+  }
+
+  // Check for negative entropy generation in isolated systems
+  if (cycle.entropyGeneration && cycle.entropyGeneration < 0) {
+    return {
+      message: "Negative entropy generation violates the second law of thermodynamics.",
+      law: "Second Law (Entropy Principle)"
+    };
+  }
+
+  // Check for perpetual motion machines
+  if (cycle.heatIn === 0 && cycle.netWork > 0) {
+    return {
+      message: "Net work output with no heat input indicates a perpetual motion machine of the first kind.",
+      law: "First Law (Conservation of Energy)"
+    };
+  }
+
+  // No violations detected
+  return null;
 }
