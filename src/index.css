@@ -1,0 +1,300 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* ThermoVis Engineering Dark Theme */
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 186 100% 50%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 222 30% 14%;
+    --secondary-foreground: 210 40% 85%;
+
+    --muted: 222 30% 12%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 186 80% 40%;
+    --accent-foreground: 222 47% 6%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 30% 18%;
+    --input: 222 30% 15%;
+    --ring: 186 100% 50%;
+
+    --radius: 0.5rem;
+
+    /* Custom ThermoVis Colors */
+    --heat: 25 95% 53%;
+    --heat-glow: 25 100% 60%;
+    --cold: 210 100% 56%;
+    --cold-glow: 210 100% 65%;
+    --efficiency: 142 76% 46%;
+    --efficiency-glow: 142 76% 55%;
+    --warning: 45 93% 47%;
+    --entropy: 280 70% 55%;
+
+    /* Chart Colors */
+    --chart-grid: 222 30% 20%;
+    --chart-axis: 215 20% 45%;
+    --chart-line-1: 186 100% 50%;
+    --chart-line-2: 25 95% 53%;
+    --chart-line-3: 142 76% 46%;
+    --chart-line-4: 280 70% 55%;
+    --chart-area: 186 100% 50%;
+
+    /* Gradients */
+    --gradient-heat: linear-gradient(135deg, hsl(25 95% 53%), hsl(0 72% 51%));
+    --gradient-cold: linear-gradient(135deg, hsl(210 100% 56%), hsl(186 100% 50%));
+    --gradient-efficiency: linear-gradient(135deg, hsl(142 76% 46%), hsl(186 100% 50%));
+    --gradient-primary: linear-gradient(135deg, hsl(186 100% 50%), hsl(186 80% 40%));
+    --gradient-surface: linear-gradient(180deg, hsl(222 47% 10%), hsl(222 47% 6%));
+
+    /* Shadows */
+    --shadow-glow-primary: 0 0 20px hsl(186 100% 50% / 0.3);
+    --shadow-glow-heat: 0 0 20px hsl(25 95% 53% / 0.3);
+    --shadow-glow-cold: 0 0 20px hsl(210 100% 56% / 0.3);
+    --shadow-panel: 0 4px 24px hsl(222 47% 2% / 0.6);
+
+    /* Sidebar */
+    --sidebar-background: 222 47% 7%;
+    --sidebar-foreground: 210 40% 90%;
+    --sidebar-primary: 186 100% 50%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 222 30% 14%;
+    --sidebar-accent-foreground: 210 40% 90%;
+    --sidebar-border: 222 30% 16%;
+    --sidebar-ring: 186 100% 50%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Monospace for data displays */
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  /* Engineering Panel Styles */
+  .panel {
+    @apply bg-card border border-border rounded-lg;
+    box-shadow: var(--shadow-panel);
+  }
+
+  .panel-header {
+    @apply px-4 py-3 border-b border-border flex items-center justify-between;
+  }
+
+  .panel-title {
+    @apply text-sm font-semibold uppercase tracking-wider text-muted-foreground;
+  }
+
+  .panel-content {
+    @apply p-4;
+  }
+
+  /* Data Grid */
+  .data-grid {
+    @apply grid gap-2 text-sm font-mono;
+  }
+
+  .data-row {
+    @apply flex justify-between items-center py-1.5 px-2 rounded bg-muted/30;
+  }
+
+  .data-label {
+    @apply text-muted-foreground;
+  }
+
+  .data-value {
+    @apply text-foreground font-medium;
+  }
+
+  .data-unit {
+    @apply text-muted-foreground text-xs ml-1;
+  }
+
+  /* Chart Container */
+  .chart-container {
+    @apply relative bg-background/50 rounded-lg border border-border overflow-hidden;
+    background-image: 
+      linear-gradient(hsl(var(--chart-grid) / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--chart-grid) / 0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Status Indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-dot-active {
+    @apply bg-efficiency;
+    box-shadow: 0 0 8px hsl(var(--efficiency));
+  }
+
+  .status-dot-heat {
+    @apply bg-heat;
+    box-shadow: 0 0 8px hsl(var(--heat));
+  }
+
+  .status-dot-cold {
+    @apply bg-cold;
+    box-shadow: 0 0 8px hsl(var(--cold));
+  }
+
+  /* Glow Effects */
+  .glow-primary {
+    box-shadow: var(--shadow-glow-primary);
+  }
+
+  .glow-heat {
+    box-shadow: var(--shadow-glow-heat);
+  }
+
+  .glow-cold {
+    box-shadow: var(--shadow-glow-cold);
+  }
+
+  /* Input Styles */
+  .input-engineering {
+    @apply bg-input border border-border rounded px-3 py-2 text-sm font-mono;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary;
+    @apply transition-all duration-200;
+  }
+
+  /* Metric Cards */
+  .metric-card {
+    @apply p-4 rounded-lg border border-border bg-gradient-to-br from-card to-background;
+  }
+
+  .metric-value {
+    @apply text-2xl font-bold font-mono;
+  }
+
+  .metric-label {
+    @apply text-xs uppercase tracking-wider text-muted-foreground mt-1;
+  }
+
+  /* Process Tags */
+  .process-tag {
+    @apply inline-flex items-center px-2 py-1 rounded text-xs font-medium;
+  }
+
+  .process-isothermal {
+    @apply bg-primary/20 text-primary border border-primary/30;
+  }
+
+  .process-isobaric {
+    @apply bg-heat/20 text-orange-400 border border-heat/30;
+  }
+
+  .process-isochoric {
+    @apply bg-entropy/20 text-purple-400 border border-entropy/30;
+  }
+
+  .process-isentropic {
+    @apply bg-efficiency/20 text-green-400 border border-efficiency/30;
+  }
+
+  /* Animation Classes */
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    50% {
+      opacity: 0.8;
+      filter: brightness(1.2);
+    }
+  }
+
+  .animate-flow {
+    animation: flow 3s linear infinite;
+  }
+
+  @keyframes flow {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: -50;
+    }
+  }
+}
+
+/* Recharts Custom Styles */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: hsl(var(--chart-grid));
+  stroke-opacity: 0.5;
+}
+
+.recharts-cartesian-axis-line {
+  stroke: hsl(var(--chart-axis));
+}
+
+.recharts-cartesian-axis-tick-line {
+  stroke: hsl(var(--chart-axis));
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: hsl(var(--muted-foreground));
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
