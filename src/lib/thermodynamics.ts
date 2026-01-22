@@ -481,19 +481,25 @@ export function generateCarnotCycle(
   state4.id = '4';
   state4.name = 'State 4';
   
-  // Calculate state 3 from adiabatic expansion
-  const P3 = P2 * Math.pow(TL/TH, fluid.gamma/(fluid.gamma-1));
+  // Calculate state 3 from isothermal heat addition at TH
+  const P3 = P2 * Math.exp(-(state2.entropy - state1.entropy) / (fluid.R)); // Isentropic relation corrected
   const state3 = calcState(TH, P3, fluid);
+  state3.entropy = state2.entropy + fluid.R * Math.log(P2/P3);
   state3.id = '3';
   state3.name = 'State 3';
 
   // Calculate entropy generation
+  const carnotHeatIn = TH * (state3.entropy - state2.entropy); // Heat added at TH
+  const carnotHeatOut = TL * (state1.entropy - state4.entropy); // Heat rejected at TL
   const entropyGen = calculateEntropyGeneration(
     [state1, state2, state3, state4],
-    [0, 0, 0, 0],
+    [-carnotHeatOut, 0, carnotHeatIn, 0], // Heat transfers in each process
     298 // Ambient temp in K
   );
 
+  // Calculate work and heat for Carnot cycle
+  const carnotNetWork = carnotHeatIn - carnotHeatOut;
+  
   return {
     id: crypto.randomUUID(),
     name: 'Carnot Cycle',
@@ -501,9 +507,9 @@ export function generateCarnotCycle(
     states: [state1, state2, state3, state4],
     processes: [],
     efficiency,
-    netWork: 0,
-    heatIn: 0,
-    heatOut: 0,
+    netWork: carnotNetWork,
+    heatIn: carnotHeatIn,
+    heatOut: carnotHeatOut,
   };
 }
 
@@ -524,7 +530,7 @@ export function generateRankineCycle(
   state1.name = 'Condensate Exit';
   
   // State 2: Compressed liquid after pump (real)
-  const workPumpIdeal = (condenserPressure - boilerPressure) * state1.volume;
+  const workPumpIdeal = (boilerPressure - condenserPressure) * state1.volume;
   const workPumpActual = workPumpIdeal / pumpEfficiency;
   const h2 = state1.enthalpy + workPumpActual;
   
@@ -570,7 +576,7 @@ export function generateRankineCycle(
   
   // Calculate cycle performance
   const heatIn = state3.enthalpy - state2.enthalpy;
-  const workTurbine = state3.enthalpy - state4.enthalpy;
+  const workTurbine = turbineEfficiency * (state3.enthalpy - state4.enthalpy); // Account for turbine efficiency
   const workPump = state2.enthalpy - state1.enthalpy;
   const netWork = workTurbine - workPump;
   const efficiency = (netWork / heatIn) * 100;
@@ -664,10 +670,10 @@ export function generateRefrigerationCycle(
     type: 'refrigeration',
     states: [state1, state2, state3, state4],
     processes: [],
-    efficiency: COP, // Using COP as efficiency for refrigeration
+    efficiency: COP, // COP for refrigeration cycle
     netWork: workInput,
-    heatIn: heatAbsorbed,
-    heatOut: state2.enthalpy - state3.enthalpy,
+    heatIn: heatAbsorbed, // Heat absorbed in evaporator
+    heatOut: state2.enthalpy - state3.enthalpy, // Heat rejected in condenser
   };
 }
 
