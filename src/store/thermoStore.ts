@@ -17,6 +17,10 @@ interface ThermoState {
     cutoffRatio: number;
   };
   
+  // Advanced features
+  useRealGas: boolean;
+  steamQuality: number;
+  
   // Derived state
   cycle: ThermodynamicCycle | null;
   isLoading: boolean;
@@ -28,6 +32,8 @@ interface ThermoState {
   setParameters: (params: Partial<typeof initialState.parameters>) => void;
   setCycle: (cycle: ThermodynamicCycle) => void;
   setLoading: (loading: boolean) => void;
+  setUseRealGas: (useRealGas: boolean) => void;
+  setSteamQuality: (steamQuality: number) => void;
   resetParameters: () => void;
 }
 
@@ -43,6 +49,8 @@ const initialState = {
     T3: 1200,
     cutoffRatio: 2,
   },
+  useRealGas: false,
+  steamQuality: 0,
   cycle: null,
   isLoading: false,
 };
@@ -69,6 +77,10 @@ export const useThermoStore = create<ThermoState>()(
       setCycle: (cycle) => set({ cycle }),
       
       setLoading: (isLoading) => set({ isLoading }),
+      
+      setUseRealGas: (useRealGas) => set({ useRealGas }),
+      
+      setSteamQuality: (steamQuality) => set({ steamQuality }),
       
       resetParameters: () => set({ parameters: initialState.parameters }),
     }),

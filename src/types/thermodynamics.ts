@@ -34,6 +34,11 @@ export interface ThermodynamicCycle {
   netWork: number;
   heatIn: number;
   heatOut: number;
+  entropyGeneration?: number;
+  exergy?: number;
+  quality?: number;
+  gibbsFreeEnergy?: number;
+  helmholtzFreeEnergy?: number;
 }
 
 export interface FluidProperties {

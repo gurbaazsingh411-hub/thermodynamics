@@ -9,6 +9,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { BottomPanel } from '@/components/layout/BottomPanel';
 import { PVDiagram } from '@/components/diagrams/PVDiagram';
 import { TSDiagram } from '@/components/diagrams/TSDiagram';
+import PHDiagram from '@/components/diagrams/PHDiagram';
 import { MetricsPanel } from '@/components/panels/MetricsPanel';
 import { EducationalMode } from '@/components/educational/EducationalMode';
 import { AnimatedCycleDiagram } from '@/components/educational/AnimatedCycleDiagram';
@@ -22,14 +23,20 @@ import {
   FLUIDS, 
   generateOttoCycle, 
   generateDieselCycle, 
-  generateBraytonCycle 
+  generateBraytonCycle,
+  generateCarnotCycle,
+  generateRankineCycle,
+  generateRefrigerationCycle,
+  calculateRealGasState,
+  calculateSteamProperties
 } from '@/lib/thermodynamics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, LineChart, Download, User } from 'lucide-react';
+import { GraduationCap, LineChart, Download, User, Settings } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 const Index = () => {
   const {
@@ -38,11 +45,15 @@ const Index = () => {
     parameters,
     cycle,
     isLoading,
+    useRealGas,
+    steamQuality,
     setCycleType,
     setFluid,
     setParameter,
     setCycle,
     setLoading,
+    setUseRealGas,
+    setSteamQuality,
     resetParameters
   } = useThermoStore();
 
@@ -52,6 +63,23 @@ const Index = () => {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+
+  // Additional parameters for Rankine and Refrigeration cycles
+  const [rankineParams, setRankineParams] = useState({
+    boilerPressure: 3000, // kPa
+    condenserPressure: 10, // kPa
+    turbineInletTemp: 800, // K
+    pumpEfficiency: 0.8,
+    turbineEfficiency: 0.85,
+  });
+
+  const [refrigerationParams, setRefrigerationParams] = useState({
+    evaporatorTemp: 273.15, // K
+    condenserTemp: 313.15, // K
+    superheat: 5,
+    subcool: 5,
+    compressorEfficiency: 0.8,
+  });
 
   // Initialize auth on mount
   useEffect(() => {
@@ -94,7 +122,8 @@ const Index = () => {
               parameters.P1,
               parameters.compressionRatio,
               parameters.heatAddition,
-              fluid
+              fluid,
+              useRealGas
             );
             break;
           case 'diesel':
@@ -103,7 +132,8 @@ const Index = () => {
               parameters.P1,
               parameters.compressionRatio,
               parameters.cutoffRatio,
-              fluid
+              fluid,
+              useRealGas
             );
             break;
           case 'brayton':
@@ -112,7 +142,39 @@ const Index = () => {
               parameters.P1,
               parameters.pressureRatio,
               parameters.T3,
-              fluid
+              fluid,
+              useRealGas
+            );
+            break;
+          case 'carnot':
+            calculatedCycle = generateCarnotCycle(
+              parameters.T3,
+              parameters.T1,
+              parameters.P1,
+              fluid,
+              useRealGas
+            );
+            break;
+          case 'rankine':
+            calculatedCycle = generateRankineCycle(
+              rankineParams.boilerPressure,
+              rankineParams.condenserPressure,
+              rankineParams.turbineInletTemp,
+              rankineParams.pumpEfficiency,
+              rankineParams.turbineEfficiency,
+              fluid,
+              useRealGas
+            );
+            break;
+          case 'refrigeration':
+            calculatedCycle = generateRefrigerationCycle(
+              refrigerationParams.evaporatorTemp,
+              refrigerationParams.condenserTemp,
+              refrigerationParams.superheat,
+              refrigerationParams.subcool,
+              refrigerationParams.compressorEfficiency,
+              fluid,
+              useRealGas
             );
             break;
           default:
@@ -121,7 +183,8 @@ const Index = () => {
               parameters.P1,
               parameters.compressionRatio,
               parameters.heatAddition,
-              fluid
+              fluid,
+              useRealGas
             );
         }
         setCycle(calculatedCycle);
@@ -197,6 +260,111 @@ const Index = () => {
                   Sign In
                 </Button>
               )}
+              
+              {/* Real Gas and Steam Quality Controls */}
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="real-gas"
+                  checked={useRealGas}
+                  onCheckedChange={setUseRealGas}
+                />
+                <Label 
+                  htmlFor="real-gas" 
+                  className="text-sm cursor-pointer"
+                >
+                  Real Gas Behavior
+                </Label>
+              </div>
+              
+              {fluid.name === 'Water' && (
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="steam-quality" className="text-sm">
+                    Steam Quality:
+                  </Label>
+                  <Input
+                    id="steam-quality"
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={steamQuality}
+                    onChange={(e) => setSteamQuality(parseFloat(e.target.value) || 0)}
+                    className="w-20"
+                  />
+                </div>
+              )}
+              
+              {/* Rankine Cycle Parameters */}
+              {cycleType === 'rankine' && (
+                <div className="flex items-center gap-4 ml-4">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="boiler-pressure" className="text-sm">
+                      Boiler Pressure (kPa):
+                    </Label>
+                    <Input
+                      id="boiler-pressure"
+                      type="number"
+                      min="1"
+                      max="10000"
+                      step="10"
+                      value={rankineParams.boilerPressure}
+                      onChange={(e) => setRankineParams({...rankineParams, boilerPressure: parseFloat(e.target.value) || 3000})}
+                      className="w-24"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="turbine-temp" className="text-sm">
+                      Turbine Temp (K):
+                    </Label>
+                    <Input
+                      id="turbine-temp"
+                      type="number"
+                      min="300"
+                      max="1000"
+                      step="10"
+                      value={rankineParams.turbineInletTemp}
+                      onChange={(e) => setRankineParams({...rankineParams, turbineInletTemp: parseFloat(e.target.value) || 800})}
+                      className="w-24"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {/* Refrigeration Cycle Parameters */}
+              {cycleType === 'refrigeration' && (
+                <div className="flex items-center gap-4 ml-4">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="evap-temp" className="text-sm">
+                      Evaporator Temp (K):
+                    </Label>
+                    <Input
+                      id="evap-temp"
+                      type="number"
+                      min="200"
+                      max="300"
+                      step="1"
+                      value={refrigerationParams.evaporatorTemp}
+                      onChange={(e) => setRefrigerationParams({...refrigerationParams, evaporatorTemp: parseFloat(e.target.value) || 273.15})}
+                      className="w-24"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="cond-temp" className="text-sm">
+                      Condenser Temp (K):
+                    </Label>
+                    <Input
+                      id="cond-temp"
+                      type="number"
+                      min="300"
+                      max="400"
+                      step="1"
+                      value={refrigerationParams.condenserTemp}
+                      onChange={(e) => setRefrigerationParams({...refrigerationParams, condenserTemp: parseFloat(e.target.value) || 313.15})}
+                      className="w-24"
+                    />
+                  </div>
+                </div>
+              )}
               <Switch
                 id="educational-mode"
                 checked={isEducationalMode}
@@ -263,6 +431,7 @@ const Index = () => {
                       <TabsTrigger value="both">Both Diagrams</TabsTrigger>
                       <TabsTrigger value="pv">P-V Only</TabsTrigger>
                       <TabsTrigger value="ts">T-S Only</TabsTrigger>
+                      <TabsTrigger value="ph">P-H Only</TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="both">
@@ -285,6 +454,12 @@ const Index = () => {
                     <TabsContent value="ts">
                       <div id="ts-diagram">
                         <TSDiagram cycle={displayCycle} className="max-w-3xl mx-auto" />
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="ph">
+                      <div id="ph-diagram">
+                        <PHDiagram className="max-w-3xl mx-auto" />
                       </div>
                     </TabsContent>
                   </Tabs>
