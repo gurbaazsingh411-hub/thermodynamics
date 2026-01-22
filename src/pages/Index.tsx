@@ -240,27 +240,15 @@ const Index = () => {
               <PresetSelector />
               <ExportButtons cycle={displayCycle} pvDiagramId="pv-diagram" tsDiagramId="ts-diagram" />
               
-              {isAuthenticated ? (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setShowProfile(true)}
-                  className="gap-2"
-                >
-                  <User className="w-4 h-4" />
-                  Profile
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setShowAuthDialog(true)}
-                  className="gap-2"
-                >
-                  <User className="w-4 h-4" />
-                  Sign In
-                </Button>
-              )}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowProfile(true)}
+                className="gap-2"
+              >
+                <User className="w-4 h-4" />
+                Account
+              </Button>
               
               {/* Real Gas and Steam Quality Controls */}
               <div className="flex items-center gap-2">
