@@ -11,7 +11,7 @@ interface BottomPanelProps {
 
 export const BottomPanel = memo(function BottomPanel({ cycle }: BottomPanelProps) {
   return (
-    <div className="h-72 border-t border-border bg-card/50 overflow-hidden">
+    <div className="border-t border-border bg-card/50 min-h-0">
       <Tabs defaultValue="states" className="h-full flex flex-col">
         <div className="border-b border-border px-4">
           <TabsList className="bg-transparent h-10">

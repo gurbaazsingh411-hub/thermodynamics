@@ -159,13 +159,13 @@ const Index = () => {
   })();
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-1">
         <Sidebar />
         
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 flex flex-col min-h-0">
           {/* Mode Toggle */}
           <div className="px-6 py-3 border-b border-border bg-card/50 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -219,10 +219,10 @@ const Index = () => {
             )}
           </div>
 
-          {/* Main Canvas Area */}
-          <div className="flex-1 p-6 overflow-auto">
+          {/* Main Content Area - Now allows vertical scrolling */}
+          <div className="flex-1 p-6 overflow-y-auto">
             {isEducationalMode ? (
-              <div className="space-y-6">
+              <div className="space-y-6 max-w-7xl mx-auto">
                 {/* Educational Mode Content */}
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                   <div className="xl:col-span-2">
@@ -250,7 +250,7 @@ const Index = () => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-6 max-w-7xl mx-auto">
                 {/* Metrics */}
                 <div className="animate-fade-in">
                   <MetricsPanel cycle={displayCycle} />
@@ -293,8 +293,10 @@ const Index = () => {
             )}
           </div>
           
-          {/* Bottom Panel */}
-          <BottomPanel cycle={displayCycle} />
+          {/* Bottom Panel - Will now scroll with the rest of the content */}
+          <div className="mt-auto">
+            <BottomPanel cycle={displayCycle} />
+          </div>
         </main>
       </div>
       
