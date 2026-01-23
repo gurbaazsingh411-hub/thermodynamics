@@ -48,11 +48,25 @@ export const useAuthStore = create<AuthState>()(
           if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
             console.warn('Supabase not configured, simulating sign in')
             // Simulate successful sign-in for demo purposes
+            const demoUser = { id: 'demo-user', email, email_confirmed_at: new Date().toISOString() } as User;
             set({ 
-              user: { id: 'demo-user', email, email_confirmed_at: new Date().toISOString() } as User, 
+              user: demoUser,
               isAuthenticated: true,
               isLoading: false
-            })
+            });
+            
+            // Set a demo profile immediately
+            set({ 
+              profile: { 
+                id: demoUser.id, 
+                email: demoUser.email || '', 
+                full_name: 'Demo User',
+                avatar_url: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              } 
+            });
+            
             return { error: undefined }
           }
           
@@ -90,11 +104,25 @@ export const useAuthStore = create<AuthState>()(
           if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
             console.warn('Supabase not configured, simulating sign up')
             // Simulate successful sign-up for demo purposes
+            const demoUser = { id: 'demo-user', email, email_confirmed_at: new Date().toISOString() } as User;
             set({ 
-              user: { id: 'demo-user', email, email_confirmed_at: new Date().toISOString() } as User, 
+              user: demoUser,
               isAuthenticated: true,
               isLoading: false
-            })
+            });
+            
+            // Set a demo profile immediately
+            set({ 
+              profile: { 
+                id: demoUser.id, 
+                email: demoUser.email || '', 
+                full_name: fullName || 'Demo User',
+                avatar_url: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              } 
+            });
+            
             return { error: undefined }
           }
           
@@ -193,6 +221,8 @@ export const useAuthStore = create<AuthState>()(
             console.warn('Supabase not configured, initializing demo auth state')
             // Initialize with demo state when Supabase is not configured
             set({ 
+              user: null,
+              profile: null,
               isAuthenticated: false,
               isLoading: false
             })
@@ -240,6 +270,9 @@ export const useAuthStore = create<AuthState>()(
               })
             }
           })
+        } else {
+          // Clear any existing listeners when Supabase is not configured
+          // We don't set up listeners in demo mode
         }
       }
     }),
