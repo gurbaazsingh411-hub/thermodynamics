@@ -20,6 +20,9 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Prevent submission while already loading
+    if (isLoading) return;
+    
     try {
       let result;
       if (isSignUp) {

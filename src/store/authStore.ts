@@ -49,8 +49,9 @@ export const useAuthStore = create<AuthState>()(
             console.warn('Supabase not configured, simulating sign in')
             // Simulate successful sign-in for demo purposes
             set({ 
-              user: { id: 'demo-user', email } as User, 
-              isAuthenticated: true 
+              user: { id: 'demo-user', email, email_confirmed_at: new Date().toISOString() } as User, 
+              isAuthenticated: true,
+              isLoading: false
             })
             return { error: undefined }
           }
@@ -63,7 +64,10 @@ export const useAuthStore = create<AuthState>()(
           if (error) throw error
           if (data.user) {
             set({ user: data.user, isAuthenticated: true })
-            await get().loadUserProfile()
+            // Load profile after setting the user to avoid circular dependency
+            setTimeout(() => {
+              get().loadUserProfile();
+            }, 0);
           }
           
           return { error: undefined }
@@ -87,8 +91,9 @@ export const useAuthStore = create<AuthState>()(
             console.warn('Supabase not configured, simulating sign up')
             // Simulate successful sign-up for demo purposes
             set({ 
-              user: { id: 'demo-user', email } as User, 
-              isAuthenticated: true 
+              user: { id: 'demo-user', email, email_confirmed_at: new Date().toISOString() } as User, 
+              isAuthenticated: true,
+              isLoading: false
             })
             return { error: undefined }
           }
@@ -104,6 +109,10 @@ export const useAuthStore = create<AuthState>()(
           if (error) throw error
           if (data.user) {
             set({ user: data.user, isAuthenticated: true })
+            // Load profile after setting the user to avoid circular dependency
+            setTimeout(() => {
+              get().loadUserProfile();
+            }, 0);
           }
           
           return { error: undefined }
@@ -135,7 +144,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       loadUserProfile: async () => {
-        if (!get().user) return
+        const currentUser = get().user;
+        if (!currentUser) return
         
         try {
           // Check if Supabase is configured
@@ -146,8 +156,8 @@ export const useAuthStore = create<AuthState>()(
             // Set a demo profile when Supabase is not configured
             set({ 
               profile: { 
-                id: get().user!.id, 
-                email: get().user!.email || '', 
+                id: currentUser.id, 
+                email: currentUser.email || '', 
                 full_name: 'Demo User',
                 avatar_url: null,
                 created_at: new Date().toISOString(),
@@ -160,7 +170,7 @@ export const useAuthStore = create<AuthState>()(
           const { data: profile, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', get().user!.id)
+            .eq('id', currentUser.id)
             .single()
           
           if (!error && profile) {
@@ -196,7 +206,10 @@ export const useAuthStore = create<AuthState>()(
               user: session.user, 
               isAuthenticated: true 
             })
-            await get().loadUserProfile()
+            // Load profile after setting the user
+            setTimeout(() => {
+              get().loadUserProfile();
+            }, 0);
           }
         } catch (error) {
           console.error('Error initializing auth:', error)
@@ -215,7 +228,10 @@ export const useAuthStore = create<AuthState>()(
                 user: session.user, 
                 isAuthenticated: true 
               })
-              await get().loadUserProfile()
+              // Load profile after setting the user to avoid circular dependency
+              setTimeout(() => {
+                get().loadUserProfile();
+              }, 0);
             } else if (event === 'SIGNED_OUT') {
               set({ 
                 user: null, 

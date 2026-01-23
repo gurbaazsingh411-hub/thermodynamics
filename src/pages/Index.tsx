@@ -84,10 +84,10 @@ const Index = () => {
     compressorEfficiency: 0.8,
   });
 
-  // Initialize auth on mount
+  // Initialize auth on mount, but only once
   useEffect(() => {
     initializeAuth();
-  }, [initializeAuth]);
+  }, []);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({

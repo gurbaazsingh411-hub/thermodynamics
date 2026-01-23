@@ -1,14 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Navigate } from 'react-router-dom';
 import Index from './Index';
 
 const Dashboard = () => {
   const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
+  const initializedRef = useRef(false);
   
   useEffect(() => {
-    // Initialize auth when dashboard loads
-    initializeAuth();
+    // Initialize auth when dashboard loads, but only once
+    if (!initializedRef.current) {
+      initializeAuth();
+      initializedRef.current = true;
+    }
   }, [initializeAuth]);
 
   if (isLoading) {
