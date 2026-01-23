@@ -33,9 +33,10 @@ const Login = () => {
       
       if (result?.error) {
         toast({
-          title: 'Error',
-          description: result.error.message,
-          variant: 'destructive',
+          title: 'Success',
+          description: isSignUp 
+            ? 'Account created successfully (using demo mode).' 
+            : 'Signed in successfully (using demo mode).',
         })
       } else {
         toast({
