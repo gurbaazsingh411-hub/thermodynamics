@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { User } from '@supabase/supabase-js'
-import { supabase, UserProfile } from '@/lib/supabase'
+import { supabase, UserProfile, signUp as apiSignUp, signIn as apiSignIn, signOut as apiSignOut, getCurrentUser, getUserProfile } from '@/lib/supabase'
 
 interface AuthState {
   user: User | null
@@ -40,6 +40,21 @@ export const useAuthStore = create<AuthState>()(
       signIn: async (email, password) => {
         try {
           set({ isLoading: true })
+          
+          // Check if Supabase is configured
+          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+          const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+          
+          if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+            console.warn('Supabase not configured, simulating sign in')
+            // Simulate successful sign-in for demo purposes
+            set({ 
+              user: { id: 'demo-user', email } as User, 
+              isAuthenticated: true 
+            })
+            return { error: undefined }
+          }
+          
           const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password
@@ -53,6 +68,7 @@ export const useAuthStore = create<AuthState>()(
           
           return { error: undefined }
         } catch (error) {
+          console.error('Sign in error:', error)
           return { error: error as Error }
         } finally {
           set({ isLoading: false })
@@ -62,6 +78,21 @@ export const useAuthStore = create<AuthState>()(
       signUp: async (email, password, fullName) => {
         try {
           set({ isLoading: true })
+          
+          // Check if Supabase is configured
+          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+          const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+          
+          if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+            console.warn('Supabase not configured, simulating sign up')
+            // Simulate successful sign-up for demo purposes
+            set({ 
+              user: { id: 'demo-user', email } as User, 
+              isAuthenticated: true 
+            })
+            return { error: undefined }
+          }
+          
           const { data, error } = await supabase.auth.signUp({
             email,
             password,
@@ -77,6 +108,7 @@ export const useAuthStore = create<AuthState>()(
           
           return { error: undefined }
         } catch (error) {
+          console.error('Sign up error:', error)
           return { error: error as Error }
         } finally {
           set({ isLoading: false })
@@ -85,7 +117,15 @@ export const useAuthStore = create<AuthState>()(
 
       signOut: async () => {
         set({ isLoading: true })
-        await supabase.auth.signOut()
+        
+        // Check if Supabase is configured
+        const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+        const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+        
+        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+          await supabase.auth.signOut()
+        }
+        
         set({ 
           user: null, 
           profile: null, 
@@ -98,6 +138,25 @@ export const useAuthStore = create<AuthState>()(
         if (!get().user) return
         
         try {
+          // Check if Supabase is configured
+          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+          const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+          
+          if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+            // Set a demo profile when Supabase is not configured
+            set({ 
+              profile: { 
+                id: get().user!.id, 
+                email: get().user!.email || '', 
+                full_name: 'Demo User',
+                avatar_url: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              } 
+            })
+            return
+          }
+          
           const { data: profile, error } = await supabase
             .from('profiles')
             .select('*')
@@ -116,6 +175,20 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
         
         try {
+          // Check if Supabase is configured
+          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+          const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+          
+          if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+            console.warn('Supabase not configured, initializing demo auth state')
+            // Initialize with demo state when Supabase is not configured
+            set({ 
+              isAuthenticated: false,
+              isLoading: false
+            })
+            return
+          }
+          
           const { data: { session } } = await supabase.auth.getSession()
           
           if (session?.user) {
@@ -131,22 +204,27 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false })
         }
         
-        // Listen for auth changes
-        supabase.auth.onAuthStateChange(async (event, session) => {
-          if (event === 'SIGNED_IN' && session?.user) {
-            set({ 
-              user: session.user, 
-              isAuthenticated: true 
-            })
-            await get().loadUserProfile()
-          } else if (event === 'SIGNED_OUT') {
-            set({ 
-              user: null, 
-              profile: null, 
-              isAuthenticated: false 
-            })
-          }
-        })
+        // Listen for auth changes only if Supabase is configured
+        const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+        const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+        
+        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+          supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session?.user) {
+              set({ 
+                user: session.user, 
+                isAuthenticated: true 
+              })
+              await get().loadUserProfile()
+            } else if (event === 'SIGNED_OUT') {
+              set({ 
+                user: null, 
+                profile: null, 
+                isAuthenticated: false 
+              })
+            }
+          })
+        }
       }
     }),
     {
@@ -156,4 +234,4 @@ export const useAuthStore = create<AuthState>()(
       })
     }
   )
-)
+);

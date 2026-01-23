@@ -56,6 +56,10 @@ export interface UserProfile {
 
 // Auth functions
 export async function signUp(email: string, password: string, fullName?: string) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.')
+  }
+  
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -70,6 +74,10 @@ export async function signUp(email: string, password: string, fullName?: string)
 }
 
 export async function signIn(email: string, password: string) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.')
+  }
+  
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
@@ -79,17 +87,30 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.warn('Supabase is not configured, skipping sign out')
+    return { error: null }
+  }
+  
   const { error } = await supabase.auth.signOut()
   return { error }
 }
 
 export async function getCurrentUser() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return null
+  }
+  
   const { data: { user } } = await supabase.auth.getUser()
   return user
 }
 
 // Test case functions
 export async function createTestCase(testCase: Omit<TestCase, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.')
+  }
+  
   const user = await getCurrentUser()
   if (!user) {
     throw new Error('User not authenticated')
@@ -110,6 +131,10 @@ export async function createTestCase(testCase: Omit<TestCase, 'id' | 'user_id' |
 }
 
 export async function getUserTestCases() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return { data: [], error: null }
+  }
+  
   const user = await getCurrentUser()
   if (!user) {
     throw new Error('User not authenticated')
@@ -125,6 +150,10 @@ export async function getUserTestCases() {
 }
 
 export async function getTestCaseById(id: string) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return { data: null, error: null }
+  }
+  
   const { data, error } = await supabase
     .from('test_cases')
     .select('*')
@@ -135,6 +164,10 @@ export async function getTestCaseById(id: string) {
 }
 
 export async function updateTestCase(id: string, updates: Partial<Omit<TestCase, 'id' | 'user_id' | 'created_at'>>) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return { data: null, error: null }
+  }
+  
   const { data, error } = await supabase
     .from('test_cases')
     .update({
@@ -149,6 +182,10 @@ export async function updateTestCase(id: string, updates: Partial<Omit<TestCase,
 }
 
 export async function deleteTestCase(id: string) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return { error: null }
+  }
+  
   const { error } = await supabase
     .from('test_cases')
     .delete()
@@ -159,6 +196,10 @@ export async function deleteTestCase(id: string) {
 
 // Profile functions
 export async function getUserProfile() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return { data: null, error: null }
+  }
+  
   const user = await getCurrentUser()
   if (!user) {
     throw new Error('User not authenticated')
@@ -174,6 +215,10 @@ export async function getUserProfile() {
 }
 
 export async function updateUserProfile(updates: Partial<UserProfile>) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return { data: null, error: null }
+  }
+  
   const user = await getCurrentUser()
   if (!user) {
     throw new Error('User not authenticated')

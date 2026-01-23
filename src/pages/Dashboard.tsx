@@ -1,9 +1,15 @@
+import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Navigate } from 'react-router-dom';
 import Index from './Index';
 
 const Dashboard = () => {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
+  
+  useEffect(() => {
+    // Initialize auth when dashboard loads
+    initializeAuth();
+  }, [initializeAuth]);
 
   if (isLoading) {
     return (

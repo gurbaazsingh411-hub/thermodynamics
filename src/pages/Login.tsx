@@ -21,18 +21,32 @@ const Login = () => {
     e.preventDefault();
     
     try {
+      let result;
       if (isSignUp) {
-        await signUp(email, password);
+        result = await signUp(email, password);
       } else {
-        await signIn(email, password);
+        result = await signIn(email, password);
       }
       
-      toast({
-        title: isSignUp ? 'Account created!' : 'Welcome back!',
-        description: isSignUp 
-          ? 'Your account has been created successfully.' 
-          : 'You have been logged in.',
-      });
+      if (result?.error) {
+        // Handle specific error messages
+        const errorMessage = result.error.message.includes('Supabase not configured') 
+          ? 'Authentication service unavailable. Running in demo mode.'
+          : result.error.message;
+          
+        toast({
+          title: 'Warning',
+          description: errorMessage,
+          variant: 'default',
+        });
+      } else {
+        toast({
+          title: isSignUp ? 'Account created!' : 'Welcome back!',
+          description: isSignUp 
+            ? 'Your account has been created successfully.' 
+            : 'You have been logged in.',
+        });
+      }
     } catch (error) {
       toast({
         title: 'Error',
