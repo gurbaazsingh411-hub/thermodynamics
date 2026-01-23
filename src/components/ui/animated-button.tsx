@@ -10,20 +10,13 @@ interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
 
 const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
   ({ children, animationType = "pulse", className, disabled, ...props }, ref) => {
-    const baseAnimation = {
-      rest: { scale: 1 },
-      hover: { 
-        scale: animationType === "scale" ? 1.05 : 
-               animationType === "bounce" ? 1.05 : 1.03,
-      },
-      tap: { scale: 0.98 }
-    };
+    const buttonClass = `inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 ${className || ''}`;
 
     if (disabled) {
       return (
         <button 
           ref={ref} 
-          className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 ${className || ''}`}
+          className={buttonClass}
           disabled
           {...props}
         >
@@ -33,19 +26,22 @@ const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
     }
 
     return (
-      <motion.button
-        ref={ref}
-        className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 ${className || ''}`}
-        variants={baseAnimation}
-        whileHover={!disabled ? "hover" : undefined}
-        whileTap={!disabled ? "tap" : undefined}
-        initial="rest"
-        animate="rest"
-        disabled={disabled}
-        {...props}
+      <motion.div
+        whileHover={{ 
+          scale: animationType === "scale" ? 1.05 : 
+                 animationType === "bounce" ? [1, 1.05, 1] : 1.03,
+        }}
+        whileTap={{ scale: 0.98 }}
       >
-        {children}
-      </motion.button>
+        <button
+          ref={ref}
+          className={buttonClass}
+          disabled={disabled}
+          {...props}
+        >
+          {children}
+        </button>
+      </motion.div>
     );
   }
 );
