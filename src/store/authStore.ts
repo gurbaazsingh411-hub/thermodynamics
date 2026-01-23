@@ -1,17 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { User } from '@supabase/supabase-js'
-import { supabase, UserProfile, signUp as apiSignUp, signIn as apiSignIn, signOut as apiSignOut, getCurrentUser, getUserProfile } from '@/lib/supabase'
+import { simpleAuth, User } from '@/lib/simpleAuth'
+import { useToast } from '@/hooks/use-toast'
 
 interface AuthState {
   user: User | null
-  profile: UserProfile | null
   isAuthenticated: boolean
   isLoading: boolean
   
   // Actions
   setUser: (user: User | null) => void
-  setProfile: (profile: UserProfile | null) => void
   setLoading: (loading: boolean) => void
   signIn: (email: string, password: string) => Promise<{ error?: Error }>
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error?: Error }>
@@ -24,7 +22,6 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      profile: null,
       isAuthenticated: false,
       isLoading: true,
 
@@ -33,56 +30,27 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: !!user 
       }),
 
-      setProfile: (profile) => set({ profile }),
-
       setLoading: (isLoading) => set({ isLoading }),
 
       signIn: async (email, password) => {
         try {
           set({ isLoading: true })
           
-          // Check if Supabase is configured
-          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
-          const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+          const result = await simpleAuth.signIn(email, password)
           
-          if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-            console.warn('Supabase not configured, simulating sign in')
-            // Simulate successful sign-in for demo purposes
-            const demoUser = { id: 'demo-user', email, email_confirmed_at: new Date().toISOString() } as User;
-            set({ 
-              user: demoUser,
-              isAuthenticated: true,
-              isLoading: false
-            });
-            
-            // Set a demo profile immediately
-            set({ 
-              profile: { 
-                id: demoUser.id, 
-                email: demoUser.email || '', 
-                full_name: 'Demo User',
-                avatar_url: null,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              } 
-            });
-            
-            return { error: undefined }
+          if (result.error) {
+            return result
           }
           
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
+          const currentState = simpleAuth.getCurrentState()
+          set({ 
+            user: currentState.user, 
+            isAuthenticated: currentState.isAuthenticated,
+            isLoading: false
           })
           
-          if (error) throw error
-          if (data.user) {
-            set({ user: data.user, isAuthenticated: true })
-            // Load profile after setting the user to avoid circular dependency
-            setTimeout(() => {
-              get().loadUserProfile();
-            }, 0);
-          }
+          // Load profile if using Supabase
+          await get().loadUserProfile()
           
           return { error: undefined }
         } catch (error) {
@@ -97,51 +65,18 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ isLoading: true })
           
-          // Check if Supabase is configured
-          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
-          const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+          const result = await simpleAuth.signUp(email, password, fullName)
           
-          if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-            console.warn('Supabase not configured, simulating sign up')
-            // Simulate successful sign-up for demo purposes
-            const demoUser = { id: 'demo-user', email, email_confirmed_at: new Date().toISOString() } as User;
-            set({ 
-              user: demoUser,
-              isAuthenticated: true,
-              isLoading: false
-            });
-            
-            // Set a demo profile immediately
-            set({ 
-              profile: { 
-                id: demoUser.id, 
-                email: demoUser.email || '', 
-                full_name: fullName || 'Demo User',
-                avatar_url: null,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              } 
-            });
-            
-            return { error: undefined }
+          if (result.error) {
+            return result
           }
           
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: { full_name: fullName }
-            }
+          const currentState = simpleAuth.getCurrentState()
+          set({ 
+            user: currentState.user, 
+            isAuthenticated: currentState.isAuthenticated,
+            isLoading: false
           })
-          
-          if (error) throw error
-          if (data.user) {
-            set({ user: data.user, isAuthenticated: true })
-            // Load profile after setting the user to avoid circular dependency
-            setTimeout(() => {
-              get().loadUserProfile();
-            }, 0);
-          }
           
           return { error: undefined }
         } catch (error) {
@@ -155,54 +90,29 @@ export const useAuthStore = create<AuthState>()(
       signOut: async () => {
         set({ isLoading: true })
         
-        // Check if Supabase is configured
-        const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
-        const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
-        
-        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-          await supabase.auth.signOut()
+        try {
+          await simpleAuth.signOut()
+          set({ 
+            user: null, 
+            isAuthenticated: false,
+            isLoading: false 
+          })
+        } catch (error) {
+          console.error('Sign out error:', error)
+          // Still clear local state even if Supabase fails
+          set({ 
+            user: null, 
+            isAuthenticated: false,
+            isLoading: false 
+          })
         }
-        
-        set({ 
-          user: null, 
-          profile: null, 
-          isAuthenticated: false,
-          isLoading: false 
-        })
       },
 
       loadUserProfile: async () => {
-        const currentUser = get().user;
-        if (!currentUser) return
-        
         try {
-          // Check if Supabase is configured
-          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
-          const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
-          
-          if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-            // Set a demo profile when Supabase is not configured
-            set({ 
-              profile: { 
-                id: currentUser.id, 
-                email: currentUser.email || '', 
-                full_name: 'Demo User',
-                avatar_url: null,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              } 
-            })
-            return
-          }
-          
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', currentUser.id)
-            .single()
-          
-          if (!error && profile) {
-            set({ profile })
+          const updatedUser = await simpleAuth.loadUserProfile()
+          if (updatedUser) {
+            set({ user: updatedUser })
           }
         } catch (error) {
           console.error('Error loading user profile:', error)
@@ -213,66 +123,20 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
         
         try {
-          // Check if Supabase is configured
-          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
-          const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+          const currentState = simpleAuth.getCurrentState()
+          set({ 
+            user: currentState.user,
+            isAuthenticated: currentState.isAuthenticated,
+            isLoading: false
+          })
           
-          if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-            console.warn('Supabase not configured, initializing demo auth state')
-            // Initialize with demo state when Supabase is not configured
-            set({ 
-              user: null,
-              profile: null,
-              isAuthenticated: false,
-              isLoading: false
-            })
-            return
-          }
-          
-          const { data: { session } } = await supabase.auth.getSession()
-          
-          if (session?.user) {
-            set({ 
-              user: session.user, 
-              isAuthenticated: true 
-            })
-            // Load profile after setting the user
-            setTimeout(() => {
-              get().loadUserProfile();
-            }, 0);
+          // Load profile if authenticated and using Supabase
+          if (currentState.isAuthenticated) {
+            await get().loadUserProfile()
           }
         } catch (error) {
           console.error('Error initializing auth:', error)
-        } finally {
           set({ isLoading: false })
-        }
-        
-        // Listen for auth changes only if Supabase is configured
-        const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
-        const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
-        
-        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-          supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session?.user) {
-              set({ 
-                user: session.user, 
-                isAuthenticated: true 
-              })
-              // Load profile after setting the user to avoid circular dependency
-              setTimeout(() => {
-                get().loadUserProfile();
-              }, 0);
-            } else if (event === 'SIGNED_OUT') {
-              set({ 
-                user: null, 
-                profile: null, 
-                isAuthenticated: false 
-              })
-            }
-          })
-        } else {
-          // Clear any existing listeners when Supabase is not configured
-          // We don't set up listeners in demo mode
         }
       }
     }),

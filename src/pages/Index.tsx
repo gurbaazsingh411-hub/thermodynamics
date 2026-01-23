@@ -1,229 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useThermoStore } from '@/store/thermoStore';
-import { useDebouncedCallback } from '@/hooks/use-debounce';
-import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
-import { useToast } from '@/hooks/use-toast';
-import { useAuthStore } from '@/store/authStore';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { BottomPanel } from '@/components/layout/BottomPanel';
-import { PVDiagram } from '@/components/diagrams/PVDiagram';
-import { TSDiagram } from '@/components/diagrams/TSDiagram';
-import PHDiagram from '@/components/diagrams/PHDiagram';
-import HSDiagram from '@/components/diagrams/HSDiagram';
-import { MetricsPanel } from '@/components/panels/MetricsPanel';
-import { EducationalMode } from '@/components/educational/EducationalMode';
-import { AnimatedCycleDiagram } from '@/components/educational/AnimatedCycleDiagram';
-import { ExportButtons } from '@/components/ExportButtons';
-import { PresetSelector } from '@/components/PresetSelector';
-import { TestCaseManager } from '@/components/TestCaseManager';
-import { AuthForm } from '@/components/AuthForm';
-import { UserProfile } from '@/components/UserProfile';
-import { CycleType, FluidProperties } from '@/types/thermodynamics';
-import { 
-  FLUIDS, 
-  generateOttoCycle, 
-  generateDieselCycle, 
-  generateBraytonCycle,
-  generateCarnotCycle,
-  generateRankineCycle,
-  generateRefrigerationCycle,
-  calculateRealGasState,
-  calculateSteamProperties
-} from '@/lib/thermodynamics';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { GraduationCap, LineChart, Download, User, Settings } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { motion } from 'framer-motion';
-import { fadeInUp, staggerContainer, staggerItem } from '@/lib/animations';
+import { Header } from '@/components/layout/Header'
+import { Sidebar } from '@/components/layout/Sidebar'
+import { Button } from '@/components/ui/button'
+import { LineChart, User } from 'lucide-react'
 
 const Index = () => {
-  const {
-    cycleType,
-    fluid,
-    parameters,
-    cycle,
-    isLoading,
-    useRealGas,
-    steamQuality,
-    setCycleType,
-    setFluid,
-    setParameter,
-    setCycle,
-    setLoading,
-    setUseRealGas,
-    setSteamQuality,
-    resetParameters
-  } = useThermoStore();
-
-  const { isAuthenticated, initializeAuth, isLoading: authLoading } = useAuthStore();
-  const { toast } = useToast();
-  const [isEducationalMode, setIsEducationalMode] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-
-  // Additional parameters for Rankine and Refrigeration cycles
-  const [rankineParams, setRankineParams] = useState({
-    boilerPressure: 3000, // kPa
-    condenserPressure: 10, // kPa
-    turbineInletTemp: 800, // K
-    pumpEfficiency: 0.8,
-    turbineEfficiency: 0.85,
-  });
-
-  const [refrigerationParams, setRefrigerationParams] = useState({
-    evaporatorTemp: 273.15, // K
-    condenserTemp: 313.15, // K
-    superheat: 5,
-    subcool: 5,
-    compressorEfficiency: 0.8,
-  });
-
-  // Initialize auth on mount, but only once
-  useEffect(() => {
-    initializeAuth();
-  }, []);
-
-  // Keyboard shortcuts
-  useKeyboardShortcuts({
-    onToggleEducationalMode: () => setIsEducationalMode(!isEducationalMode),
-    onSaveConfiguration: () => {
-      toast({
-        title: "Configuration Saved",
-        description: "Current settings have been saved to browser storage",
-      });
-    }
-  });
-
-  // Debounced parameter change handler
-  const debouncedParameterChange = useDebouncedCallback(
-    (key: string, value: number) => {
-      setParameter(key, value);
-    },
-    300 // 300ms debounce delay
-  );
-
-  const handleParameterChange = (key: string, value: number) => {
-    debouncedParameterChange(key, value);
-  };
-
-  // Calculate cycle when parameters change
-  useEffect(() => {
-    const calculateCycle = () => {
-      setLoading(true);
-      try {
-        let calculatedCycle;
-        switch (cycleType) {
-          case 'otto':
-            calculatedCycle = generateOttoCycle(
-              parameters.T1,
-              parameters.P1,
-              parameters.compressionRatio,
-              parameters.heatAddition,
-              fluid,
-              useRealGas
-            );
-            break;
-          case 'diesel':
-            calculatedCycle = generateDieselCycle(
-              parameters.T1,
-              parameters.P1,
-              parameters.compressionRatio,
-              parameters.cutoffRatio,
-              fluid,
-              useRealGas
-            );
-            break;
-          case 'brayton':
-            calculatedCycle = generateBraytonCycle(
-              parameters.T1,
-              parameters.P1,
-              parameters.pressureRatio,
-              parameters.T3,
-              fluid,
-              useRealGas
-            );
-            break;
-          case 'carnot':
-            calculatedCycle = generateCarnotCycle(
-              parameters.T3,
-              parameters.T1,
-              parameters.P1,
-              fluid,
-              useRealGas
-            );
-            break;
-          case 'rankine':
-            calculatedCycle = generateRankineCycle(
-              rankineParams.boilerPressure,
-              rankineParams.condenserPressure,
-              rankineParams.turbineInletTemp,
-              rankineParams.pumpEfficiency,
-              rankineParams.turbineEfficiency,
-              fluid,
-              useRealGas
-            );
-            break;
-          case 'refrigeration':
-            calculatedCycle = generateRefrigerationCycle(
-              refrigerationParams.evaporatorTemp,
-              refrigerationParams.condenserTemp,
-              refrigerationParams.superheat,
-              refrigerationParams.subcool,
-              refrigerationParams.compressorEfficiency,
-              fluid,
-              useRealGas
-            );
-            break;
-          default:
-            calculatedCycle = generateOttoCycle(
-              parameters.T1,
-              parameters.P1,
-              parameters.compressionRatio,
-              parameters.heatAddition,
-              fluid,
-              useRealGas
-            );
-        }
-        setCycle(calculatedCycle);
-      } catch (error) {
-        console.error('Error calculating cycle:', error);
-        // Set a default/fallback cycle
-        const defaultCycle = generateOttoCycle(
-          parameters.T1,
-          parameters.P1,
-          parameters.compressionRatio,
-          parameters.heatAddition,
-          fluid
-        );
-        setCycle(defaultCycle);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const timer = setTimeout(calculateCycle, 100);
-    return () => clearTimeout(timer);
-  }, [cycleType, fluid, parameters, generateOttoCycle, generateDieselCycle, generateBraytonCycle, setCycle, setLoading]);
-
-  // Ensure we always have a valid cycle to render
-  const displayCycle = cycle || (() => {
-    const defaultCycle = generateOttoCycle(
-      parameters.T1,
-      parameters.P1,
-      parameters.compressionRatio,
-      parameters.heatAddition,
-      fluid
-    );
-    setCycle(defaultCycle);
-    return defaultCycle;
-  })();
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -239,265 +19,69 @@ const Index = () => {
                 <LineChart className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Simulation</span>
               </div>
-              <PresetSelector />
-              <ExportButtons cycle={displayCycle} pvDiagramId="pv-diagram" tsDiagramId="ts-diagram" />
               
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => setShowProfile(true)}
                 className="gap-2"
               >
                 <User className="w-4 h-4" />
                 Account
               </Button>
-              
-              {/* Real Gas and Steam Quality Controls */}
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="real-gas"
-                  checked={useRealGas}
-                  onCheckedChange={setUseRealGas}
-                />
-                <Label 
-                  htmlFor="real-gas" 
-                  className="text-sm cursor-pointer"
-                >
-                  Real Gas Behavior
-                </Label>
-              </div>
-              
-              {fluid.name === 'Water' && (
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="steam-quality" className="text-sm">
-                    Steam Quality:
-                  </Label>
-                  <Input
-                    id="steam-quality"
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={steamQuality}
-                    onChange={(e) => setSteamQuality(parseFloat(e.target.value) || 0)}
-                    className="w-20"
-                  />
-                </div>
-              )}
-              
-              {/* Rankine Cycle Parameters */}
-              {cycleType === 'rankine' && (
-                <div className="flex items-center gap-4 ml-4">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="boiler-pressure" className="text-sm">
-                      Boiler Pressure (kPa):
-                    </Label>
-                    <Input
-                      id="boiler-pressure"
-                      type="number"
-                      min="1"
-                      max="10000"
-                      step="10"
-                      value={rankineParams.boilerPressure}
-                      onChange={(e) => setRankineParams({...rankineParams, boilerPressure: parseFloat(e.target.value) || 3000})}
-                      className="w-24"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="turbine-temp" className="text-sm">
-                      Turbine Temp (K):
-                    </Label>
-                    <Input
-                      id="turbine-temp"
-                      type="number"
-                      min="300"
-                      max="1000"
-                      step="10"
-                      value={rankineParams.turbineInletTemp}
-                      onChange={(e) => setRankineParams({...rankineParams, turbineInletTemp: parseFloat(e.target.value) || 800})}
-                      className="w-24"
-                    />
-                  </div>
-                </div>
-              )}
-              
-              {/* Refrigeration Cycle Parameters */}
-              {cycleType === 'refrigeration' && (
-                <div className="flex items-center gap-4 ml-4">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="evap-temp" className="text-sm">
-                      Evaporator Temp (K):
-                    </Label>
-                    <Input
-                      id="evap-temp"
-                      type="number"
-                      min="200"
-                      max="300"
-                      step="1"
-                      value={refrigerationParams.evaporatorTemp}
-                      onChange={(e) => setRefrigerationParams({...refrigerationParams, evaporatorTemp: parseFloat(e.target.value) || 273.15})}
-                      className="w-24"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="cond-temp" className="text-sm">
-                      Condenser Temp (K):
-                    </Label>
-                    <Input
-                      id="cond-temp"
-                      type="number"
-                      min="300"
-                      max="400"
-                      step="1"
-                      value={refrigerationParams.condenserTemp}
-                      onChange={(e) => setRefrigerationParams({...refrigerationParams, condenserTemp: parseFloat(e.target.value) || 313.15})}
-                      className="w-24"
-                    />
-                  </div>
-                </div>
-              )}
-              <Switch
-                id="educational-mode"
-                checked={isEducationalMode}
-                onCheckedChange={setIsEducationalMode}
-              />
-              <div className="flex items-center gap-2">
-                <GraduationCap className={`w-4 h-4 ${isEducationalMode ? 'text-warning' : 'text-muted-foreground'}`} />
-                <Label 
-                  htmlFor="educational-mode" 
-                  className={`text-sm cursor-pointer ${isEducationalMode ? 'text-warning font-medium' : 'text-muted-foreground'}`}
-                >
-                  Educational Mode
-                </Label>
-              </div>
             </div>
-            {isEducationalMode && (
-              <span className="text-xs text-warning bg-warning/10 px-3 py-1 rounded-full border border-warning/30">
-                Step-by-step learning enabled
+            
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Welcome to Thermoviz Studio
               </span>
-            )}
+            </div>
           </div>
 
-          {/* Main Content Area - Now allows vertical scrolling */}
-          <div className="flex-1 p-6 overflow-y-auto">
-            {isEducationalMode ? (
-              <motion.div 
-                className="space-y-6 max-w-7xl mx-auto"
-                initial="initial"
-                animate="animate"
-                variants={staggerContainer}
-              >
-                {/* Educational Mode Content */}
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                  <motion.div variants={staggerItem} className="xl:col-span-2">
-                    <EducationalMode 
-                      cycle={displayCycle}
-                      compressionRatio={parameters.compressionRatio}
-                      pressureRatio={parameters.pressureRatio}
-                      cutoffRatio={parameters.cutoffRatio}
-                      gamma={fluid.gamma}
-                    />
-                  </motion.div>
-                  <motion.div variants={staggerItem}>
-                    <AnimatedCycleDiagram cycle={displayCycle} currentProcess={0} />
-                  </motion.div>
+          {/* Main Content Area */}
+          <div className="flex-1 flex min-h-0 p-6">
+            <div className="flex-1 flex flex-col gap-6">
+              <div className="bg-card border border-border rounded-lg p-6">
+                <h2 className="text-xl font-semibold mb-4">Thermoviz Studio</h2>
+                <p className="text-muted-foreground mb-4">
+                  Welcome to the thermodynamics visualization platform. Select a cycle type from the sidebar to begin your simulation.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-muted p-4 rounded-lg">
+                    <h3 className="font-medium mb-2">Features</h3>
+                    <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+                      <li>Interactive PV and TS diagrams</li>
+                      <li>Multiple thermodynamic cycles</li>
+                      <li>Real-time calculations</li>
+                      <li>Educational mode</li>
+                    </ul>
+                  </div>
+                  <div className="bg-muted p-4 rounded-lg">
+                    <h3 className="font-medium mb-2">Getting Started</h3>
+                    <p className="text-sm text-muted-foreground">
+                      1. Select a cycle type from the sidebar<br/>
+                      2. Adjust parameters using the controls<br/>
+                      3. View results in the diagrams<br/>
+                      4. Export data when ready
+                    </p>
+                  </div>
                 </div>
-                
-                {/* Diagrams in Educational Mode */}
-                <motion.div variants={staggerItem} className="grid grid-cols-2 gap-6">
-                  <div id="pv-diagram">
-                    <PVDiagram cycle={displayCycle} />
-                  </div>
-                  <div id="ts-diagram">
-                    <TSDiagram cycle={displayCycle} />
-                  </div>
-                </motion.div>
-              </motion.div>
-            ) : (
-              <motion.div 
-                className="space-y-6 max-w-7xl mx-auto"
-                initial="initial"
-                animate="animate"
-                variants={staggerContainer}
-              >
-                {/* Metrics */}
-                <motion.div variants={staggerItem}>
-                  <MetricsPanel cycle={displayCycle} />
-                </motion.div>
-                
-                {/* Diagrams */}
-                <motion.div variants={staggerItem}>
-                  <Tabs defaultValue="both" className="w-full">
-                    <TabsList className="bg-muted/50 mb-4">
-                      <TabsTrigger value="both">Both Diagrams</TabsTrigger>
-                      <TabsTrigger value="pv">P-V Only</TabsTrigger>
-                      <TabsTrigger value="ts">T-S Only</TabsTrigger>
-                      <TabsTrigger value="ph">P-H Only</TabsTrigger>
-                      <TabsTrigger value="hs">H-S Only</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="both">
-                      <div className="grid grid-cols-2 gap-6">
-                        <div id="pv-diagram">
-                          <PVDiagram cycle={displayCycle} />
-                        </div>
-                        <div id="ts-diagram">
-                          <TSDiagram cycle={displayCycle} />
-                        </div>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="pv">
-                      <div id="pv-diagram">
-                        <PVDiagram cycle={displayCycle} className="max-w-3xl mx-auto" />
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="ts">
-                      <div id="ts-diagram">
-                        <TSDiagram cycle={displayCycle} className="max-w-3xl mx-auto" />
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="ph">
-                      <div id="ph-diagram">
-                        <PHDiagram className="max-w-3xl mx-auto" />
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="hs">
-                      <div id="hs-diagram">
-                        <HSDiagram className="max-w-3xl mx-auto" />
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </motion.div>
-              </motion.div>
-            )}
-          </div>
-          
-          {/* Bottom Panel - Will now scroll with the rest of the content */}
-          <div className="mt-auto">
-            <BottomPanel cycle={displayCycle} />
+              </div>
+            </div>
+
+            {/* Right Panel - Controls Placeholder */}
+            <div className="w-80 border-l border-border flex flex-col">
+              <div className="p-4 border-b border-border">
+                <h3 className="font-semibold text-lg mb-4">Parameters</h3>
+                <p className="text-sm text-muted-foreground">
+                  Parameter controls will appear here when a cycle is selected.
+                </p>
+              </div>
+            </div>
           </div>
         </main>
       </div>
-      
-      {/* Authentication Dialog */}
-      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent className="sm:max-w-md">
-          <AuthForm mode={authMode} onModeChange={setAuthMode} />
-        </DialogContent>
-      </Dialog>
-      
-      {/* User Profile Dialog */}
-      <Dialog open={showProfile} onOpenChange={setShowProfile}>
-        <DialogContent className="sm:max-w-md">
-          <UserProfile />
-        </DialogContent>
-      </Dialog>
     </div>
-  );
-};
+  )
+}
 
-export default Index;
+export default Index

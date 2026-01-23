@@ -1,19 +1,19 @@
-import { useEffect, useRef } from 'react';
-import { useAuthStore } from '@/store/authStore';
-import { Navigate } from 'react-router-dom';
-import Index from './Index';
+import { useEffect, useRef } from 'react'
+import { useAuthStore } from '@/store/authStore'
+import { Navigate } from 'react-router-dom'
+import Index from './Index'
 
 const Dashboard = () => {
-  const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
-  const initializedRef = useRef(false);
+  const { isAuthenticated, isLoading, initializeAuth } = useAuthStore()
+  const initializedRef = useRef(false)
   
   useEffect(() => {
     // Initialize auth when dashboard loads, but only once
     if (!initializedRef.current) {
-      initializeAuth();
-      initializedRef.current = true;
+      initializeAuth()
+      initializedRef.current = true
     }
-  }, [initializeAuth]);
+  }, [])
 
   if (isLoading) {
     return (
@@ -23,15 +23,15 @@ const Dashboard = () => {
           <p className="mt-4 text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />
   }
 
   // Render the main application if authenticated
-  return <Index />;
-};
+  return <Index />
+}
 
-export default Dashboard;
+export default Dashboard

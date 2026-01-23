@@ -1,66 +1,61 @@
-import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useAuthStore } from '@/store/authStore';
-import { useToast } from '@/hooks/use-toast';
-import { motion } from 'framer-motion';
-import { fadeInUp, staggerContainer, staggerItem } from '@/lib/animations';
+import { useState } from 'react'
+import { Link, Navigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useAuthStore } from '@/store/authStore'
+import { useToast } from '@/hooks/use-toast'
+import { motion } from 'framer-motion'
+import { fadeInUp, staggerContainer, staggerItem } from '@/lib/animations'
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSignUp, setIsSignUp] = useState(false)
   
-  const { signIn, signUp, isAuthenticated, isLoading } = useAuthStore();
-  const { toast } = useToast();
+  const { signIn, signUp, isAuthenticated, isLoading } = useAuthStore()
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     
     // Prevent submission while already loading
-    if (isLoading) return;
+    if (isLoading) return
     
     try {
-      let result;
+      let result
       if (isSignUp) {
-        result = await signUp(email, password);
+        result = await signUp(email, password, 'Demo User')
       } else {
-        result = await signIn(email, password);
+        result = await signIn(email, password)
       }
       
       if (result?.error) {
-        // Handle specific error messages
-        const errorMessage = result.error.message.includes('Supabase not configured') 
-          ? 'Authentication service unavailable. Running in demo mode.'
-          : result.error.message;
-          
         toast({
-          title: 'Warning',
-          description: errorMessage,
-          variant: 'default',
-        });
+          title: 'Error',
+          description: result.error.message,
+          variant: 'destructive',
+        })
       } else {
         toast({
           title: isSignUp ? 'Account created!' : 'Welcome back!',
           description: isSignUp 
             ? 'Your account has been created successfully.' 
             : 'You have been logged in.',
-        });
+        })
       }
     } catch (error) {
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Something went wrong',
         variant: 'destructive',
-      });
+      })
     }
-  };
+  }
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />
   }
 
   return (
@@ -171,7 +166,7 @@ const Login = () => {
         </Card>
       </motion.div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
