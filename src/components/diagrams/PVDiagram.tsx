@@ -11,6 +11,7 @@ import {
 } from 'recharts';
 import { ThermodynamicCycle } from '@/types/thermodynamics';
 import { generatePVPoints, formatValue } from '@/lib/thermodynamics';
+import { motion } from 'framer-motion';
 
 interface PVDiagramProps {
   cycle: ThermodynamicCycle;
@@ -41,7 +42,12 @@ export const PVDiagram = memo(function PVDiagram({ cycle, className = '' }: PVDi
   }));
 
   return (
-    <div className={`chart-container p-4 ${className}`}>
+    <motion.div 
+      className={`chart-container p-4 ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-foreground">P-V Diagram</h3>
         <span className="text-xs text-muted-foreground font-mono">Pressure vs Volume</span>
@@ -101,16 +107,27 @@ export const PVDiagram = memo(function PVDiagram({ cycle, className = '' }: PVDi
         </LineChart>
       </ResponsiveContainer>
       
-      <div className="flex justify-center gap-4 mt-4">
+      <motion.div 
+        className="flex justify-center gap-4 mt-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
         {cycle.states.map((state, i) => (
-          <div key={i} className="flex items-center gap-2">
+          <motion.div 
+            key={i}
+            className="flex items-center gap-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 + i * 0.1, duration: 0.3 }}
+          >
             <div className="w-3 h-3 rounded-full bg-primary" style={{ boxShadow: '0 0 8px hsl(var(--primary))' }} />
             <span className="text-xs font-mono text-muted-foreground">
               {i + 1}: {formatValue(state.pressure, 0)} kPa
             </span>
-          </div>
+          </motion.div>
         ))}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 });

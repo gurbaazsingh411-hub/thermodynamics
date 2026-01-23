@@ -38,6 +38,8 @@ import { Button } from '@/components/ui/button';
 import { GraduationCap, LineChart, Download, User, Settings } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { motion } from 'framer-motion';
+import { fadeInUp, staggerContainer, staggerItem } from '@/lib/animations';
 
 const Index = () => {
   const {
@@ -379,10 +381,15 @@ const Index = () => {
           {/* Main Content Area - Now allows vertical scrolling */}
           <div className="flex-1 p-6 overflow-y-auto">
             {isEducationalMode ? (
-              <div className="space-y-6 max-w-7xl mx-auto">
+              <motion.div 
+                className="space-y-6 max-w-7xl mx-auto"
+                initial="initial"
+                animate="animate"
+                variants={staggerContainer}
+              >
                 {/* Educational Mode Content */}
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                  <div className="xl:col-span-2">
+                  <motion.div variants={staggerItem} className="xl:col-span-2">
                     <EducationalMode 
                       cycle={displayCycle}
                       compressionRatio={parameters.compressionRatio}
@@ -390,31 +397,36 @@ const Index = () => {
                       cutoffRatio={parameters.cutoffRatio}
                       gamma={fluid.gamma}
                     />
-                  </div>
-                  <div>
+                  </motion.div>
+                  <motion.div variants={staggerItem}>
                     <AnimatedCycleDiagram cycle={displayCycle} currentProcess={0} />
-                  </div>
+                  </motion.div>
                 </div>
                 
                 {/* Diagrams in Educational Mode */}
-                <div className="grid grid-cols-2 gap-6">
+                <motion.div variants={staggerItem} className="grid grid-cols-2 gap-6">
                   <div id="pv-diagram">
                     <PVDiagram cycle={displayCycle} />
                   </div>
                   <div id="ts-diagram">
                     <TSDiagram cycle={displayCycle} />
                   </div>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             ) : (
-              <div className="space-y-6 max-w-7xl mx-auto">
+              <motion.div 
+                className="space-y-6 max-w-7xl mx-auto"
+                initial="initial"
+                animate="animate"
+                variants={staggerContainer}
+              >
                 {/* Metrics */}
-                <div className="animate-fade-in">
+                <motion.div variants={staggerItem}>
                   <MetricsPanel cycle={displayCycle} />
-                </div>
+                </motion.div>
                 
                 {/* Diagrams */}
-                <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                <motion.div variants={staggerItem}>
                   <Tabs defaultValue="both" className="w-full">
                     <TabsList className="bg-muted/50 mb-4">
                       <TabsTrigger value="both">Both Diagrams</TabsTrigger>
@@ -459,8 +471,8 @@ const Index = () => {
                       </div>
                     </TabsContent>
                   </Tabs>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             )}
           </div>
           

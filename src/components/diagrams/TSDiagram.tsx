@@ -11,6 +11,7 @@ import {
 } from 'recharts';
 import { ThermodynamicCycle } from '@/types/thermodynamics';
 import { generateTSPoints, formatValue } from '@/lib/thermodynamics';
+import { motion } from 'framer-motion';
 
 interface TSDiagramProps {
   cycle: ThermodynamicCycle;
@@ -41,7 +42,12 @@ export const TSDiagram = memo(function TSDiagram({ cycle, className = '' }: TSDi
   }));
 
   return (
-    <div className={`chart-container p-4 ${className}`}>
+    <motion.div 
+      className={`chart-container p-4 ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-foreground">T-S Diagram</h3>
         <span className="text-xs text-muted-foreground font-mono">Temperature vs Entropy</span>
@@ -101,16 +107,27 @@ export const TSDiagram = memo(function TSDiagram({ cycle, className = '' }: TSDi
         </LineChart>
       </ResponsiveContainer>
       
-      <div className="flex justify-center gap-4 mt-4">
+      <motion.div 
+        className="flex justify-center gap-4 mt-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
         {cycle.states.map((state, i) => (
-          <div key={i} className="flex items-center gap-2">
+          <motion.div 
+            key={i}
+            className="flex items-center gap-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 + i * 0.1, duration: 0.3 }}
+          >
             <div className="w-3 h-3 rounded-full bg-heat" style={{ boxShadow: '0 0 8px hsl(var(--heat))' }} />
             <span className="text-xs font-mono text-muted-foreground">
               {i + 1}: {formatValue(state.temperature, 0)} K
             </span>
-          </div>
+          </motion.div>
         ))}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 });
