@@ -8,6 +8,7 @@ export const FLUIDS: Record<string, FluidProperties> = {
   helium: { name: 'Helium', R: 2.077, gamma: 1.667, cp: 5.193, cv: 3.116 },
   argon: { name: 'Argon', R: 0.2081, gamma: 1.667, cp: 0.5203, cv: 0.3122 },
   water: { name: 'Water', R: 0.4615, gamma: 1.33, cp: 1.872, cv: 1.41 },
+  r134a: { name: 'R134a', R: 0.08149, gamma: 1.12, cp: 0.852, cv: 0.771 },
 };
 
 // Steam property calculations
