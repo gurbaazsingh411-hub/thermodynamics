@@ -29,6 +29,15 @@ const AppliedThermal = () => {
     const workNet = engineParams.heatIn - engineParams.heatOut;
     const efficiency = (workNet / engineParams.heatIn) * 100;
 
+    // Refrigerator State
+    const [fridgeParams, setFridgeParams] = useState({
+        workIn: 300,    // kJ
+        qCold: 600,     // kJ (Heat removed from inside)
+    });
+    const qHot = fridgeParams.qCold + fridgeParams.workIn;
+    const cop = fridgeParams.qCold / fridgeParams.workIn;
+
+
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <Header />
@@ -234,12 +243,177 @@ const AppliedThermal = () => {
                                     )}
                                 </TabsContent>
 
-                                <TabsContent value="refrigerator">
-                                    <div className="flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-muted rounded-xl bg-muted/50">
-                                        <Snowflake className="w-12 h-12 text-muted-foreground mb-4" />
-                                        <h3 className="text-xl font-bold">Refrigeration Module Coming Soon</h3>
-                                        <p className="text-muted-foreground">Visualizing COP and reverse energy flow.</p>
+                                <TabsContent value="refrigerator" className="space-y-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                        {/* Controls */}
+                                        <Card className="lg:col-span-1">
+                                            <CardHeader>
+                                                <CardTitle className="text-lg">Cycle Parameters</CardTitle>
+                                                <CardDescription>Input Work & Cooling Load</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-6">
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Heat Removed (Q_cold)</Label>
+                                                        <span className="text-sm font-mono">{fridgeParams.qCold} kJ</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[fridgeParams.qCold]}
+                                                        onValueChange={([v]) => setFridgeParams(p => ({ ...p, qCold: v }))}
+                                                        min={100}
+                                                        max={2000}
+                                                        step={50}
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Work Input (W_in)</Label>
+                                                        <span className="text-sm font-mono">{fridgeParams.workIn} kJ</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[fridgeParams.workIn]}
+                                                        onValueChange={([v]) => setFridgeParams(p => ({ ...p, workIn: v }))}
+                                                        min={50}
+                                                        max={1000}
+                                                        step={10}
+                                                    />
+                                                </div>
+
+                                                <div className="mt-8 p-4 bg-muted/50 rounded-lg">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="font-semibold">Performance (COP)</span>
+                                                        <span className={`text-xl font-bold ${cop > 3 ? 'text-green-600' : 'text-yellow-600'}`}>{cop.toFixed(2)}</span>
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Higher is better. Typical A/C units are 2.5 - 4.0.
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* Visualization */}
+                                        <Card className="lg:col-span-2">
+                                            <CardHeader>
+                                                <CardTitle>Energy Flow Diagram</CardTitle>
+                                                <CardDescription>Reverse Heat Engine</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
+                                                <div className="relative w-full max-w-lg h-80 flex flex-col justify-between py-4">
+
+                                                    {/* Hot Reservoir (Kitchen Air) */}
+                                                    <div className="mx-auto w-48 h-16 bg-red-100 border-2 border-red-300 rounded-lg flex items-center justify-center relative">
+                                                        <div className="text-center">
+                                                            <div className="font-bold text-red-700">Hot Reservoir</div>
+                                                            <div className="text-xs text-red-600">Q_hot = {qHot} kJ</div>
+                                                        </div>
+                                                        <motion.div
+                                                            className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-l-transparent border-r-transparent border-b-[20px] border-b-red-400"
+                                                            animate={{ y: [0, -5, 0] }}
+                                                            transition={{ repeat: Infinity, duration: 1 }}
+                                                        />
+                                                    </div>
+
+                                                    {/* System/Compressor */}
+                                                    <div className="mx-auto w-32 h-32 rounded-full border-4 border-slate-300 flex items-center justify-center relative bg-white z-10">
+                                                        <Snowflake className="w-12 h-12 text-blue-400" />
+
+                                                        {/* Work In Arrow */}
+                                                        <div className="absolute top-1/2 right-full flex items-center">
+                                                            <div className="mr-2 text-right">
+                                                                <div className="text-xs font-bold text-slate-600">Work In</div>
+                                                                <div className="text-xs font-mono">{fridgeParams.workIn} kJ</div>
+                                                            </div>
+                                                            <motion.div
+                                                                className="w-16 h-1 bg-yellow-400"
+                                                                initial={{ scaleX: 0.8 }}
+                                                                animate={{ scaleX: [0.8, 1.2, 0.8] }}
+                                                            />
+                                                            <div className="w-0 h-0 border-t-[8px] border-b-[8px] border-t-transparent border-b-transparent border-l-[16px] border-l-yellow-400" />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Cold Reservoir (Inside Fridge) */}
+                                                    <div className="mx-auto w-48 h-16 bg-blue-100 border-2 border-blue-300 rounded-lg flex items-center justify-center relative">
+                                                        <motion.div
+                                                            className="absolute -top-8 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-l-transparent border-r-transparent border-b-[20px] border-b-blue-400"
+                                                            animate={{ y: [0, -5, 0] }}
+                                                            transition={{ repeat: Infinity, duration: 1 }}
+                                                        />
+                                                        <div className="text-center">
+                                                            <div className="font-bold text-blue-700">Cold Reservoir</div>
+                                                            <div className="text-xs text-blue-600">Q_cold = {fridgeParams.qCold} kJ</div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Energy Path Lines */}
+                                                    <svg className="absolute inset-0 w-full h-full pointer-events-none -z-0">
+                                                        {/* Cold to System */}
+                                                        <motion.path
+                                                            d="M 256,220 L 256,200"
+                                                            stroke="#60a5fa"
+                                                            strokeWidth={Math.max(2, fridgeParams.qCold / 100)}
+                                                            strokeDasharray="5,5"
+                                                            animate={{ strokeDashoffset: [10, 0] }}
+                                                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                                        />
+                                                        {/* System to Hot */}
+                                                        <motion.path
+                                                            d="M 256,120 L 256,100"
+                                                            stroke="#f87171"
+                                                            strokeWidth={Math.max(2, qHot / 100)}
+                                                            strokeDasharray="5,5"
+                                                            animate={{ strokeDashoffset: [0, -10] }}
+                                                            transition={{ repeat: Infinity, duration: 0.5, ease: "linear" }}
+                                                        />
+                                                    </svg>
+                                                </div>
+
+                                                {/* Formula Display */}
+                                                <div className="mt-6 font-mono text-sm bg-slate-100 p-2 rounded border">
+                                                    Q_hot ({qHot}) = Q_cold ({fridgeParams.qCold}) + Work ({fridgeParams.workIn})
+                                                </div>
+                                            </CardContent>
+                                        </Card>
                                     </div>
+
+                                    {/* Study Mode Content */}
+                                    {isStudyMode && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                        >
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Info className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Coefficient of Performance (COP)</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        Unlike efficiency (which must be &lt; 100%), COP can be greater than 1. It measures how much heat you move per unit of work input.
+                                                    </p>
+                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4 space-y-2">
+                                                        <div>COP = Heat Removed / Work Input</div>
+                                                        <div>COP = Q_cold / W_in</div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Flame className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Second Law</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        The Clausius statement says: "Heat cannot spontaneously flow from cold to hot."
+                                                        You MUST put in work (W_in) to force this "uphill" energy transfer.
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    )}
                                 </TabsContent>
                             </Tabs>
                         </div>

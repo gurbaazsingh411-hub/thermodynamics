@@ -38,6 +38,29 @@ const EngineeringMath = () => {
         return path;
     };
 
+    // Statistics State
+    const [statsParams, setStatsParams] = useState({
+        mean: 0,
+        stdDev: 1
+    });
+
+    const generateNormalPath = () => {
+        let path = 'M 0,200 '; // Start point
+        for (let i = 0; i <= 200; i += 2) {
+            const x = (i - 100) / 20; // x range -5 to 5
+            const z = (x - statsParams.mean) / statsParams.stdDev;
+            const pdf = (1 / (statsParams.stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z);
+
+            // Map to SVG coordinates (width 200, height 200)
+            // PDF max height usually ~0.4 (for sd=1), so scale Y by ~400
+            const svgY = 200 - (pdf * 300);
+            path += `L ${i},${svgY} `;
+        }
+        path += 'L 200,200 Z'; // Close path
+        return path;
+    };
+
+
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <Header />
@@ -243,12 +266,126 @@ const EngineeringMath = () => {
                                     )}
                                 </TabsContent>
 
-                                <TabsContent value="stats">
-                                    <div className="flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-muted rounded-xl bg-muted/50">
-                                        <Sigma className="w-12 h-12 text-muted-foreground mb-4" />
-                                        <h3 className="text-xl font-bold">Error Analysis Coming Soon</h3>
-                                        <p className="text-muted-foreground">Visualizing Normal Distributions and Propagation of Errors.</p>
+                                <TabsContent value="stats" className="space-y-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                        {/* Controls */}
+                                        <Card className="lg:col-span-1">
+                                            <CardHeader>
+                                                <CardTitle className="text-lg">Normal Distribution</CardTitle>
+                                                <CardDescription>Gaussian Parameters</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-6">
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Mean (μ)</Label>
+                                                        <span className="text-sm font-mono">{statsParams.mean}</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[statsParams.mean]}
+                                                        onValueChange={([v]) => setStatsParams(p => ({ ...p, mean: v }))}
+                                                        min={-2}
+                                                        max={2}
+                                                        step={0.1}
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Standard Deviation (σ)</Label>
+                                                        <span className="text-sm font-mono">{statsParams.stdDev}</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[statsParams.stdDev]}
+                                                        onValueChange={([v]) => setStatsParams(p => ({ ...p, stdDev: v }))}
+                                                        min={0.5}
+                                                        max={3}
+                                                        step={0.1}
+                                                    />
+                                                </div>
+
+                                                <div className="p-4 bg-muted text-xs text-muted-foreground rounded-lg">
+                                                    <p className="mb-2 font-semibold">68-95-99.7 Rule:</p>
+                                                    <ul className="list-disc ml-4 space-y-1">
+                                                        <li>68% of data within ±1σ</li>
+                                                        <li>95% of data within ±2σ</li>
+                                                        <li>99.7% of data within ±3σ</li>
+                                                    </ul>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* Visualization */}
+                                        <Card className="lg:col-span-2">
+                                            <CardHeader>
+                                                <CardTitle>Bell Curve Visualization</CardTitle>
+                                                <CardDescription>Probability Density Function</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
+                                                <div className="relative w-80 h-80 border-b border-l border-slate-300">
+                                                    <svg width="100%" height="100%" viewBox="0 0 200 200" className="overflow-visible">
+                                                        {/* Grid Lines */}
+                                                        <line x1="100" y1="0" x2="100" y2="200" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="4" />
+
+                                                        {/* The Distribution Curve */}
+                                                        <motion.path
+                                                            d={generateNormalPath()}
+                                                            fill="rgba(59, 130, 246, 0.2)"
+                                                            stroke="#3b82f6"
+                                                            strokeWidth="2"
+                                                            initial={{ d: "M 0,200 L 200,200 Z" }}
+                                                            animate={{ d: generateNormalPath() }}
+                                                            transition={{ duration: 0.3 }}
+                                                        />
+                                                    </svg>
+
+                                                    {/* Labels */}
+                                                    <div className="absolute bottom-[-24px] left-0 text-xs text-muted-foreground">-5σ</div>
+                                                    <div className="absolute bottom-[-24px] right-0 text-xs text-muted-foreground">+5σ</div>
+                                                    <div className="absolute bottom-[-24px] left-1/2 -translate-x-1/2 text-xs font-bold text-slate-700">0</div>
+                                                </div>
+                                                <div className="mt-8 text-center text-sm text-slate-500">
+                                                    The wider the curve (higher σ), the more "error" or spread there is in the data.
+                                                </div>
+                                            </CardContent>
+                                        </Card>
                                     </div>
+
+                                    {/* Study Mode Content */}
+                                    {isStudyMode && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                        >
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Sigma className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Standard Deviation</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        Standard Deviation (σ) quantifies the amount of variation or dispersion.
+                                                        A low standard deviation indicates that the values tend to be close to the mean.
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Activity className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Error Propagation</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        When combining measurements, their errors add up in quadrature:
+                                                    </p>
+                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
+                                                        Δz = √((Δx)² + (Δy)²)
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    )}
                                 </TabsContent>
                             </Tabs>
                         </div>

@@ -29,6 +29,17 @@ const RenewableEnergy = () => {
 
     const powerOutput = solarParams.irradiance * solarParams.area * solarParams.efficiency;
 
+    // Wind Turbine State
+    const [windParams, setWindParams] = useState({
+        velocity: 10,       // m/s
+        diameter: 40,       // m
+        efficiency: 0.4     // Cp (Max ~0.59)
+    });
+    const airDensity = 1.225; // kg/m^3
+    const sweptArea = Math.PI * Math.pow(windParams.diameter / 2, 2);
+    // P = 0.5 * rho * A * v^3 * Cp
+    const windPower = 0.5 * airDensity * sweptArea * Math.pow(windParams.velocity, 3) * windParams.efficiency;
+
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <Header />
@@ -229,12 +240,165 @@ const RenewableEnergy = () => {
                                     )}
                                 </TabsContent>
 
-                                <TabsContent value="wind">
-                                    <div className="flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-muted rounded-xl bg-muted/50">
-                                        <Wind className="w-12 h-12 text-muted-foreground mb-4" />
-                                        <h3 className="text-xl font-bold">Wind Turbine Module Coming Soon</h3>
-                                        <p className="text-muted-foreground">Analysis of Betz Law and power-wind speed relationship (v³).</p>
+                                <TabsContent value="wind" className="space-y-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                        {/* Controls */}
+                                        <Card className="lg:col-span-1">
+                                            <CardHeader>
+                                                <CardTitle className="text-lg">Turbine Specs</CardTitle>
+                                                <CardDescription>Wind Power Parameters</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-6">
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Wind Speed (v)</Label>
+                                                        <span className="text-sm font-mono">{windParams.velocity} m/s</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[windParams.velocity]}
+                                                        onValueChange={([v]) => setWindParams(p => ({ ...p, velocity: v }))}
+                                                        min={0}
+                                                        max={25}
+                                                        step={1}
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Blade Diameter (D)</Label>
+                                                        <span className="text-sm font-mono">{windParams.diameter} m</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[windParams.diameter]}
+                                                        onValueChange={([v]) => setWindParams(p => ({ ...p, diameter: v }))}
+                                                        min={10}
+                                                        max={150}
+                                                        step={5}
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Efficiency (Cp)</Label>
+                                                        <span className="text-sm font-mono">{(windParams.efficiency * 100).toFixed(0)}%</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[windParams.efficiency * 100]}
+                                                        onValueChange={([v]) => setWindParams(p => ({ ...p, efficiency: v / 100 }))}
+                                                        min={10}
+                                                        max={59}
+                                                        step={1}
+                                                    />
+                                                    <div className="text-xs text-muted-foreground">Betz Limit is 59.3%</div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* Visualization */}
+                                        <Card className="lg:col-span-2">
+                                            <CardHeader>
+                                                <CardTitle>Power Generation Visualization</CardTitle>
+                                                <CardDescription>Cubic relationship with wind speed</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
+                                                <div className="relative w-full h-80 bg-sky-200 rounded-lg overflow-hidden border border-sky-300 flex items-end justify-center">
+
+                                                    {/* Clouds */}
+                                                    <motion.div
+                                                        className="absolute top-10 left-10 w-20 h-10 bg-white rounded-full opacity-80 blur-md"
+                                                        animate={{ x: [0, 200, 0] }}
+                                                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                                    />
+
+                                                    {/* Ground */}
+                                                    <div className="absolute bottom-0 left-0 right-0 h-12 bg-green-600" />
+
+                                                    {/* Turbine Pole */}
+                                                    <div className="w-4 h-48 bg-slate-400 z-10" />
+
+                                                    {/* Rotating Blades */}
+                                                    <motion.div
+                                                        className="absolute bottom-56 z-20"
+                                                        style={{
+                                                            originX: 0.5,
+                                                            originY: 0.5,
+                                                        }}
+                                                        animate={{ rotate: 360 }}
+                                                        transition={{
+                                                            duration: windParams.velocity > 0 ? 10 / Math.max(1, windParams.velocity) : 0,
+                                                            repeat: Infinity,
+                                                            ease: "linear"
+                                                        }}
+                                                    >
+                                                        {/* Hub */}
+                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-slate-600 z-30" />
+
+                                                        {/* Blade 1 */}
+                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full w-2 bg-slate-100 rounded-full border border-slate-300 origin-bottom" style={{ height: `${windParams.diameter}px` }} />
+                                                        {/* Blade 2 (Rotated 120) */}
+                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full w-2 bg-slate-100 rounded-full border border-slate-300 origin-bottom" style={{ height: `${windParams.diameter}px`, rotate: '120deg' }} />
+                                                        {/* Blade 3 (Rotated 240) */}
+                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full w-2 bg-slate-100 rounded-full border border-slate-300 origin-bottom" style={{ height: `${windParams.diameter}px`, rotate: '240deg' }} />
+                                                    </motion.div>
+
+                                                    {/* Stats Overlay */}
+                                                    <div className="absolute top-4 right-4 bg-white/90 p-4 rounded-lg shadow-lg border z-30">
+                                                        <div className="text-3xl font-bold text-slate-800 font-mono">
+                                                            {(windPower / 1000).toFixed(1)} kW
+                                                        </div>
+                                                        <div className="text-xs text-muted-foreground uppercase font-semibold">Power Output</div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Physics Note */}
+                                                <div className="mt-6 w-full text-center">
+                                                    <div className="text-sm font-medium text-slate-600">
+                                                        Doubling wind speed increases power by <span className="font-bold text-primary">8x</span> (2³ = 8)!
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
                                     </div>
+
+                                    {/* Study Mode Content */}
+                                    {isStudyMode && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                        >
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Info className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Power Equation</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        The power available in the wind is kinetic energy per unit time.
+                                                    </p>
+                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
+                                                        P = ½ · ρ · A · v³ · Cp
+                                                    </div>
+                                                    <p>
+                                                        Notice the <strong>v³</strong> term. Small increases in wind speed lead to massive increases in power.
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Wind className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Betz Limit</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        It is physically impossible to capture 100% of the wind's energy (the air would have to stop completely, blocking the flow).
+                                                        The theoretical maximum efficiency is 59.3% (Betz Limit).
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    )}
                                 </TabsContent>
                             </Tabs>
                         </div>

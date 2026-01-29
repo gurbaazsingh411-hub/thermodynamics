@@ -36,6 +36,15 @@ const EngineeringMechanics = () => {
     const netForce = Math.max(0, forceParallel - forceFrictionMax);
     const acceleration = netForce / frictionParams.mass;
 
+    // Vector Decomposition State
+    const [vectorParams, setVectorParams] = useState({
+        magnitude: 100, // N
+        angle: 45 // degrees
+    });
+    const rad = vectorParams.angle * (Math.PI / 180);
+    const fx = vectorParams.magnitude * Math.cos(rad);
+    const fy = vectorParams.magnitude * Math.sin(rad);
+
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <Header />
@@ -266,12 +275,198 @@ const EngineeringMechanics = () => {
                                     )}
                                 </TabsContent>
 
-                                <TabsContent value="vectors">
-                                    <div className="flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-muted rounded-xl bg-muted/50">
-                                        <Move className="w-12 h-12 text-muted-foreground mb-4" />
-                                        <h3 className="text-xl font-bold">Vector Visualization Coming Soon</h3>
-                                        <p className="text-muted-foreground">Decomposing 3D forces into X, Y, and Z components.</p>
+                                <TabsContent value="vectors" className="space-y-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                        {/* Controls */}
+                                        <Card className="lg:col-span-1">
+                                            <CardHeader>
+                                                <CardTitle className="text-lg">Vector Parameters</CardTitle>
+                                                <CardDescription>Force Magnitude & Direction</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-6">
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Magnitude (F)</Label>
+                                                        <span className="text-sm font-mono">{vectorParams.magnitude} N</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[vectorParams.magnitude]}
+                                                        onValueChange={([v]) => setVectorParams(p => ({ ...p, magnitude: v }))}
+                                                        min={10}
+                                                        max={200}
+                                                        step={1}
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Angle (θ)</Label>
+                                                        <span className="text-sm font-mono">{vectorParams.angle}°</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[vectorParams.angle]}
+                                                        onValueChange={([v]) => setVectorParams(p => ({ ...p, angle: v }))}
+                                                        min={0}
+                                                        max={90}
+                                                        step={1}
+                                                    />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* Visualization */}
+                                        <Card className="lg:col-span-2">
+                                            <CardHeader>
+                                                <CardTitle>Vector Decomposition</CardTitle>
+                                                <CardDescription>Splitting a force into X and Y components</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
+                                                <div className="relative w-full h-80 bg-slate-50 border border-slate-200 rounded-lg flex items-end justify-start p-10 overflow-hidden">
+
+                                                    {/* Grid Background */}
+                                                    <div className="absolute inset-0" style={{
+                                                        backgroundImage: 'linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)',
+                                                        backgroundSize: '20px 20px'
+                                                    }} />
+
+                                                    <svg width="100%" height="100%" viewBox="0 0 400 300" className="overflow-visible">
+                                                        <defs>
+                                                            <marker id="arrowhead-main" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                                                <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb" />
+                                                            </marker>
+                                                            <marker id="arrowhead-x" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                                                <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+                                                            </marker>
+                                                            <marker id="arrowhead-y" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                                                <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+                                                            </marker>
+                                                        </defs>
+
+                                                        {/* Origin Translation */}
+                                                        <g transform="translate(40, 260) scale(1, -1)">
+                                                            {/* Axes */}
+                                                            <line x1="-20" y1="0" x2="350" y2="0" stroke="#94a3b8" strokeWidth="2" />
+                                                            <line x1="0" y1="-20" x2="0" y2="280" stroke="#94a3b8" strokeWidth="2" />
+
+                                                            {/* X Component */}
+                                                            <motion.line
+                                                                x1="0" y1="0"
+                                                                x2={fx * 1.5} y2="0" // Scale factor
+                                                                stroke="#ef4444"
+                                                                strokeWidth="4"
+                                                                markerEnd="url(#arrowhead-x)"
+                                                                initial={false}
+                                                                animate={{ x2: fx * 1.5 }}
+                                                            />
+                                                            {/* Y Component */}
+                                                            <motion.line
+                                                                x1="0" y1="0"
+                                                                x2="0" y2={fy * 1.5}
+                                                                stroke="#10b981"
+                                                                strokeWidth="4"
+                                                                markerEnd="url(#arrowhead-y)"
+                                                                initial={false}
+                                                                animate={{ y2: fy * 1.5 }}
+                                                            />
+
+                                                            {/* Component Connections (Dotted Lines) */}
+                                                            <motion.line
+                                                                x1={fx * 1.5} y1="0"
+                                                                x2={fx * 1.5} y2={fy * 1.5}
+                                                                stroke="#ef4444"
+                                                                strokeWidth="1"
+                                                                strokeDasharray="4"
+                                                                animate={{ x1: fx * 1.5, x2: fx * 1.5, y2: fy * 1.5 }}
+                                                            />
+                                                            <motion.line
+                                                                x1="0" y1={fy * 1.5}
+                                                                x2={fx * 1.5} y2={fy * 1.5}
+                                                                stroke="#10b981"
+                                                                strokeWidth="1"
+                                                                strokeDasharray="4"
+                                                                animate={{ y1: fy * 1.5, x2: fx * 1.5, y2: fy * 1.5 }}
+                                                            />
+
+                                                            {/* Main Resultant Vector */}
+                                                            <motion.line
+                                                                x1="0" y1="0"
+                                                                x2={fx * 1.5} y2={fy * 1.5}
+                                                                stroke="#2563eb"
+                                                                strokeWidth="6"
+                                                                markerEnd="url(#arrowhead-main)"
+                                                                animate={{ x2: fx * 1.5, y2: fy * 1.5 }}
+                                                            />
+
+                                                            {/* Angle Arc */}
+                                                            <path
+                                                                d={`M 30,0 A 30,30 0 0 1 ${30 * Math.cos(rad)},${30 * Math.sin(rad)}`}
+                                                                stroke="#64748b"
+                                                                strokeWidth="2"
+                                                                fill="transparent"
+                                                            />
+                                                        </g>
+                                                    </svg>
+                                                </div>
+
+                                                {/* Summary Metrics */}
+                                                <div className="grid grid-cols-2 gap-4 w-full mt-6">
+                                                    <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
+                                                        <div className="text-2xl font-bold text-red-600">{fx.toFixed(1)} N</div>
+                                                        <div className="text-xs text-muted-foreground uppercase font-semibold">Fx (Horizontal)</div>
+                                                        <div className="text-[10px] text-muted-foreground font-mono">F · cos(θ)</div>
+                                                    </div>
+                                                    <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
+                                                        <div className="text-2xl font-bold text-emerald-600">{fy.toFixed(1)} N</div>
+                                                        <div className="text-xs text-muted-foreground uppercase font-semibold">Fy (Vertical)</div>
+                                                        <div className="text-[10px] text-muted-foreground font-mono">F · sin(θ)</div>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
                                     </div>
+
+                                    {/* Study Mode Content */}
+                                    {isStudyMode && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                        >
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Info className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Force Components</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        Any diagonal force can be split (resolved) into two perpendicular components: Horizontal (Fx) and Vertical (Fy).
+                                                    </p>
+                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4 space-y-2">
+                                                        <div>Fx = F · cos(θ)</div>
+                                                        <div>Fy = F · sin(θ)</div>
+                                                    </div>
+                                                    <p>
+                                                        This is essential for analyzing structures, as we can sum up all X forces and all Y forces separately (ΣFx = 0, ΣFy = 0).
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Move className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Pythagoras Theorem</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        You can always get back the original force vector from its components using Pythagoras theorem:
+                                                    </p>
+                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
+                                                        F = √(Fx² + Fy²)
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    )}
                                 </TabsContent>
                             </Tabs>
                         </div>
