@@ -3,7 +3,6 @@ import { useThermoStore } from '@/store/thermoStore';
 import { useDebouncedCallback } from '@/hooks/use-debounce';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthStore } from '@/store/authStore';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { BottomPanel } from '@/components/layout/BottomPanel';
@@ -16,9 +15,7 @@ import { EducationalMode } from '@/components/educational/EducationalMode';
 import { AnimatedCycleDiagram } from '@/components/educational/AnimatedCycleDiagram';
 import { ExportButtons } from '@/components/ExportButtons';
 import { PresetSelector } from '@/components/PresetSelector';
-import { TestCaseManager } from '@/components/TestCaseManager';
-import { AuthForm } from '@/components/AuthForm';
-import { UserProfile } from '@/components/UserProfile';
+
 import { CycleType, FluidProperties } from '@/types/thermodynamics';
 import { 
   FLUIDS, 
@@ -36,7 +33,6 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { GraduationCap, LineChart, Download, User, Settings } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
 const Index = () => {
@@ -58,12 +54,8 @@ const Index = () => {
     resetParameters
   } = useThermoStore();
 
-  const { isAuthenticated, initializeAuth, isLoading: authLoading } = useAuthStore();
   const { toast } = useToast();
   const [isEducationalMode, setIsEducationalMode] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
 
   // Additional parameters for Rankine and Refrigeration cycles
   const [rankineParams, setRankineParams] = useState({
@@ -82,10 +74,7 @@ const Index = () => {
     compressorEfficiency: 0.8,
   });
 
-  // Initialize auth on mount
-  useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -207,7 +196,7 @@ const Index = () => {
 
     const timer = setTimeout(calculateCycle, 100);
     return () => clearTimeout(timer);
-  }, [cycleType, fluid, parameters, generateOttoCycle, generateDieselCycle, generateBraytonCycle, setCycle, setLoading]);
+  }, [cycleType, fluid, parameters, generateOttoCycle, generateDieselCycle, generateBraytonCycle, generateCarnotCycle, generateRankineCycle, generateRefrigerationCycle, setCycle, setLoading]);
 
   // Ensure we always have a valid cycle to render
   const displayCycle = cycle || (() => {
@@ -240,27 +229,18 @@ const Index = () => {
               <PresetSelector />
               <ExportButtons cycle={displayCycle} pvDiagramId="pv-diagram" tsDiagramId="ts-diagram" />
               
-              {isAuthenticated ? (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setShowProfile(true)}
-                  className="gap-2"
-                >
-                  <User className="w-4 h-4" />
-                  Profile
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setShowAuthDialog(true)}
-                  className="gap-2"
-                >
-                  <User className="w-4 h-4" />
-                  Sign In
-                </Button>
-              )}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  // Removed authentication - just show a demo profile or settings
+                  alert('Authentication removed - profile feature coming soon');
+                }}
+                className="gap-2"
+              >
+                <User className="w-4 h-4" />
+                Profile
+              </Button>
               
               {/* Real Gas and Steam Quality Controls */}
               <div className="flex items-center gap-2">
@@ -483,19 +463,7 @@ const Index = () => {
         </main>
       </div>
       
-      {/* Authentication Dialog */}
-      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent className="sm:max-w-md">
-          <AuthForm mode={authMode} onModeChange={setAuthMode} />
-        </DialogContent>
-      </Dialog>
-      
-      {/* User Profile Dialog */}
-      <Dialog open={showProfile} onOpenChange={setShowProfile}>
-        <DialogContent className="sm:max-w-md">
-          <UserProfile />
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 };
