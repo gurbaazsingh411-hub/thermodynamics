@@ -34,7 +34,7 @@ const SUBJECTS: Subject[] = [
         icon: <Flame className="w-8 h-8" />,
         color: 'from-orange-500/20 to-red-500/20',
         modules: ['Cycles', 'Laws', 'State Variables'],
-        route: '/',
+        route: '/thermodynamics',
         status: 'active'
     },
     {

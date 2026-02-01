@@ -19,7 +19,7 @@ export function Header() {
         <div className="h-6 w-px bg-border mx-2" />
 
         <nav className="flex items-center gap-1">
-          <Link to="/">
+          <Link to="/thermodynamics">
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               <Activity className="w-4 h-4 mr-2" />
               Simulator

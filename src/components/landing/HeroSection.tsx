@@ -56,7 +56,7 @@ const HeroSection = () => {
                             Launch Simulator <ArrowRight className="ml-2 w-5 h-5" />
                         </Button>
                     </Link>
-                    <Link to="/demo">
+                    <Link to="/dashboard">
                         <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-full bg-background/20 backdrop-blur-sm border-white/10 hover:bg-white/10">
                             Watch Demo <PlayCircle className="ml-2 w-5 h-5" />
                         </Button>

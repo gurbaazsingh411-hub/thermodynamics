@@ -12,6 +12,7 @@ import EngineeringMechanics from "./pages/EngineeringMechanics";
 import AppliedThermal from "./pages/AppliedThermal";
 import RenewableEnergy from "./pages/RenewableEnergy";
 import EngineeringMathematics from "./pages/EngineeringMathematics";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,7 +29,8 @@ const App = () => (
         <BrowserRouter>
           <div className="min-h-screen flex flex-col relative z-10">
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<Landing />} />
+              <Route path="/thermodynamics" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/heat-transfer" element={<HeatTransfer />} />
               <Route path="/fluid-mechanics" element={<FluidMechanics />} />
