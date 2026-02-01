@@ -1,7 +1,7 @@
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, PerspectiveCamera, Points, PointMaterial, Line } from '@react-three/drei';
+import { Float, PerspectiveCamera, Points, PointMaterial, Line, Text, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion } from 'framer-motion-3d';
 
@@ -11,16 +11,67 @@ const cyclePoints = (() => {
     const segments = 100;
     for (let i = 0; i <= segments; i++) {
         const t = i / segments;
-        // Parametric equation for a rounded rectangular-ish cycle
         const angle = t * Math.PI * 2;
-        // Deforming a circle to look more like a thermodynamic cycle
         const x = Math.cos(angle) * 2;
         const y = Math.sin(angle) * (1.5 + 0.5 * Math.sin(angle * 3));
-        const z = Math.sin(angle * 2) * 0.5; // Slight 3D twist
+        const z = Math.sin(angle * 2) * 0.5;
         points.push(new THREE.Vector3(x, y, z));
     }
     return points;
 })();
+
+const HolographicPanel = ({ position, text, subtitle }: { position: [number, number, number], text: string, subtitle: string }) => {
+    return (
+        <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
+            <group position={position}>
+                {/* Panel Background */}
+                <mesh position={[0, 0, -0.05]}>
+                    <planeGeometry args={[1.5, 0.8]} />
+                    <meshBasicMaterial color="#0088EE" transparent opacity={0.1} side={THREE.DoubleSide} />
+                </mesh>
+                <Line
+                    points={[
+                        [-0.75, 0.4, 0], [0.75, 0.4, 0], [0.75, -0.4, 0], [-0.75, -0.4, 0], [-0.75, 0.4, 0]
+                    ]}
+                    color="#0088EE"
+                    lineWidth={1}
+                />
+
+                {/* Content */}
+                <Text
+                    position={[-0.6, 0.2, 0.01]}
+                    fontSize={0.15}
+                    color="#ffffff"
+                    anchorX="left"
+                    anchorY="top"
+                    font="https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxM.woff"
+                >
+                    {text}
+                </Text>
+                <Text
+                    position={[-0.6, 0, 0.01]}
+                    fontSize={0.1}
+                    color="#0088EE"
+                    anchorX="left"
+                    anchorY="top"
+                    font="https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxM.woff"
+                >
+                    {subtitle}
+                </Text>
+
+                {/* Animated Bar */}
+                <mesh position={[0, -0.2, 0.01]}>
+                    <planeGeometry args={[1.2, 0.05]} />
+                    <meshBasicMaterial color="#0088EE" transparent opacity={0.3} />
+                </mesh>
+                <mesh position={[-0.3, -0.2, 0.02]}>
+                    <planeGeometry args={[0.6, 0.05]} />
+                    <meshBasicMaterial color="white" />
+                </mesh>
+            </group>
+        </Float>
+    );
+}
 
 const CyclePath = () => {
     const lineRef = useRef<any>(null);
@@ -42,7 +93,6 @@ const CyclePath = () => {
                 opacity={0.8}
                 transparent
             />
-            {/* Glow effect duplicate */}
             <Line
                 points={cyclePoints}
                 color="#0088EE"
@@ -52,6 +102,16 @@ const CyclePath = () => {
                 transparent
                 position={[0, 0, -0.1]}
             />
+
+            {/* Interactive Nodes */}
+            <mesh position={[2, 0, 0]}>
+                <sphereGeometry args={[0.1, 16, 16]} />
+                <meshBasicMaterial color="white" />
+            </mesh>
+            <mesh position={[-2, 0, 0]}>
+                <sphereGeometry args={[0.1, 16, 16]} />
+                <meshBasicMaterial color="white" />
+            </mesh>
         </group>
     );
 };
@@ -62,6 +122,7 @@ const Particles = () => {
 
     const positions = useMemo(() => {
         const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
         for (let i = 0; i < count; i++) {
             positions[i * 3] = (Math.random() - 0.5) * 15;
             positions[i * 3 + 1] = (Math.random() - 0.5) * 15;
@@ -95,7 +156,7 @@ const Particles = () => {
 
 const HeroCanvas = () => {
     return (
-        <div className="absolute inset-0 z-0 opacity-60">
+        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
             <Canvas dpr={[1, 2]}>
                 <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={50} />
                 <color attach="background" args={['#0a0a0a']} />
@@ -108,9 +169,12 @@ const HeroCanvas = () => {
                     <CyclePath />
                 </Float>
 
+                {/* Holographic Panels */}
+                <HolographicPanel position={[3.5, 2, 0]} text="Efficiency" subtitle="η = 68.4%" />
+                <HolographicPanel position={[-3.5, -1, 0]} text="Work Output" subtitle="W = 450 kJ" />
+
                 <Particles />
 
-                {/* Fog for depth */}
                 <fog attach="fog" args={['#0a0a0a', 5, 20]} />
             </Canvas>
         </div>

@@ -5,11 +5,15 @@ import StudyModeFeature from '@/components/landing/StudyModeFeature';
 import TechStackSection from '@/components/landing/TechStackSection';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import ScienceBackground from '@/components/layout/3d/ScienceBackground';
+import CursorEffect from '@/components/ui/CursorEffect';
 import { ArrowRight, Github } from 'lucide-react';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden relative">
+      <ScienceBackground />
+      <CursorEffect />
 
       {/* 1. Hero Section (3D & Interactive) */}
       <HeroSection />
