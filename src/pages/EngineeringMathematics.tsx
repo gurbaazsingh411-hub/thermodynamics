@@ -1,393 +1,299 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import {
-    Activity,
-    ArrowRight,
+    Calculator,
+    Delete,
+    History,
+    Trash2,
     RotateCcw,
-    GraduationCap,
-    Info,
-    FunctionSquare,
-    Sigma,
-    LineChart
+    ChevronDown,
+    ChevronUp,
+    Settings
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
-const EngineeringMath = () => {
-    const [isStudyMode, setIsStudyMode] = useState(false);
-    const [functionParams, setFunctionParams] = useState({
-        a: 1,
-        b: 0,
-        c: 0
-    });
+const EngineeringMathematics = () => {
+    const [display, setDisplay] = useState('0');
+    const [equation, setEquation] = useState('');
+    const [history, setHistory] = useState<{ eq: string; res: string }[]>([]);
+    const [isRadians, setIsRadians] = useState(true);
+    const [showHistory, setShowHistory] = useState(false);
+    const [memory, setMemory] = useState<number>(0);
 
-    // y = ax^2 + bx + c
-    const generatePath = () => {
-        let path = 'M ';
-        for (let x = -100; x <= 100; x += 2) {
-            const y = functionParams.a * Math.pow(x / 10, 2) + functionParams.b * (x / 10) + functionParams.c;
-            // Invert Y for SVG coordinates (origin top-left)
-            path += `${x + 100},${100 - y * 10} `;
+    const safeEvaluate = (expression: string) => {
+        try {
+            // Replace engineering functions with JS Math equivalents
+            let evalString = expression
+                .replace(/×/g, '*')
+                .replace(/÷/g, '/')
+                .replace(/π/g, 'Math.PI')
+                .replace(/e/g, 'Math.E')
+                .replace(/√\(([^)]+)\)/g, 'Math.sqrt($1)')
+                .replace(/sin\(/g, isRadians ? 'Math.sin(' : `Math.sin((Math.PI/180)*`)
+                .replace(/cos\(/g, isRadians ? 'Math.cos(' : `Math.cos((Math.PI/180)*`)
+                .replace(/tan\(/g, isRadians ? 'Math.tan(' : `Math.tan((Math.PI/180)*`)
+                .replace(/log\(/g, 'Math.log10(')
+                .replace(/ln\(/g, 'Math.log(')
+                .replace(/\^/g, '**');
+
+            // Handle implicit multiplication (e.g., 2PI -> 2*Math.PI)
+            // This is a simplified regex, might need more robustness for complex cases
+            // but calculator inputs are usually structured.
+
+            // Using Function constructor for safe-ish eval of math only
+            // eslint-disable-next-line @typescript-eslint/no-implied-eval
+            const result = new Function('return ' + evalString)();
+            return parseFloat(result.toFixed(8)).toString();
+        } catch (error) {
+            return 'Error';
         }
-        return path;
     };
 
-    // Statistics State
-    const [statsParams, setStatsParams] = useState({
-        mean: 0,
-        stdDev: 1
-    });
-
-    const generateNormalPath = () => {
-        let path = 'M 0,200 '; // Start point
-        for (let i = 0; i <= 200; i += 2) {
-            const x = (i - 100) / 20; // x range -5 to 5
-            const z = (x - statsParams.mean) / statsParams.stdDev;
-            const pdf = (1 / (statsParams.stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z);
-
-            // Map to SVG coordinates (width 200, height 200)
-            // PDF max height usually ~0.4 (for sd=1), so scale Y by ~400
-            const svgY = 200 - (pdf * 300);
-            path += `L ${i},${svgY} `;
-        }
-        path += 'L 200,200 Z'; // Close path
-        return path;
+    const handlePress = (val: string) => {
+        setDisplay(prev => {
+            if (prev === '0' || prev === 'Error') return val;
+            return prev + val;
+        });
     };
 
+    const handleOperation = (op: string) => {
+        if (display === 'Error') return;
+        setDisplay(prev => prev + op);
+    };
+
+    const handleFunction = (func: string) => {
+        if (display === 'Error') setDisplay('0');
+
+        setDisplay(prev => {
+            const isZero = prev === '0';
+            const suffix = '(';
+            return isZero ? func + suffix : prev + func + suffix;
+        });
+    };
+
+    const handleClear = () => {
+        setDisplay('0');
+        setEquation('');
+    };
+
+    const handleDelete = () => {
+        setDisplay(prev => {
+            if (prev.length === 1 || prev === 'Error') return '0';
+            return prev.slice(0, -1);
+        });
+    };
+
+    const handleEqual = () => {
+        const result = safeEvaluate(display);
+        if (result !== 'Error') {
+            setHistory(prev => [{ eq: display, res: result }, ...prev].slice(0, 50));
+            setEquation(display + ' =');
+            setDisplay(result);
+        } else {
+            setDisplay('Error');
+        }
+    };
+
+    // Keyboard support
+    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+        const key = e.key;
+        if (/[0-9.]/.test(key)) handlePress(key);
+        if (['+', '-', '*', '/'].includes(key)) handleOperation(key === '*' ? '×' : key === '/' ? '÷' : key);
+        if (key === 'Enter') handleEqual();
+        if (key === 'Backspace') handleDelete();
+        if (key === 'Escape') handleClear();
+        if (key === '(' || key === ')') handlePress(key);
+    }, [display]); // Depend on display if needed, but setState functional updates handle it.
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleKeyDown]);
+
+    const Btn = ({ label, onClick, variant = 'default', className = '' }: { label: React.ReactNode, onClick: () => void, variant?: 'default' | 'secondary' | 'accent' | 'ghost', className?: string }) => {
+        const baseStyle = "h-14 text-lg font-medium transition-all duration-200 active:scale-95";
+        const variants = {
+            default: "bg-secondary/50 hover:bg-secondary/80 text-foreground",
+            secondary: "bg-muted/50 hover:bg-muted/80 text-muted-foreground",
+            accent: "bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20",
+            ghost: "hover:bg-accent/20 text-accent-foreground"
+        };
+
+        return (
+            <Button
+                variant="ghost"
+                className={`${baseStyle} ${variants[variant]} ${className}`}
+                onClick={onClick}
+            >
+                {label}
+            </Button>
+        );
+    };
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <Header />
-
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
                 <Sidebar />
+                <main className="flex-1 flex flex-col p-4 md:p-8 overflow-y-auto">
+                    <div className="max-w-4xl mx-auto w-full space-y-6">
 
-                <main className="flex-1 flex flex-col min-h-0">
-                    {/* Study Mode Toggle */}
-                    <div className="px-6 py-3 border-b border-border bg-card/50 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2">
-                                <Activity className="w-4 h-4 text-primary" />
-                                <span className="font-semibold">Engineering Mathematics Viz</span>
-                            </div>
-
-                            <div className="flex items-center gap-2 ml-4">
-                                <Switch
-                                    id="study-mode"
-                                    checked={isStudyMode}
-                                    onCheckedChange={setIsStudyMode}
-                                />
-                                <Label
-                                    htmlFor="study-mode"
-                                    className={`text-sm cursor-pointer flex items-center gap-2 ${isStudyMode ? 'text-warning font-medium' : 'text-muted-foreground'}`}
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-bold flex items-center gap-2">
+                                <Calculator className="w-6 h-6 text-primary" />
+                                Engineering Calculator
+                            </h2>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant={isRadians ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setIsRadians(true)}
                                 >
-                                    <GraduationCap className="w-4 h-4" />
-                                    Study Mode
-                                </Label>
+                                    RAD
+                                </Button>
+                                <Button
+                                    variant={!isRadians ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setIsRadians(false)}
+                                >
+                                    DEG
+                                </Button>
                             </div>
                         </div>
 
-                        {isStudyMode && (
-                            <span className="text-xs text-warning bg-warning/10 px-3 py-1 rounded-full border border-warning/30 animate-pulse">
-                                Educational context active
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="flex-1 p-6 overflow-y-auto">
-                        <div className="max-w-7xl mx-auto space-y-6">
-                            <Tabs defaultValue="calculus" className="w-full">
-                                <TabsList className="grid w-full grid-cols-2 mb-8">
-                                    <TabsTrigger value="calculus" className="gap-2">
-                                        <FunctionSquare className="w-4 h-4" /> Calculus & Functions
-                                    </TabsTrigger>
-                                    <TabsTrigger value="stats" className="gap-2">
-                                        <Sigma className="w-4 h-4" /> Statistics & Error
-                                    </TabsTrigger>
-                                </TabsList>
-
-                                <TabsContent value="calculus" className="space-y-6">
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                        {/* Controls */}
-                                        <Card className="lg:col-span-1">
-                                            <CardHeader>
-                                                <CardTitle className="text-lg">Function Coefficients</CardTitle>
-                                                <CardDescription>f(x) = ax² + bx + c</CardDescription>
-                                            </CardHeader>
-                                            <CardContent className="space-y-6">
-                                                <div className="space-y-4">
-                                                    <div className="flex justify-between">
-                                                        <Label>Coefficient (a)</Label>
-                                                        <span className="text-sm font-mono">{functionParams.a.toFixed(1)}</span>
-                                                    </div>
-                                                    <Slider
-                                                        value={[functionParams.a * 10]}
-                                                        onValueChange={([v]) => setFunctionParams(p => ({ ...p, a: v / 10 }))}
-                                                        min={-50}
-                                                        max={50}
-                                                        step={1}
-                                                    />
-                                                </div>
-
-                                                <div className="space-y-4">
-                                                    <div className="flex justify-between">
-                                                        <Label>Coefficient (b)</Label>
-                                                        <span className="text-sm font-mono">{functionParams.b.toFixed(1)}</span>
-                                                    </div>
-                                                    <Slider
-                                                        value={[functionParams.b * 10]}
-                                                        onValueChange={([v]) => setFunctionParams(p => ({ ...p, b: v / 10 }))}
-                                                        min={-50}
-                                                        max={50}
-                                                        step={1}
-                                                    />
-                                                </div>
-
-                                                <div className="space-y-4">
-                                                    <div className="flex justify-between">
-                                                        <Label>Constant (c)</Label>
-                                                        <span className="text-sm font-mono">{functionParams.c.toFixed(1)}</span>
-                                                    </div>
-                                                    <Slider
-                                                        value={[functionParams.c * 10]}
-                                                        onValueChange={([v]) => setFunctionParams(p => ({ ...p, c: v / 10 }))}
-                                                        min={-50}
-                                                        max={50}
-                                                        step={1}
-                                                    />
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-
-                                        {/* Visualization */}
-                                        <Card className="lg:col-span-2">
-                                            <CardHeader>
-                                                <CardTitle>Interactive Function Grapher</CardTitle>
-                                                <CardDescription>Visualizing algebraic changes in real-time</CardDescription>
-                                            </CardHeader>
-                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
-                                                <div className="relative w-full aspect-square max-w-[400px] border border-border bg-muted/5 rounded-lg overflow-hidden shadow-inner">
-                                                    {/* Grid Lines */}
-                                                    <div className="absolute inset-0 grid grid-cols-10 grid-rows-10 opacity-10">
-                                                        {[...Array(11)].map((_, i) => (
-                                                            <div key={`v-${i}`} className="border-l border-foreground" style={{ left: `${i * 10}%` }} />
-                                                        ))}
-                                                        {[...Array(11)].map((_, i) => (
-                                                            <div key={`h-${i}`} className="border-t border-foreground" style={{ top: `${i * 10}%` }} />
-                                                        ))}
-                                                    </div>
-
-                                                    {/* Axes */}
-                                                    <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-muted-foreground/30" />
-                                                    <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-muted-foreground/30" />
-
-                                                    {/* Graph */}
-                                                    <svg viewBox="0 0 200 200" className="w-full h-full overflow-visible">
-                                                        <motion.path
-                                                            d={generatePath()}
-                                                            fill="none"
-                                                            stroke="hsl(var(--primary))"
-                                                            strokeWidth="3"
-                                                            strokeLinecap="round"
-                                                            initial={false}
-                                                            animate={{ d: generatePath() }}
-                                                        />
-
-                                                        {/* Points/Tangent Placeholder */}
-                                                        <circle cx="100" cy={100 - functionParams.c * 10} r="4" fill="hsl(var(--primary))" />
-                                                    </svg>
-
-                                                    <div className="absolute bottom-2 left-2 text-[10px] font-mono text-muted-foreground italic">
-                                                        y = {functionParams.a.toFixed(1)}x² + {functionParams.b.toFixed(1)}x + {functionParams.c.toFixed(1)}
-                                                    </div>
-                                                </div>
-
-                                                {/* Summary Metrics */}
-                                                <div className="grid grid-cols-2 gap-4 w-full mt-8">
-                                                    <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 text-center">
-                                                        <div className="text-xl font-bold text-primary italic">y' = {(2 * functionParams.a).toFixed(1)}x + {functionParams.b.toFixed(1)}</div>
-                                                        <div className="text-[10px] text-muted-foreground uppercase font-semibold">Derivative</div>
-                                                    </div>
-                                                    <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 text-center">
-                                                        <div className="text-xl font-bold text-primary italic">x_v = {(-functionParams.b / (2 * functionParams.a || 1)).toFixed(2)}</div>
-                                                        <div className="text-[10px] text-muted-foreground uppercase font-semibold">Vertex X</div>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Calculator Interface */}
+                            <Card className="md:col-span-2 shadow-xl border-primary/10">
+                                <CardHeader className="bg-muted/20 pb-2">
+                                    <div className="flex justify-between items-center text-xs text-muted-foreground px-1 h-6">
+                                        <span>{equation}</span>
+                                        <span className="font-mono">{isRadians ? 'RAD' : 'DEG'}</span>
                                     </div>
-
-                                    {/* Study Mode Content */}
-                                    {isStudyMode && (
-                                        <motion.div
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                                        >
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Info className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Quadratic Behavior</CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
-                                                    <p>
-                                                        A quadratic function produces a parabola. The coefficient 'a' determines the
-                                                        steepness and direction (opens up if positive, down if negative).
-                                                    </p>
-                                                    <p>
-                                                        The constant 'c' represents the y-intercept—where the graph crosses the vertical axis.
-                                                    </p>
-                                                </CardContent>
-                                            </Card>
-
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <GraduationCap className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Visualizing Derivatives</CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
-                                                    <p>
-                                                        The derivative represents the slope of the curve at any point. For a quadratic,
-                                                        the derivative is linear.
-                                                    </p>
-                                                    <p>
-                                                        Notice that when 'a' is zero, the curve becomes a straight line, and the
-                                                        derivative becomes constant!
-                                                    </p>
-                                                </CardContent>
-                                            </Card>
-                                        </motion.div>
-                                    )}
-                                </TabsContent>
-
-                                <TabsContent value="stats" className="space-y-6">
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                        {/* Controls */}
-                                        <Card className="lg:col-span-1">
-                                            <CardHeader>
-                                                <CardTitle className="text-lg">Normal Distribution</CardTitle>
-                                                <CardDescription>Gaussian Parameters</CardDescription>
-                                            </CardHeader>
-                                            <CardContent className="space-y-6">
-                                                <div className="space-y-4">
-                                                    <div className="flex justify-between">
-                                                        <Label>Mean (μ)</Label>
-                                                        <span className="text-sm font-mono">{statsParams.mean}</span>
-                                                    </div>
-                                                    <Slider
-                                                        value={[statsParams.mean]}
-                                                        onValueChange={([v]) => setStatsParams(p => ({ ...p, mean: v }))}
-                                                        min={-2}
-                                                        max={2}
-                                                        step={0.1}
-                                                    />
-                                                </div>
-
-                                                <div className="space-y-4">
-                                                    <div className="flex justify-between">
-                                                        <Label>Standard Deviation (σ)</Label>
-                                                        <span className="text-sm font-mono">{statsParams.stdDev}</span>
-                                                    </div>
-                                                    <Slider
-                                                        value={[statsParams.stdDev]}
-                                                        onValueChange={([v]) => setStatsParams(p => ({ ...p, stdDev: v }))}
-                                                        min={0.5}
-                                                        max={3}
-                                                        step={0.1}
-                                                    />
-                                                </div>
-
-                                                <div className="p-4 bg-muted text-xs text-muted-foreground rounded-lg">
-                                                    <p className="mb-2 font-semibold">68-95-99.7 Rule:</p>
-                                                    <ul className="list-disc ml-4 space-y-1">
-                                                        <li>68% of data within ±1σ</li>
-                                                        <li>95% of data within ±2σ</li>
-                                                        <li>99.7% of data within ±3σ</li>
-                                                    </ul>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-
-                                        {/* Visualization */}
-                                        <Card className="lg:col-span-2">
-                                            <CardHeader>
-                                                <CardTitle>Bell Curve Visualization</CardTitle>
-                                                <CardDescription>Probability Density Function</CardDescription>
-                                            </CardHeader>
-                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
-                                                <div className="relative w-80 h-80 border-b border-l border-slate-300">
-                                                    <svg width="100%" height="100%" viewBox="0 0 200 200" className="overflow-visible">
-                                                        {/* Grid Lines */}
-                                                        <line x1="100" y1="0" x2="100" y2="200" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="4" />
-
-                                                        {/* The Distribution Curve */}
-                                                        <motion.path
-                                                            d={generateNormalPath()}
-                                                            fill="rgba(59, 130, 246, 0.2)"
-                                                            stroke="#3b82f6"
-                                                            strokeWidth="2"
-                                                            initial={{ d: "M 0,200 L 200,200 Z" }}
-                                                            animate={{ d: generateNormalPath() }}
-                                                            transition={{ duration: 0.3 }}
-                                                        />
-                                                    </svg>
-
-                                                    {/* Labels */}
-                                                    <div className="absolute bottom-[-24px] left-0 text-xs text-muted-foreground">-5σ</div>
-                                                    <div className="absolute bottom-[-24px] right-0 text-xs text-muted-foreground">+5σ</div>
-                                                    <div className="absolute bottom-[-24px] left-1/2 -translate-x-1/2 text-xs font-bold text-slate-700">0</div>
-                                                </div>
-                                                <div className="mt-8 text-center text-sm text-slate-500">
-                                                    The wider the curve (higher σ), the more "error" or spread there is in the data.
-                                                </div>
-                                            </CardContent>
-                                        </Card>
+                                    <div className="text-4xl font-mono font-medium text-right tracking-wider py-4 px-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
+                                        {display}
                                     </div>
+                                </CardHeader>
+                                <CardContent className="p-4">
+                                    <div className="grid grid-cols-5 gap-3">
+                                        {/* Row 1: Memory & Clear */}
+                                        <Btn label="MC" variant="secondary" onClick={() => setMemory(0)} />
+                                        <Btn label="MR" variant="secondary" onClick={() => setDisplay(memory.toString())} />
+                                        <Btn label="M+" variant="secondary" onClick={() => setMemory(m => m + parseFloat(display))} />
+                                        <Btn label="AC" variant="secondary" className="text-red-400" onClick={handleClear} />
+                                        <Btn label={<Delete className="w-5 h-5" />} variant="secondary" className="text-orange-400" onClick={handleDelete} />
 
-                                    {/* Study Mode Content */}
-                                    {isStudyMode && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                                        >
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Sigma className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Standard Deviation</CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
-                                                    <p>
-                                                        Standard Deviation (σ) quantifies the amount of variation or dispersion.
-                                                        A low standard deviation indicates that the values tend to be close to the mean.
-                                                    </p>
-                                                </CardContent>
-                                            </Card>
+                                        {/* Row 2: Sci Functions */}
+                                        <Btn label="sin" variant="secondary" onClick={() => handleFunction('sin')} />
+                                        <Btn label="cos" variant="secondary" onClick={() => handleFunction('cos')} />
+                                        <Btn label="tan" variant="secondary" onClick={() => handleFunction('tan')} />
+                                        <Btn label="(" variant="secondary" onClick={() => handlePress('(')} />
+                                        <Btn label=")" variant="secondary" onClick={() => handlePress(')')} />
 
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Activity className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Error Propagation</CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
-                                                    <p>
-                                                        When combining measurements, their errors add up in quadrature:
-                                                    </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
-                                                        Δz = √((Δx)² + (Δy)²)
+                                        {/* Row 3: More Sci */}
+                                        <Btn label="ln" variant="secondary" onClick={() => handleFunction('ln')} />
+                                        <Btn label="log" variant="secondary" onClick={() => handleFunction('log')} />
+                                        <Btn label="x²" variant="secondary" onClick={() => setDisplay(p => `${p}^2`)} />
+                                        <Btn label="√" variant="secondary" onClick={() => handleFunction('√')} />
+                                        <Btn label="x^y" variant="secondary" onClick={() => setDisplay(p => `${p}^`)} />
+
+                                        {/* Row 4: Numbers & Basic Op */}
+                                        <Btn label="7" onClick={() => handlePress('7')} />
+                                        <Btn label="8" onClick={() => handlePress('8')} />
+                                        <Btn label="9" onClick={() => handlePress('9')} />
+                                        <Btn label="÷" variant="default" className="bg-primary/10 text-primary" onClick={() => handleOperation('÷')} />
+                                        <Btn label="π" variant="secondary" onClick={() => handlePress('π')} />
+
+                                        {/* Row 5 */}
+                                        <Btn label="4" onClick={() => handlePress('4')} />
+                                        <Btn label="5" onClick={() => handlePress('5')} />
+                                        <Btn label="6" onClick={() => handlePress('6')} />
+                                        <Btn label="×" variant="default" className="bg-primary/10 text-primary" onClick={() => handleOperation('×')} />
+                                        <Btn label="e" variant="secondary" onClick={() => handlePress('e')} />
+
+                                        {/* Row 6 */}
+                                        <Btn label="1" onClick={() => handlePress('1')} />
+                                        <Btn label="2" onClick={() => handlePress('2')} />
+                                        <Btn label="3" onClick={() => handlePress('3')} />
+                                        <Btn label="-" variant="default" className="bg-primary/10 text-primary" onClick={() => handleOperation('-')} />
+                                        <Btn label="Ans" variant="secondary" onClick={() => history.length > 0 && setDisplay(history[0].res)} />
+
+                                        {/* Row 7 */}
+                                        <Btn label="0" className="col-span-2" onClick={() => handlePress('0')} />
+                                        <Btn label="." onClick={() => handlePress('.')} />
+                                        <Btn label="=" variant="accent" onClick={handleEqual} />
+                                        <Btn label="+" variant="default" className="bg-primary/10 text-primary" onClick={() => handleOperation('+')} />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* History Sidebar */}
+                            <div className="space-y-6">
+                                <Card className="h-full flex flex-col">
+                                    <CardHeader className="py-4 border-b">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-base flex items-center gap-2">
+                                                <History className="w-4 h-4" />
+                                                History
+                                            </CardTitle>
+                                            <Button variant="ghost" size="icon" onClick={() => setHistory([])} disabled={history.length === 0}>
+                                                <Trash2 className="w-4 h-4 text-muted-foreground hover:text-red-400" />
+                                            </Button>
+                                        </div>
+                                    </CardHeader>
+                                    <ScrollArea className="flex-1 p-4 h-[500px]">
+                                        <div className="space-y-4">
+                                            {history.length === 0 ? (
+                                                <div className="text-center text-muted-foreground text-sm py-8">
+                                                    No calculations yet
+                                                </div>
+                                            ) : (
+                                                history.map((item, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="group flex flex-col items-end p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors border border-transparent hover:border-border"
+                                                        onClick={() => setDisplay(item.res)}
+                                                    >
+                                                        <span className="text-xs text-muted-foreground mb-1">{item.eq} =</span>
+                                                        <span className="text-lg font-mono font-medium text-primary">{item.res}</span>
                                                     </div>
-                                                </CardContent>
-                                            </Card>
-                                        </motion.div>
-                                    )}
-                                </TabsContent>
-                            </Tabs>
+                                                ))
+                                            )}
+                                        </div>
+                                    </ScrollArea>
+                                </Card>
+
+                                <Card>
+                                    <CardHeader className="py-3">
+                                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                            <Settings className="w-4 h-4" />
+                                            Constants
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="grid grid-cols-2 gap-2 text-sm">
+                                        <Button variant="outline" className="justify-between" onClick={() => handlePress('3.14159265')}>
+                                            <span>π</span>
+                                            <span className="text-xs text-muted-foreground">3.14159</span>
+                                        </Button>
+                                        <Button variant="outline" className="justify-between" onClick={() => handlePress('2.71828182')}>
+                                            <span>e</span>
+                                            <span className="text-xs text-muted-foreground">2.71828</span>
+                                        </Button>
+                                        <Button variant="outline" className="justify-between" onClick={() => handlePress('9.81')}>
+                                            <span>g</span>
+                                            <span className="text-xs text-muted-foreground">9.81</span>
+                                        </Button>
+                                        <Button variant="outline" className="justify-between" onClick={() => handlePress('299792458')}>
+                                            <span>c</span>
+                                            <span className="text-xs text-muted-foreground">3.00e8</span>
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </div>
+
                         </div>
                     </div>
                 </main>
