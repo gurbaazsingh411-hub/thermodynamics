@@ -155,8 +155,9 @@ const EngineeringMathematics = () => {
 
         for (let x = -5; x <= 5; x += 0.2) {
             try {
-                const originalVal = parseFloat(nerdamer(originalExpr, { x }).text('decimals'));
-                const resultVal = parseFloat(nerdamer(resultExpr, { x }).text('decimals'));
+                const xStr = x.toString();
+                const originalVal = parseFloat(nerdamer(originalExpr, { x: xStr }).text('decimals'));
+                const resultVal = parseFloat(nerdamer(resultExpr, { x: xStr }).text('decimals'));
 
                 // Skip if values are too large or NaN
                 if (Math.abs(originalVal) < 100 && Math.abs(resultVal) < 100 && !isNaN(originalVal) && !isNaN(resultVal)) {
