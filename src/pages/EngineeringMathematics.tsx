@@ -302,4 +302,4 @@ const EngineeringMathematics = () => {
     );
 };
 
-export default EngineeringMath;
+export default EngineeringMathematics;
