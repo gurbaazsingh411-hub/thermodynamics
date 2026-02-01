@@ -143,7 +143,8 @@ export const SubjectDashboard = () => {
                             className="cursor-pointer group"
                             onClick={() => subject.status === 'active' && navigate(subject.route)}
                         >
-                            <Card className={`h-full border-white/5 overflow-hidden relative bg-card/40 backdrop-blur-md hover:bg-card/60 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-primary/20 bg-gradient-to-br ${subject.color}`}>
+                            <Card className={`h-full border-white/10 overflow-hidden relative bg-black/20 backdrop-blur-xl hover:bg-black/30 transition-all duration-500 shadow-2xl hover:shadow-primary/20 group-hover:-translate-y-1 bg-gradient-to-br ${subject.color}`}>
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                                     {subject.icon}
                                 </div>
