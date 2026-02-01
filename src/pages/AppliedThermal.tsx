@@ -263,19 +263,17 @@ const AppliedThermal = () => {
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <GraduationCap className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Second Law Efficiency</CardTitle>
+                                                    <CardTitle className="text-warning">The Carnot Limit</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        The Kelvin-Planck statement of the second law says that no heat engine can be 100% efficient.
-                                                        Some heat must ALWAYS be rejected to a cold sink.
+                                                        The maximum possible efficiency of any heat engine is the <strong>Carnot Efficiency</strong>, defined by the temperature of the reservoirs:
                                                     </p>
                                                     <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
-                                                        η = W_net / Q_in
+                                                        η_max = 1 - (T_L / T_H)
                                                     </div>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        Try reducing Q_out to zero. You'll notice the efficiency would be 100%, but this is
-                                                        physically impossible in the real world!
+                                                    <p className="text-xs text-muted-foreground border-t border-warning/20 pt-2">
+                                                        To increase efficiency, we must either increase the source temperature (T_H) or decrease the sink temperature (T_L).
                                                     </p>
                                                 </CardContent>
                                             </Card>
@@ -458,12 +456,19 @@ const AppliedThermal = () => {
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Flame className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Second Law</CardTitle>
+                                                    <CardTitle className="text-warning">Refrigerants & Environment</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        The Clausius statement says: "Heat cannot spontaneously flow from cold to hot."
-                                                        You MUST put in work (W_in) to force this "uphill" energy transfer.
+                                                        Most systems use the <strong>Vapor Compression Cycle</strong> (Compression → Condensation → Expansion → Evaporation).
+                                                    </p>
+                                                    <div className="space-y-1 text-xs outline outline-1 outline-warning/20 p-2 rounded bg-background/50">
+                                                        <p><strong>Impact Metrics:</strong></p>
+                                                        <p>1. <strong>GWP:</strong> Global Warming Potential.</p>
+                                                        <p>2. <strong>ODP:</strong> Ozone Depletion Potential.</p>
+                                                    </div>
+                                                    <p className="text-xs italic text-muted-foreground">
+                                                        Modern engineering focuses on GWP {'<'} 150 (like R-1234yf or CO2) to mitigate climate impact.
                                                     </p>
                                                 </CardContent>
                                             </Card>

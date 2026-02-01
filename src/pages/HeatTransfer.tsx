@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
 import {
     Thermometer,
     ArrowRight,
@@ -66,7 +65,7 @@ const HeatTransfer = () => {
 
 
 
-    
+
 
     // Heat Exchanger State (Double Pipe Counter-Flow)
     const [exchangerParams, setExchangerParams] = useState({
@@ -140,8 +139,6 @@ const HeatTransfer = () => {
             <Header />
 
             <div className="flex flex-1">
-                <Sidebar />
-
                 <main className="flex-1 flex flex-col min-h-0">
                     {/* Study Mode Toggle */}
                     <div className="px-6 py-3 border-b border-border bg-card/50 flex items-center justify-between">
@@ -357,14 +354,21 @@ const HeatTransfer = () => {
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
                                                         Similar to electrical resistance, thermal resistance is the ratio of temperature difference
-                                                        to the rate of heat flow.
+                                                        to the rate of heat flow: <strong>R_th = L / k</strong>.
                                                     </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
-                                                        R_th = L / k
+                                                    <div className="space-y-2">
+                                                        <div className="font-semibold text-warning/80">Common Conductivities (k in W/m·K):</div>
+                                                        <div className="grid grid-cols-2 gap-2 text-xs font-mono bg-background/50 p-2 rounded border border-warning/20">
+                                                            <div className="flex justify-between border-b border-warning/10 pb-1"><span>Copper:</span> <span className="text-emerald-500">400</span></div>
+                                                            <div className="flex justify-between border-b border-warning/10 pb-1"><span>Aluminum:</span> <span className="text-emerald-500">235</span></div>
+                                                            <div className="flex justify-between border-b border-warning/10 pb-1"><span>Iron:</span> <span className="text-orange-500">80</span></div>
+                                                            <div className="flex justify-between border-b border-warning/10 pb-1"><span>Glass:</span> <span className="text-orange-500">0.8</span></div>
+                                                            <div className="flex justify-between"><span>Wood:</span> <span className="text-red-500">0.15</span></div>
+                                                            <div className="flex justify-between"><span>Air:</span> <span className="text-red-500">0.026</span></div>
+                                                        </div>
                                                     </div>
-                                                    <p>
-                                                        Increasing the thickness (L) or decreasing the conductivity (k) increases the resistance
-                                                        to heat flow, which is how insulation works.
+                                                    <p className="text-xs italic text-muted-foreground">
+                                                        Insulators like wood or air have extremely high resistance, preventing heat escape.
                                                     </p>
                                                 </CardContent>
                                             </Card>
@@ -552,12 +556,20 @@ const HeatTransfer = () => {
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Wind className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Boundary Layer</CardTitle>
+                                                    <CardTitle className="text-warning">Boundary Layer & h-Factors</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        Right next to the surface, the fluid is stationary (no-slip condition). Heat moves through this thin layer by conduction before being carried away by the moving fluid.
+                                                        Right next to the surface, the fluid is stationary (no-slip condition). Heat moves through this thin layer by conduction before being carried away.
                                                     </p>
+                                                    <div className="space-y-2">
+                                                        <p className="font-semibold text-warning/80">Factors affecting 'h':</p>
+                                                        <ul className="list-disc pl-5 space-y-1 text-xs">
+                                                            <li><strong>Fluid Velocity:</strong> Faster flow = thinner boundary layer = higher h.</li>
+                                                            <li><strong>Viscosity:</strong> Thick fluids (honey) flow slower, lowering h.</li>
+                                                            <li><strong>Phase:</strong> Boiling/Condensing can have h values 10-100x higher than air.</li>
+                                                        </ul>
+                                                    </div>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
@@ -722,13 +734,21 @@ const HeatTransfer = () => {
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Sun className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Why does it glow?</CardTitle>
+                                                    <CardTitle className="text-warning">Emissivity & Grey Bodies</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        As temperature increases, the wavelength of emitted radiation decreases.
-                                                        Around 800K (525°C), objects start removing visible red light ("red hot"). At higher temps, they glow orange, yellow, and eventually "white hot".
+                                                        As temperature increases, wavelength decreases. Objects glow red → white.
                                                     </p>
+                                                    <p>
+                                                        <strong>Real Surfaces:</strong> No real surface is a perfect Black Body (ε=1). Most engineering materials are "Grey Bodies" where ε is less than 1.
+                                                    </p>
+                                                    <div className="grid grid-cols-2 gap-2 text-xs font-mono bg-background/50 p-2 rounded border border-warning/20">
+                                                        <div className="flex justify-between"><span>Polished Silver:</span> <span className="text-emerald-500">0.02</span></div>
+                                                        <div className="flex justify-between"><span>Matte Black:</span> <span className="text-emerald-500">0.95</span></div>
+                                                        <div className="flex justify-between"><span>Rough Iron:</span> <span className="text-orange-500">0.70</span></div>
+                                                        <div className="flex justify-between"><span>Water/Ice:</span> <span className="text-orange-500">0.96</span></div>
+                                                    </div>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
@@ -904,10 +924,14 @@ const HeatTransfer = () => {
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <ArrowLeftRight className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Flow Arrangement</CardTitle>
+                                                    <CardTitle className="text-warning">LMTD vs ε-NTU</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
-                                                    <p>Counter-flow is generally more efficient than parallel flow because the outlet temperature of the cold fluid can exceed the outlet temperature of the hot fluid!</p>
+                                                    <p>While ε-NTU is best for predicting exit temps, the Log Mean Temp Difference (LMTD) is used for sizing:</p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-xs my-1">
+                                                        ΔT_lm = (ΔT1 - ΔT2) / ln(ΔT1/ΔT2)
+                                                    </div>
+                                                    <p className="text-xs">Counter-flow is more efficient because it maintains a larger, more consistent ΔT across the entire length, unlike parallel flow where ΔT drops rapidly.</p>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>

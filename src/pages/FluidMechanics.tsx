@@ -14,7 +14,6 @@ import {
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
 import {
     Droplets,
     Waves,
@@ -106,8 +105,6 @@ const FluidMechanics = () => {
             <Header />
 
             <div className="flex flex-1">
-                <Sidebar />
-
                 <main className="flex-1 flex flex-col min-h-0">
                     {/* Study Mode Toggle */}
                     <div className="px-6 py-3 border-b border-border bg-card/50 flex items-center justify-between">
@@ -344,19 +341,18 @@ const FluidMechanics = () => {
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <GraduationCap className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">The Venturi Effect</CardTitle>
+                                                    <CardTitle className="text-warning">The Venturi Effect & Energy</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        A special case of Bernoulli's principle. When a fluid flows through a constricted section
-                                                        of pipe, its velocity increases and its static pressure decreases.
+                                                        Bernoulli's principle is essentially <strong>Energy Conservation</strong> for flowing fluids. The total energy (Pressure + Kinetic + Potential) remains constant along a streamline.
                                                     </p>
                                                     <p>
-                                                        This is used in carburetors, pitot tubes, and even perfume sprayers!
+                                                        <strong>Venturi Effect in Engineering:</strong> By constricting a pipe, we create a low-pressure zone. This "suction" is used to mix fluids (carbs) or measure flow rate (Venturi meters).
                                                     </p>
-                                                    <div className="flex gap-2 items-center text-xs font-semibold text-warning mt-2">
-                                                        <div className="p-1 rounded bg-warning/20">Pro Tip</div>
-                                                        <span>Watch how the outlet pressure drops as you decrease the exit area!</span>
+                                                    <div className="flex gap-2 items-center text-xs font-semibold text-warning mt-2 border-t border-warning/10 pt-2">
+                                                        <div className="p-1 rounded bg-warning/20">Observation</div>
+                                                        <span>Notice how velocity spikes in the constriction while pressure drops!</span>
                                                     </div>
                                                 </CardContent>
                                             </Card>
@@ -526,11 +522,17 @@ const FluidMechanics = () => {
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Navigation className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Real World Impact</CardTitle>
+                                                    <CardTitle className="text-warning">Flow Transition & Profile</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        High viscosity fluids (like honey) tend to flow in a laminar way (low Re). Low viscosity fluids at high speeds (like air over a wing) are often turbulent (high Re).
+                                                        <strong>Laminar (Re {'<'} 2300):</strong> Fluid flows in parallel layers. The velocity profile is a perfect parabola.
+                                                    </p>
+                                                    <p>
+                                                        <strong>Turbulent (Re {'>'} 4000):</strong> Chaotic eddies mix the fluid. The velocity profile is "blunt" or flattened because momentum is transferred more efficiently across the pipe.
+                                                    </p>
+                                                    <p className="text-xs italic text-muted-foreground">
+                                                        The region between 2300 and 4000 is the <strong>Transition Zone</strong> where flow can flip unpredictably between laminar and turbulent.
                                                     </p>
                                                 </CardContent>
                                             </Card>
@@ -722,11 +724,17 @@ const FluidMechanics = () => {
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Waves className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Incompressible Flow</CardTitle>
+                                                    <CardTitle className="text-warning">Incompressible Mass Balance</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        This simple equation assumes the fluid density doesn't change (incompressible), which is true for water and low-speed airflow.
+                                                        This simple equation assumes the fluid density doesn't change (incompressible).
+                                                    </p>
+                                                    <p>
+                                                        <strong>Engineering Application:</strong> Fire nozzles use this to shoot water long distances. By reducing the outlet diameter, velocity is forced to increase significantly.
+                                                    </p>
+                                                    <p className="text-xs border-t border-warning/10 pt-2">
+                                                        <strong>Volumetric Flow Rate (Q):</strong> Q = Area × Velocity. Q₁ = Q₂.
                                                     </p>
                                                 </CardContent>
                                             </Card>

@@ -312,6 +312,24 @@ const EngineeringMechanics = () => {
                                                     </p>
                                                 </CardContent>
                                             </Card>
+
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <GraduationCap className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Static vs. Kinetic Friction</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        <strong>Static Friction (μs):</strong> The force keeping an object at rest. It must be overcome to start moving.
+                                                    </p>
+                                                    <p>
+                                                        <strong>Kinetic Friction (μk):</strong> The force acting on an object in motion. Usually, μk {'<'} μs, which is why it's harder to start a heavy box moving than to keep it sliding.
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10">
+                                                        <strong>Tip:</strong> The angle where sliding starts is called the "Angle of Repose". It satisfies: <strong>tan(θ) = μs</strong>.
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
                                         </motion.div>
                                     )}
                                 </TabsContent>
@@ -511,15 +529,18 @@ const EngineeringMechanics = () => {
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Move className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Pythagoras Theorem</CardTitle>
+                                                    <CardTitle className="text-warning">Moment & Torque Basics</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        You can always get back the original force vector from its components using Pythagoras theorem:
+                                                        Vectors aren't just for pulling! When a force vector is applied at a distance <strong>d</strong> from a point, it creates a <strong>Moment (Torque)</strong>.
                                                     </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
-                                                        F = √(Fx² + Fy²)
-                                                    </div>
+                                                    <p>
+                                                        <strong>Cross Product:</strong> M = r × F = |r|·|F|·sin(θ). This determines the rotational effect of a force.
+                                                    </p>
+                                                    <p className="text-xs italic text-muted-foreground border-t border-warning/10 pt-2">
+                                                        Only the component of force perpendicular to the lever arm contributes to the moment!
+                                                    </p>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>

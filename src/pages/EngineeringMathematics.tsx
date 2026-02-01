@@ -443,21 +443,51 @@ const CalculusCalculator = ({ isStudyMode }: { isStudyMode: boolean }) => {
             )}
 
             {isStudyMode && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Card className="border-warning/30 bg-warning/5">
+                            <CardHeader><CardTitle className="text-warning text-sm flex items-center gap-2"><TrendingUp className="w-4 h-4" />What is a Derivative?</CardTitle></CardHeader>
+                            <CardContent className="text-xs space-y-2">
+                                <p>Geometrically, a derivative represents the <strong>slope of the tangent line</strong> to a curve at a point. It's the "instantaneous rate of change".</p>
+                                <div className="bg-background/50 p-2 rounded font-mono text-center">lim(h→0) [f(x+h) - f(x)] / h</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="border-warning/30 bg-warning/5">
+                            <CardHeader><CardTitle className="text-warning text-sm flex items-center gap-2"><Calculator className="w-4 h-4" />What is an Integral?</CardTitle></CardHeader>
+                            <CardContent className="text-xs space-y-2">
+                                <p>An integral represents the <strong>accumulation of quantity</strong>, most commonly visualized as the "area under the curve".</p>
+                                <div className="bg-background/50 p-2 rounded font-mono text-center">∫ f(x) dx ≈ Σ f(x_i) Δx</div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Card className="border-warning/30 bg-warning/5">
+                            <CardHeader><CardTitle className="text-warning text-sm">Common Derivatives</CardTitle></CardHeader>
+                            <CardContent className="text-xs font-mono grid grid-cols-2 gap-1">
+                                <div>d/dx[c] = 0</div><div>d/dx[x^n] = nx^(n-1)</div>
+                                <div>d/dx[sin(x)] = cos(x)</div><div>d/dx[cos(x)] = -sin(x)</div>
+                                <div>d/dx[e^x] = e^x</div><div>d/dx[ln(x)] = 1/x</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="border-warning/30 bg-warning/5">
+                            <CardHeader><CardTitle className="text-warning text-sm">Common Integrals</CardTitle></CardHeader>
+                            <CardContent className="text-xs font-mono grid grid-cols-2 gap-1">
+                                <div>∫c dx = cx + C</div><div>∫x^n dx = x^(n+1)/(n+1)</div>
+                                <div>∫sin(x) dx = -cos(x)</div><div>∫cos(x) dx = sin(x)</div>
+                                <div>∫e^x dx = e^x</div><div>∫1/x dx = ln|x|</div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
                     <Card className="border-warning/30 bg-warning/5">
-                        <CardHeader><CardTitle className="text-warning text-sm">Differentiation Rules</CardTitle></CardHeader>
-                        <CardContent className="text-xs font-mono grid grid-cols-2 gap-1">
-                            <div>d/dx[c] = 0</div><div>d/dx[x^n] = nx^(n-1)</div>
-                            <div>d/dx[sin(x)] = cos(x)</div><div>d/dx[cos(x)] = -sin(x)</div>
-                            <div>d/dx[e^x] = e^x</div><div>d/dx[ln(x)] = 1/x</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="border-warning/30 bg-warning/5">
-                        <CardHeader><CardTitle className="text-warning text-sm">Integration Rules</CardTitle></CardHeader>
-                        <CardContent className="text-xs font-mono grid grid-cols-2 gap-1">
-                            <div>∫c dx = cx + C</div><div>∫x^n dx = x^(n+1)/(n+1)</div>
-                            <div>∫sin(x) dx = -cos(x)</div><div>∫cos(x) dx = sin(x)</div>
-                            <div>∫e^x dx = e^x</div><div>∫1/x dx = ln|x|</div>
+                        <CardHeader><CardTitle className="text-warning text-sm">How do calculators compute sin(x)?</CardTitle></CardHeader>
+                        <CardContent className="text-xs space-y-2">
+                            <p>Most calculators don't have a "giant table". They use <strong>Taylor Series</strong> expansion to approximate functions as infinite polynomials:</p>
+                            <div className="bg-background/50 p-2 rounded font-mono text-center text-[10px]">
+                                sin(x) ≈ x - x³/3! + x⁵/5! - x⁷/7! + ...
+                            </div>
+                            <p className="italic text-muted-foreground">The more terms added, the more accurate the result!</p>
                         </CardContent>
                     </Card>
                 </motion.div>
