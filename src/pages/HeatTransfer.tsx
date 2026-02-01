@@ -10,7 +10,9 @@ import {
     Info,
     Waves,
     Sun,
-    Wind
+    Wind,
+    ArrowLeftRight,
+    Activity
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,6 +48,44 @@ const HeatTransfer = () => {
     });
     const sigma = 5.67e-8;
     const qRadiation = radiationParams.emissivity * sigma * (Math.pow(radiationParams.tempSurface, 4) - Math.pow(radiationParams.tempSurr, 4));
+
+    // Heat Exchanger State (Double Pipe Counter-Flow)
+    const [exchangerParams, setExchangerParams] = useState({
+        mHot: 0.5, // kg/s
+        mCold: 0.5, // kg/s
+        tHotIn: 350, // K
+        tColdIn: 290, // K // ~17°C
+        length: 5 // m
+    });
+
+    // Effectiveness-NTU method calculations
+    const cp = 4186; // Water J/kgK
+    const U = 500; // Overall heat transfer coeff W/m2K (Water-Water)
+    const area = Math.PI * 0.1 * exchangerParams.length; // Diameter 0.1m approx
+
+    const C_hot = exchangerParams.mHot * cp;
+    const C_cold = exchangerParams.mCold * cp;
+    const C_min = Math.min(C_hot, C_cold);
+    const C_max = Math.max(C_hot, C_cold);
+    const C_r = C_min / C_max;
+    const NTU = (U * area) / C_min;
+
+    // Counter-flow effectiveness formula
+    // e = (1 - exp(-NTU * (1 - Cr))) / (1 - Cr * exp(-NTU * (1 - Cr)))
+    // Special case Cr = 1: e = NTU / (1 + NTU)
+    let effectiveness = 0;
+    if (Math.abs(1 - C_r) < 0.001) {
+        effectiveness = NTU / (1 + NTU);
+    } else {
+        const expTerm = Math.exp(-NTU * (1 - C_r));
+        effectiveness = (1 - expTerm) / (1 - C_r * expTerm);
+    }
+
+    const Q_max = C_min * (exchangerParams.tHotIn - exchangerParams.tColdIn);
+    const Q_actual = effectiveness * Q_max;
+
+    const tHotOut = exchangerParams.tHotIn - Q_actual / C_hot;
+    const tColdOut = exchangerParams.tColdIn + Q_actual / C_cold;
 
 
     return (
@@ -90,7 +130,7 @@ const HeatTransfer = () => {
                     <div className="flex-1 p-6 overflow-y-auto">
                         <div className="max-w-7xl mx-auto space-y-6">
                             <Tabs defaultValue="conduction" className="w-full">
-                                <TabsList className="grid w-full grid-cols-3 mb-8">
+                                <TabsList className="grid w-full grid-cols-4 mb-8">
                                     <TabsTrigger value="conduction" className="gap-2">
                                         <Thermometer className="w-4 h-4" /> Conduction
                                     </TabsTrigger>
@@ -99,6 +139,9 @@ const HeatTransfer = () => {
                                     </TabsTrigger>
                                     <TabsTrigger value="radiation" className="gap-2">
                                         <Sun className="w-4 h-4" /> Radiation
+                                    </TabsTrigger>
+                                    <TabsTrigger value="exchanger" className="gap-2">
+                                        <ArrowLeftRight className="w-4 h-4" /> Heat Exchanger
                                     </TabsTrigger>
                                 </TabsList>
 
@@ -355,13 +398,14 @@ const HeatTransfer = () => {
                                                                         initial={{ x: -50 }}
                                                                         animate={{
                                                                             x: 600,
-                                                                            y: r === 2 && qConvection > 0 ? -10 - Math.random() * 20 : 0, // Heat rising effect near surface
+                                                                            y: r === 2 && qConvection > 0 ? [-10, -30, -50] : [0, 2, 0],
+                                                                            opacity: r === 2 && qConvection > 0 ? [1, 0.5, 0] : 0.6,
                                                                             backgroundColor: r === 2 && qConvection > 0 ?
-                                                                                `hsl(${200 - (Math.min(convectionParams.tempSurface - 273, 200) / 200) * 180}, 70%, 60%)` :
+                                                                                [`hsl(${200 - (Math.min(convectionParams.tempSurface - 273, 200) / 200) * 180}, 70%, 60%)`, 'hsl(0, 100%, 50%)'] :
                                                                                 `hsl(${200 - (Math.min(convectionParams.tempFluid - 273, 200) / 200) * 180}, 70%, 60%)`
                                                                         }}
                                                                         transition={{
-                                                                            duration: 2,
+                                                                            duration: r === 2 && qConvection > 0 ? 1 : 2,
                                                                             repeat: Infinity,
                                                                             delay: i * 0.4 + r * 0.2,
                                                                             ease: "linear"
@@ -507,8 +551,10 @@ const HeatTransfer = () => {
 
                                                 {/* Background Surroundings */}
                                                 <div
-                                                    className="absolute inset-0 transition-colors duration-500"
-                                                    style={{ backgroundColor: `hsl(260, 20%, ${Math.min(radiationParams.tempSurr / 20, 40)}%)` }}
+                                                    className="absolute inset-0 transition-colors duration-1000"
+                                                    style={{
+                                                        background: `radial-gradient(circle at center, hsl(260, 30%, ${Math.min(radiationParams.tempSurr / 15, 20)}%), hsl(260, 20%, ${Math.min(radiationParams.tempSurr / 20, 10)}%))`
+                                                    }}
                                                 />
 
                                                 {/* Radiating Body */}
@@ -593,6 +639,170 @@ const HeatTransfer = () => {
                                                         As temperature increases, the wavelength of emitted radiation decreases.
                                                         Around 800K (525°C), objects start removing visible red light ("red hot"). At higher temps, they glow orange, yellow, and eventually "white hot".
                                                     </p>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    )}
+                                </TabsContent>
+
+                                <TabsContent value="exchanger" className="space-y-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                        {/* Controls */}
+                                        <Card className="lg:col-span-1">
+                                            <CardHeader>
+                                                <CardTitle className="text-lg">Counter-Flow Parameters</CardTitle>
+                                                <CardDescription>Double Pipe Heat Exchanger</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-6">
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Hot Inlet Temp (Th,in)</Label>
+                                                        <span className="text-sm font-mono">{exchangerParams.tHotIn} K</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[exchangerParams.tHotIn]}
+                                                        min={300} max={500}
+                                                        onValueChange={([v]) => setExchangerParams(p => ({ ...p, tHotIn: v }))}
+                                                    />
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Cold Inlet Temp (Tc,in)</Label>
+                                                        <span className="text-sm font-mono">{exchangerParams.tColdIn} K</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[exchangerParams.tColdIn]}
+                                                        min={273} max={350}
+                                                        onValueChange={([v]) => setExchangerParams(p => ({ ...p, tColdIn: v }))}
+                                                    />
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Mass Flow Hot (mh)</Label>
+                                                        <span className="text-sm font-mono">{exchangerParams.mHot} kg/s</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[exchangerParams.mHot]}
+                                                        min={0.1} max={2.0} step={0.1}
+                                                        onValueChange={([v]) => setExchangerParams(p => ({ ...p, mHot: v }))}
+                                                    />
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Mass Flow Cold (mc)</Label>
+                                                        <span className="text-sm font-mono">{exchangerParams.mCold} kg/s</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[exchangerParams.mCold]}
+                                                        min={0.1} max={2.0} step={0.1}
+                                                        onValueChange={([v]) => setExchangerParams(p => ({ ...p, mCold: v }))}
+                                                    />
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between">
+                                                        <Label>Pipe Length (L)</Label>
+                                                        <span className="text-sm font-mono">{exchangerParams.length} m</span>
+                                                    </div>
+                                                    <Slider
+                                                        value={[exchangerParams.length]}
+                                                        min={1} max={10} step={0.5}
+                                                        onValueChange={([v]) => setExchangerParams(p => ({ ...p, length: v }))}
+                                                    />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* Visualization */}
+                                        <Card className="lg:col-span-2">
+                                            <CardHeader>
+                                                <CardTitle>Temperature Profile</CardTitle>
+                                                <CardDescription>Counter-Flow Heat Exchange</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px] space-y-8">
+                                                {/* Pipe Visualization */}
+                                                <div className="relative w-full h-40 bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-inner p-4 flex flex-col justify-center gap-4">
+                                                    {/* Hot Fluid (Outer/Top) Flowing Right */}
+                                                    <div className="relative w-full h-12 bg-slate-800 rounded-full overflow-hidden flex items-center">
+                                                        <div className="absolute left-2 text-xs font-bold text-white z-10">Hot Fluid →</div>
+                                                        <div className="w-full h-full opacity-80"
+                                                            style={{
+                                                                background: `linear-gradient(to right, 
+                                                                    hsl(${((exchangerParams.tHotIn - 273) / 227) * 40}, 100%, 50%), 
+                                                                    hsl(${((tHotOut - 273) / 227) * 40}, 100%, 50%))`
+                                                            }}
+                                                        />
+                                                        {[...Array(6)].map((_, i) => (
+                                                            <motion.div
+                                                                key={`h-${i}`}
+                                                                className="absolute w-2 h-2 bg-white rounded-full blur-[1px]"
+                                                                initial={{ x: 0, opacity: 0 }}
+                                                                animate={{ x: 600, opacity: [0, 1, 0] }}
+                                                                transition={{ duration: 3 / exchangerParams.mHot, repeat: Infinity, delay: i * 0.3 }}
+                                                            />
+                                                        ))}
+                                                    </div>
+
+                                                    {/* Cold Fluid (Inner/Bottom) Flowing Left */}
+                                                    <div className="relative w-full h-12 bg-slate-800 rounded-full overflow-hidden flex items-center">
+                                                        <div className="absolute right-2 text-xs font-bold text-white z-10">← Cold Fluid</div>
+                                                        <div className="w-full h-full opacity-80"
+                                                            style={{
+                                                                background: `linear-gradient(to left, 
+                                                                    hsl(200, 100%, ${30 + ((exchangerParams.tColdIn - 273) / 100) * 40}%), 
+                                                                    hsl(200, 100%, ${30 + ((tColdOut - 273) / 100) * 40}%))`
+                                                            }}
+                                                        />
+                                                        {[...Array(6)].map((_, i) => (
+                                                            <motion.div
+                                                                key={`c-${i}`}
+                                                                className="absolute w-2 h-2 bg-white rounded-full blur-[1px]"
+                                                                initial={{ x: 600, opacity: 0 }}
+                                                                animate={{ x: 0, opacity: [0, 1, 0] }}
+                                                                transition={{ duration: 3 / exchangerParams.mCold, repeat: Infinity, delay: i * 0.3 }}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                {/* Results */}
+                                                <div className="grid grid-cols-3 gap-4 w-full">
+                                                    <div className="p-4 rounded bg-red-500/10 border border-red-500/20 text-center">
+                                                        <div className="text-2xl font-bold text-red-500">{tHotOut.toFixed(1)} K</div>
+                                                        <div className="text-xs text-muted-foreground uppercase">Th,out (Exit)</div>
+                                                    </div>
+                                                    <div className="p-4 rounded bg-emerald-500/10 border border-emerald-500/20 text-center">
+                                                        <div className="text-2xl font-bold text-emerald-500">{(Q_actual / 1000).toFixed(1)} kW</div>
+                                                        <div className="text-xs text-muted-foreground uppercase">Heat Transfer (Q)</div>
+                                                    </div>
+                                                    <div className="p-4 rounded bg-cyan-500/10 border border-cyan-500/20 text-center">
+                                                        <div className="text-2xl font-bold text-cyan-500">{tColdOut.toFixed(1)} K</div>
+                                                        <div className="text-xs text-muted-foreground uppercase">Tc,out (Exit)</div>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+
+                                    {isStudyMode && (
+                                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Activity className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Effectiveness-NTU Method</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>In a counter-flow heat exchanger, the fluids flow in opposite directions, maintaining a more uniform temperature difference.</p>
+                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">ε = Q_actual / Q_max</div>
+                                                    <p>Effectiveness (ε) represents how close the heat exchanger is to the maximum possible heat transfer.</p>
+                                                </CardContent>
+                                            </Card>
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <ArrowLeftRight className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Flow Arrangement</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>Counter-flow is generally more efficient than parallel flow because the outlet temperature of the cold fluid can exceed the outlet temperature of the hot fluid!</p>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
