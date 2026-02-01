@@ -12,6 +12,18 @@ import {
     Snowflake,
     TrendingUp
 } from 'lucide-react';
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    AreaChart,
+    Area,
+    ReferenceLine
+} from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -36,6 +48,22 @@ const AppliedThermal = () => {
     });
     const qHot = fridgeParams.qCold + fridgeParams.workIn;
     const cop = fridgeParams.qCold / fridgeParams.workIn;
+
+    // Heat Engine Graph Data (Efficiency vs Q_out)
+    const efficiencyData = Array.from({ length: 20 }, (_, i) => {
+        // Range Q_out from 0 to HeatIn
+        const qOutVal = (i / 19) * engineParams.heatIn;
+        const wNet = engineParams.heatIn - qOutVal;
+        const eff = (wNet / engineParams.heatIn) * 100;
+        return { qOut: qOutVal, efficiency: eff };
+    });
+
+    // Refrigerator Graph Data (COP vs Work Input)
+    const copData = Array.from({ length: 20 }, (_, i) => {
+        const wIn = 50 + i * 50; // 50 to 1000
+        const copVal = fridgeParams.qCold / wIn;
+        return { work: wIn, cop: copVal };
+    });
 
 
     return (
@@ -195,6 +223,21 @@ const AppliedThermal = () => {
                                                 </div>
                                             </CardContent>
                                         </Card>
+                                    </div>
+
+                                    {/* Graph */}
+                                    <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div className="text-sm font-semibold mb-2 text-slate-100">Efficiency vs Heat Rejected</div>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={efficiencyData}>
+                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                <XAxis dataKey="qOut" stroke="#94a3b8" label={{ value: 'Heat Rejected (kJ)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                <YAxis stroke="#94a3b8" label={{ value: 'Efficiency (%)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} domain={[0, 100]} />
+                                                <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                <ReferenceLine x={engineParams.heatOut} stroke="#ef4444" strokeDasharray="3 3" label="Current" />
+                                                <Area type="monotone" dataKey="efficiency" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
                                     </div>
 
                                     {/* Study Mode Content */}
@@ -375,6 +418,21 @@ const AppliedThermal = () => {
                                                 </div>
                                             </CardContent>
                                         </Card>
+                                    </div>
+
+                                    {/* Graph */}
+                                    <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div className="text-sm font-semibold mb-2 text-slate-100">COP vs Work Input</div>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart data={copData}>
+                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                <XAxis dataKey="work" stroke="#94a3b8" label={{ value: 'Work Input (kJ)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                <YAxis stroke="#94a3b8" label={{ value: 'COP', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                                                <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                <ReferenceLine x={fridgeParams.workIn} stroke="#fbbf24" strokeDasharray="3 3" label="Current" />
+                                                <Line type="monotone" dataKey="cop" stroke="#10b981" strokeWidth={3} dot={false} />
+                                            </LineChart>
+                                        </ResponsiveContainer>
                                     </div>
 
                                     {/* Study Mode Content */}

@@ -1,3 +1,16 @@
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    AreaChart,
+    Area,
+    ReferenceLine
+} from 'recharts';
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
@@ -20,6 +33,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const FluidMechanics = () => {
+    // ... State ...
     const [isStudyMode, setIsStudyMode] = useState(false);
     const [bernoulliParams, setBernoulliParams] = useState({
         pressure1: 200, // kPa
@@ -36,6 +50,16 @@ const FluidMechanics = () => {
     const velocity2 = bernoulliParams.velocity1 / bernoulliParams.area2;
     const pressure2 = (bernoulliParams.pressure1 * 1000 + 0.5 * rho * (Math.pow(bernoulliParams.velocity1, 2) - Math.pow(velocity2, 2)) + rho * g * (bernoulliParams.height1 - bernoulliParams.height2)) / 1000;
 
+    // Bernoulli Graph Data
+    const bernoulliData = Array.from({ length: 50 }, (_, i) => {
+        const x = i / 49; // 0 to 1 position along pipe
+        // Simulate constriction at simplified center x=0.5
+        const areaRatio = 1 - (1 - bernoulliParams.area2) * Math.exp(-Math.pow(x - 0.5, 2) / 0.02);
+        const v = bernoulliParams.velocity1 / areaRatio;
+        const p = (bernoulliParams.pressure1 * 1000 + 0.5 * rho * (Math.pow(bernoulliParams.velocity1, 2) - Math.pow(v, 2))) / 1000;
+        return { x: x * 100, p, v };
+    });
+
     // Pipe Flow State (Reynolds)
     const [pipeParams, setPipeParams] = useState({
         velocity: 2, // m/s
@@ -44,6 +68,19 @@ const FluidMechanics = () => {
     });
     // Re = (rho * v * D) / mu. Assuming rho=1000 for water.
     const reynoldsNumber = (1000 * pipeParams.velocity * pipeParams.diameter) / pipeParams.viscosity;
+
+    // Pipe Profile Graph Data
+    const pipeProfileData = Array.from({ length: 41 }, (_, i) => {
+        const rRatio = (i - 20) / 20; // -1 to 1
+        const rAbs = Math.abs(rRatio);
+        let vRatio = 0;
+        if (reynoldsNumber < 2300) {
+            vRatio = 1 - Math.pow(rAbs, 2); // Laminar
+        } else {
+            vRatio = Math.pow(1 - rAbs, 1 / 7); // Turbulent (Power Law)
+        }
+        return { r: rRatio, v: vRatio * pipeParams.velocity };
+    });
 
     // Continuity State
     const [continuityParams, setContinuityParams] = useState({
@@ -54,6 +91,14 @@ const FluidMechanics = () => {
     const area1 = Math.PI * Math.pow(continuityParams.diameter1 / 2, 2);
     const area2 = Math.PI * Math.pow(continuityParams.diameter2 / 2, 2);
     const continuityVelocity2 = (area1 * continuityParams.velocity1) / area2;
+
+    // Continuity Graph Data (Velocity vs Diameter Curve)
+    const continuityData = Array.from({ length: 30 }, (_, i) => {
+        const d = 0.02 + (i / 29) * 0.18; // 0.02m to 0.20m range
+        const a = Math.PI * Math.pow(d / 2, 2);
+        const v = (area1 * continuityParams.velocity1) / a;
+        return { d: d * 100, v };
+    });
 
 
     return (
@@ -225,6 +270,22 @@ const FluidMechanics = () => {
                                                         <div className="text-xs font-bold uppercase text-muted-foreground mb-1">Exit</div>
                                                         <div className="text-sm font-mono text-blue-600 font-bold">{velocity2.toFixed(1)} m/s</div>
                                                     </div>
+                                                </div>
+
+                                                {/* Graph */}
+                                                <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                                    <div className="text-sm font-semibold mb-2 text-slate-100">Pressure vs Velocity along Pipe</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart data={bernoulliData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                            <XAxis dataKey="x" stroke="#94a3b8" label={{ value: 'Position (%)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                            <YAxis yAxisId="left" stroke="#ef4444" label={{ value: 'Pressure (kPa)', angle: -90, position: 'insideLeft', fill: '#ef4444' }} domain={['auto', 'auto']} />
+                                                            <YAxis yAxisId="right" orientation="right" stroke="#3b82f6" label={{ value: 'Velocity (m/s)', angle: 90, position: 'insideRight', fill: '#3b82f6' }} domain={['auto', 'auto']} />
+                                                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                            <Line yAxisId="left" type="monotone" dataKey="p" name="Pressure" stroke="#ef4444" strokeWidth={3} dot={false} />
+                                                            <Line yAxisId="right" type="monotone" dataKey="v" name="Velocity" stroke="#3b82f6" strokeWidth={3} dot={false} />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
                                                 </div>
 
                                                 {/* Summary Metrics */}
@@ -405,6 +466,20 @@ const FluidMechanics = () => {
                                                     ))}
                                                 </div>
 
+                                                {/* Graph */}
+                                                <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                                    <div className="text-sm font-semibold mb-2 text-slate-100">Velocity Profile</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart layout="vertical" data={pipeProfileData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                            <XAxis type="number" dataKey="v" stroke="#94a3b8" label={{ value: 'Velocity (m/s)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                            <YAxis type="number" dataKey="r" stroke="#94a3b8" label={{ value: 'Radial Position', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} domain={[-1, 1]} />
+                                                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                            <Line type="monotone" dataKey="v" stroke="#f59e0b" strokeWidth={3} dot={false} />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
+                                                </div>
+
                                                 {/* Summary Metrics */}
                                                 <div className="grid grid-cols-2 gap-4 w-full mt-12">
                                                     <div className={`p-4 rounded-lg border text-center ${reynoldsNumber < 2300 ? 'bg-green-500/10 border-green-500/20 text-green-600' : (reynoldsNumber > 4000 ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-600')}`}>
@@ -582,6 +657,22 @@ const FluidMechanics = () => {
                                                         <div className="text-xs font-bold text-blue-200 uppercase">Velocity 2</div>
                                                         <div className="text-lg font-mono font-bold text-white">{continuityVelocity2.toFixed(1)} m/s</div>
                                                     </div>
+                                                </div>
+
+                                                {/* Graph */}
+                                                <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                                    <div className="text-sm font-semibold mb-2 text-slate-100">Velocity vs Pipe Diameter</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart data={continuityData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                            <XAxis dataKey="d" stroke="#94a3b8" label={{ value: 'Diameter (cm)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                            <YAxis stroke="#94a3b8" label={{ value: 'Velocity (m/s)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                                                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                            <ReferenceLine x={continuityParams.diameter1 * 100} stroke="#3b82f6" label="D1" strokeDasharray="3 3" />
+                                                            <ReferenceLine x={continuityParams.diameter2 * 100} stroke="#3b82f6" label="D2" strokeDasharray="3 3" />
+                                                            <Line type="monotone" dataKey="v" stroke="#10b981" strokeWidth={3} dot={false} />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
                                                 </div>
 
                                                 {/* Summary Metrics */}

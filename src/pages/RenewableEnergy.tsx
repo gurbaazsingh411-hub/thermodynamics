@@ -12,6 +12,18 @@ import {
     Battery,
     CloudSun
 } from 'lucide-react';
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    AreaChart,
+    Area,
+    ReferenceLine
+} from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -39,6 +51,23 @@ const RenewableEnergy = () => {
     const sweptArea = Math.PI * Math.pow(windParams.diameter / 2, 2);
     // P = 0.5 * rho * A * v^3 * Cp
     const windPower = 0.5 * airDensity * sweptArea * Math.pow(windParams.velocity, 3) * windParams.efficiency;
+
+    // Solar Graph Data (Daily Production Profile)
+    const solarDayData = Array.from({ length: 13 }, (_, i) => {
+        const hour = i + 6; // 6 AM to 6 PM
+        // Simple bell curve approximation for sun angle
+        const sunFactor = Math.sin(((hour - 6) / 12) * Math.PI);
+        const irradianceAtHour = solarParams.irradiance * sunFactor;
+        const powerAtHour = irradianceAtHour * solarParams.area * solarParams.efficiency;
+        return { hour: `${hour}:00`, power: powerAtHour };
+    });
+
+    // Wind Graph Data (Power Curve)
+    const windCurveData = Array.from({ length: 26 }, (_, i) => {
+        const v = i; // 0 to 25 m/s
+        const p = 0.5 * airDensity * sweptArea * Math.pow(v, 3) * windParams.efficiency;
+        return { velocity: v, power: p / 1000 }; // kW
+    });
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
@@ -192,6 +221,20 @@ const RenewableEnergy = () => {
                                                         <div className="text-2xl font-bold text-green-600">{(powerOutput / (solarParams.irradiance * solarParams.area || 1) * 100).toFixed(0)}%</div>
                                                         <div className="text-xs text-muted-foreground uppercase font-semibold">System Efficiency</div>
                                                     </div>
+                                                </div>
+
+                                                {/* Graph */}
+                                                <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                                    <div className="text-sm font-semibold mb-2 text-slate-100">Daily Power Profile (Simulated)</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <AreaChart data={solarDayData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                            <XAxis dataKey="hour" stroke="#94a3b8" label={{ value: 'Time of Day', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                            <YAxis stroke="#94a3b8" label={{ value: 'Power (W)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                                                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                            <Area type="monotone" dataKey="power" stroke="#facc15" fill="#facc15" fillOpacity={0.3} />
+                                                        </AreaChart>
+                                                    </ResponsiveContainer>
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -358,6 +401,21 @@ const RenewableEnergy = () => {
                                                 </div>
                                             </CardContent>
                                         </Card>
+                                    </div>
+
+                                    {/* Graph */}
+                                    <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div className="text-sm font-semibold mb-2 text-slate-100">Power Curve (P ∝ v³)</div>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={windCurveData}>
+                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                <XAxis dataKey="velocity" stroke="#94a3b8" label={{ value: 'Wind Speed (m/s)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                <YAxis stroke="#94a3b8" label={{ value: 'Power (kW)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                                                <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                <ReferenceLine x={windParams.velocity} stroke="#0ea5e9" strokeDasharray="3 3" label="Current" />
+                                                <Area type="monotone" dataKey="power" stroke="#0ea5e9" fill="#0ea5e9" fillOpacity={0.3} />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
                                     </div>
 
                                     {/* Study Mode Content */}

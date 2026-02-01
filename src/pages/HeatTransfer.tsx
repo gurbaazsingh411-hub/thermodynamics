@@ -14,6 +14,18 @@ import {
     ArrowLeftRight,
     Activity
 } from 'lucide-react';
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    AreaChart,
+    Area,
+    ReferenceLine
+} from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -48,6 +60,13 @@ const HeatTransfer = () => {
     });
     const sigma = 5.67e-8;
     const qRadiation = radiationParams.emissivity * sigma * (Math.pow(radiationParams.tempSurface, 4) - Math.pow(radiationParams.tempSurr, 4));
+
+
+
+
+
+
+    
 
     // Heat Exchanger State (Double Pipe Counter-Flow)
     const [exchangerParams, setExchangerParams] = useState({
@@ -86,6 +105,34 @@ const HeatTransfer = () => {
 
     const tHotOut = exchangerParams.tHotIn - Q_actual / C_hot;
     const tColdOut = exchangerParams.tColdIn + Q_actual / C_cold;
+
+    // Graph Data
+    const conductionData = [
+        { x: 0, temp: conductionParams.temperatureLeft },
+        { x: conductionParams.thickness / 2, temp: (conductionParams.temperatureLeft + conductionParams.temperatureRight) / 2 },
+        { x: conductionParams.thickness, temp: conductionParams.temperatureRight },
+    ];
+
+    const convectionData = Array.from({ length: 20 }, (_, i) => {
+        const dt = (100 * i) / 19;
+        return {
+            dt,
+            q: convectionParams.hCoeff * dt
+        };
+    });
+
+    const radiationData = Array.from({ length: 20 }, (_, i) => {
+        const t = (3000 * i) / 19;
+        return {
+            temp: t,
+            power: radiationParams.emissivity * 5.67e-8 * Math.pow(t, 4)
+        };
+    });
+
+    const exchangerData = [
+        { x: 0, tHot: exchangerParams.tHotIn, tCold: tColdOut },
+        { x: exchangerParams.length, tHot: tHotOut, tCold: exchangerParams.tColdIn }
+    ];
 
 
     return (
@@ -255,6 +302,20 @@ const HeatTransfer = () => {
                                                         <div className="text-2xl font-bold text-blue-600">{(conductionParams.thickness / conductionParams.conductivity).toFixed(4)}</div>
                                                         <div className="text-xs text-muted-foreground uppercase font-semibold">Thermal Resistance</div>
                                                     </div>
+                                                </div>
+
+                                                {/* Graph */}
+                                                <div className="mt-6 h-64 w-full bg-card border rounded-lg p-4">
+                                                    <div className="text-sm font-semibold mb-2">Temperature Gradient</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <AreaChart data={conductionData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                                                            <XAxis dataKey="x" label={{ value: 'Distance (m)', position: 'insideBottom', offset: -5 }} />
+                                                            <YAxis domain={['auto', 'auto']} label={{ value: 'Temp (K)', angle: -90, position: 'insideLeft' }} />
+                                                            <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }} />
+                                                            <Area type="monotone" dataKey="temp" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} />
+                                                        </AreaChart>
+                                                    </ResponsiveContainer>
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -444,6 +505,21 @@ const HeatTransfer = () => {
                                                         <div className="text-xs text-muted-foreground uppercase font-semibold">Heat Flux (q)</div>
                                                     </div>
                                                 </div>
+
+                                                {/* Graph */}
+                                                <div className="mt-6 h-64 w-full bg-card border rounded-lg p-4">
+                                                    <div className="text-sm font-semibold mb-2">Heat Transfer Rate vs ΔT</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart data={convectionData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                                                            <XAxis dataKey="dt" label={{ value: 'Delta T (K)', position: 'insideBottom', offset: -5 }} />
+                                                            <YAxis label={{ value: 'Heat Flux (W/m²)', angle: -90, position: 'insideLeft' }} />
+                                                            <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }} />
+                                                            <Line type="monotone" dataKey="q" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                                                            <ReferenceLine x={convectionParams.tempSurface - convectionParams.tempFluid} stroke="red" strokeDasharray="3 3" />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
+                                                </div>
                                             </CardContent>
                                         </Card>
                                     </div>
@@ -599,6 +675,20 @@ const HeatTransfer = () => {
                                                         {Math.abs(qRadiation).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                                                     </div>
                                                     <div className="text-xs uppercase tracking-widest text-white/60">Net Radiation (W/m²)</div>
+                                                </div>
+
+                                                {/* Graph */}
+                                                <div className="w-full mt-8 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4 z-10">
+                                                    <div className="text-sm font-semibold mb-2 text-slate-100">Emissive Power vs Temp</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <AreaChart data={radiationData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                            <XAxis dataKey="temp" stroke="#94a3b8" label={{ value: 'Temp (K)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                            <YAxis stroke="#94a3b8" label={{ value: 'Power (W/m²)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                                                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                            <Area type="monotone" dataKey="power" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.2} />
+                                                        </AreaChart>
+                                                    </ResponsiveContainer>
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -778,6 +868,21 @@ const HeatTransfer = () => {
                                                         <div className="text-2xl font-bold text-cyan-500">{tColdOut.toFixed(1)} K</div>
                                                         <div className="text-xs text-muted-foreground uppercase">Tc,out (Exit)</div>
                                                     </div>
+                                                </div>
+
+                                                {/* Graph */}
+                                                <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                                    <div className="text-sm font-semibold mb-2 text-slate-100">Temperature Profile Along Pipe</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart data={exchangerData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                            <XAxis dataKey="x" stroke="#94a3b8" label={{ value: 'Length (m)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                            <YAxis stroke="#94a3b8" domain={['auto', 'auto']} label={{ value: 'Temp (K)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                                                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} formatter={(value) => Number(value).toFixed(1)} />
+                                                            <Line type="monotone" dataKey="tHot" name="Hot Fluid" stroke="#ef4444" strokeWidth={3} dot={{ r: 3 }} />
+                                                            <Line type="monotone" dataKey="tCold" name="Cold Fluid" stroke="#06b6d4" strokeWidth={3} dot={{ r: 3 }} />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
                                                 </div>
                                             </CardContent>
                                         </Card>

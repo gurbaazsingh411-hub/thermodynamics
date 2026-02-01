@@ -3,6 +3,18 @@ import { motion } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    AreaChart,
+    Area,
+    ReferenceLine
+} from 'recharts';
+import {
     Settings,
     ArrowRight,
     RotateCcw,
@@ -44,6 +56,22 @@ const EngineeringMechanics = () => {
     const rad = vectorParams.angle * (Math.PI / 180);
     const fx = vectorParams.magnitude * Math.cos(rad);
     const fy = vectorParams.magnitude * Math.sin(rad);
+
+    // Friction Graph Data (Force vs Angle)
+    const frictionGraphData = Array.from({ length: 91 }, (_, i) => {
+        const angRad = (i * Math.PI) / 180;
+        const parallel = frictionParams.mass * 9.81 * Math.sin(angRad);
+        const frictionMax = frictionParams.coefficient * frictionParams.mass * 9.81 * Math.cos(angRad);
+        return { angle: i, parallel, frictionMax };
+    });
+
+    // Vector Graph Data (Components vs Angle)
+    const vectorGraphData = Array.from({ length: 91 }, (_, i) => {
+        const angRad = (i * Math.PI) / 180;
+        const fxVal = vectorParams.magnitude * Math.cos(angRad);
+        const fyVal = vectorParams.magnitude * Math.sin(angRad);
+        return { angle: i, fx: fxVal, fy: fyVal };
+    });
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
@@ -216,6 +244,22 @@ const EngineeringMechanics = () => {
                                                         </div>
                                                         <div className="text-xs text-muted-foreground uppercase font-bold">Acceleration</div>
                                                     </Card>
+                                                </div>
+
+                                                {/* Graph */}
+                                                <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                                    <div className="text-sm font-semibold mb-2 text-slate-100">Force Balance vs Angle</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart data={frictionGraphData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                            <XAxis dataKey="angle" stroke="#94a3b8" label={{ value: 'Angle (°)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                            <YAxis stroke="#94a3b8" label={{ value: 'Force (N)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                                                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                            <ReferenceLine x={frictionParams.angle} stroke="#ffffff" strokeDasharray="3 3" label="Current" />
+                                                            <Line type="monotone" dataKey="parallel" name="Gravity Component" stroke="#3b82f6" strokeWidth={3} dot={false} />
+                                                            <Line type="monotone" dataKey="frictionMax" name="Max Static Friction" stroke="#f97316" strokeWidth={3} dot={false} />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -420,6 +464,22 @@ const EngineeringMechanics = () => {
                                                         <div className="text-xs text-muted-foreground uppercase font-semibold">Fy (Vertical)</div>
                                                         <div className="text-[10px] text-muted-foreground font-mono">F · sin(θ)</div>
                                                     </div>
+                                                </div>
+
+                                                {/* Graph */}
+                                                <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                                    <div className="text-sm font-semibold mb-2 text-slate-100">Components vs Angle</div>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <AreaChart data={vectorGraphData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                            <XAxis dataKey="angle" stroke="#94a3b8" label={{ value: 'Angle (°)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                            <YAxis stroke="#94a3b8" label={{ value: 'Force (N)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                                                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} />
+                                                            <ReferenceLine x={vectorParams.angle} stroke="#ffffff" strokeDasharray="3 3" label="Current" />
+                                                            <Area type="monotone" dataKey="fx" name="Fx (Horizontal)" stackId="1" stroke="#ef4444" fill="#ef4444" fillOpacity={0.3} />
+                                                            <Area type="monotone" dataKey="fy" name="Fy (Vertical)" stackId="1" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
+                                                        </AreaChart>
+                                                    </ResponsiveContainer>
                                                 </div>
                                             </CardContent>
                                         </Card>
