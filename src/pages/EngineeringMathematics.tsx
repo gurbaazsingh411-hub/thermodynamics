@@ -1,298 +1,528 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import {
     Calculator,
-    Delete,
-    History,
-    Trash2,
+    TrendingUp,
+    ArrowRight,
     RotateCcw,
+    Info,
     ChevronDown,
     ChevronUp,
-    Settings
+    Play,
+    Eye,
+    GraduationCap
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    ReferenceLine,
+    Area,
+    AreaChart
+} from 'recharts';
+
+// Import nerdamer and its modules
+import nerdamer from 'nerdamer';
+import 'nerdamer/Calculus';
+import 'nerdamer/Algebra';
+import 'nerdamer/Solve';
+
+// Differentiation rules for step-by-step
+const DIFF_RULES: { [key: string]: { pattern: RegExp; rule: string; example: string } } = {
+    constant: { pattern: /^\d+$/, rule: "d/dx[c] = 0", example: "d/dx[5] = 0" },
+    power: { pattern: /x\^(\d+)/, rule: "d/dx[x^n] = n·x^(n-1)", example: "d/dx[x³] = 3x²" },
+    linear: { pattern: /^x$/, rule: "d/dx[x] = 1", example: "d/dx[x] = 1" },
+    sin: { pattern: /sin\(x\)/, rule: "d/dx[sin(x)] = cos(x)", example: "d/dx[sin(x)] = cos(x)" },
+    cos: { pattern: /cos\(x\)/, rule: "d/dx[cos(x)] = -sin(x)", example: "d/dx[cos(x)] = -sin(x)" },
+    exp: { pattern: /e\^x/, rule: "d/dx[e^x] = e^x", example: "d/dx[e^x] = e^x" },
+    ln: { pattern: /ln\(x\)/, rule: "d/dx[ln(x)] = 1/x", example: "d/dx[ln(x)] = 1/x" },
+};
+
+// Integration rules for step-by-step
+const INT_RULES: { [key: string]: { pattern: RegExp; rule: string; example: string } } = {
+    constant: { pattern: /^\d+$/, rule: "∫c dx = cx + C", example: "∫5 dx = 5x + C" },
+    power: { pattern: /x\^(\d+)/, rule: "∫x^n dx = x^(n+1)/(n+1) + C", example: "∫x² dx = x³/3 + C" },
+    linear: { pattern: /^x$/, rule: "∫x dx = x²/2 + C", example: "∫x dx = x²/2 + C" },
+    sin: { pattern: /sin\(x\)/, rule: "∫sin(x) dx = -cos(x) + C", example: "∫sin(x) dx = -cos(x) + C" },
+    cos: { pattern: /cos\(x\)/, rule: "∫cos(x) dx = sin(x) + C", example: "∫cos(x) dx = sin(x) + C" },
+    exp: { pattern: /e\^x/, rule: "∫e^x dx = e^x + C", example: "∫e^x dx = e^x + C" },
+    oneOverX: { pattern: /1\/x/, rule: "∫1/x dx = ln|x| + C", example: "∫1/x dx = ln|x| + C" },
+};
 
 const EngineeringMathematics = () => {
-    const [display, setDisplay] = useState('0');
-    const [equation, setEquation] = useState('');
-    const [history, setHistory] = useState<{ eq: string; res: string }[]>([]);
-    const [isRadians, setIsRadians] = useState(true);
-    const [showHistory, setShowHistory] = useState(false);
-    const [memory, setMemory] = useState<number>(0);
+    const [expression, setExpression] = useState('x^3 + 2*x^2 - x + 5');
+    const [variable, setVariable] = useState('x');
+    const [result, setResult] = useState<string | null>(null);
+    const [steps, setSteps] = useState<string[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [showGraph, setShowGraph] = useState(false);
+    const [graphData, setGraphData] = useState<{ x: number; original: number; result: number }[]>([]);
+    const [operation, setOperation] = useState<'differentiate' | 'integrate'>('differentiate');
+    const [showSteps, setShowSteps] = useState(true);
+    const [lowerBound, setLowerBound] = useState('0');
+    const [upperBound, setUpperBound] = useState('');
+    const [isStudyMode, setIsStudyMode] = useState(false);
 
-    const safeEvaluate = (expression: string) => {
+    // Generate step-by-step explanation
+    const generateSteps = (expr: string, op: 'differentiate' | 'integrate'): string[] => {
+        const stepsArr: string[] = [];
+        const rules = op === 'differentiate' ? DIFF_RULES : INT_RULES;
+        const symbol = op === 'differentiate' ? 'd/dx' : '∫';
+
+        stepsArr.push(`Given: f(x) = ${expr}`);
+        stepsArr.push(`Operation: ${op === 'differentiate' ? 'Differentiation' : 'Integration'}`);
+        stepsArr.push(`---`);
+
+        // Identify terms (simple split by + and -)
+        const terms = expr.replace(/\s/g, '').split(/(?=[+-])/);
+
+        terms.forEach((term, i) => {
+            stepsArr.push(`Term ${i + 1}: ${term}`);
+
+            // Try to match rules
+            let ruleApplied = false;
+            for (const [name, { pattern, rule, example }] of Object.entries(rules)) {
+                if (pattern.test(term)) {
+                    stepsArr.push(`  → Apply ${name} rule: ${rule}`);
+                    ruleApplied = true;
+                    break;
+                }
+            }
+
+            if (!ruleApplied) {
+                stepsArr.push(`  → Apply standard ${op} rule`);
+            }
+        });
+
+        stepsArr.push(`---`);
+        return stepsArr;
+    };
+
+    // Perform calculation
+    const calculate = () => {
+        setError(null);
+        setResult(null);
+        setSteps([]);
+        setGraphData([]);
+
         try {
-            // Replace engineering functions with JS Math equivalents
-            let evalString = expression
-                .replace(/×/g, '*')
-                .replace(/÷/g, '/')
-                .replace(/π/g, 'Math.PI')
-                .replace(/e/g, 'Math.E')
-                .replace(/√\(([^)]+)\)/g, 'Math.sqrt($1)')
-                .replace(/sin\(/g, isRadians ? 'Math.sin(' : `Math.sin((Math.PI/180)*`)
-                .replace(/cos\(/g, isRadians ? 'Math.cos(' : `Math.cos((Math.PI/180)*`)
-                .replace(/tan\(/g, isRadians ? 'Math.tan(' : `Math.tan((Math.PI/180)*`)
-                .replace(/log\(/g, 'Math.log10(')
-                .replace(/ln\(/g, 'Math.log(')
-                .replace(/\^/g, '**');
+            let res: string;
+            const generatedSteps = generateSteps(expression, operation);
 
-            // Handle implicit multiplication (e.g., 2PI -> 2*Math.PI)
-            // This is a simplified regex, might need more robustness for complex cases
-            // but calculator inputs are usually structured.
+            if (operation === 'differentiate') {
+                res = nerdamer(`diff(${expression}, ${variable})`).toString();
+                generatedSteps.push(`Result: f'(x) = ${res}`);
+            } else {
+                if (upperBound && lowerBound) {
+                    // Definite integral
+                    res = nerdamer(`defint(${expression}, ${lowerBound}, ${upperBound}, ${variable})`).toString();
+                    generatedSteps.push(`Definite Integral from ${lowerBound} to ${upperBound}:`);
+                    generatedSteps.push(`Result: ∫f(x)dx = ${res}`);
+                } else {
+                    // Indefinite integral
+                    res = nerdamer(`integrate(${expression}, ${variable})`).toString();
+                    generatedSteps.push(`Result: ∫f(x)dx = ${res} + C`);
+                }
+            }
 
-            // Using Function constructor for safe-ish eval of math only
-            // eslint-disable-next-line @typescript-eslint/no-implied-eval
-            const result = new Function('return ' + evalString)();
-            return parseFloat(result.toFixed(8)).toString();
-        } catch (error) {
-            return 'Error';
+            setResult(res);
+            setSteps(generatedSteps);
+
+            // Generate graph data
+            if (showGraph) {
+                generateGraphData(expression, res);
+            }
+        } catch (e: any) {
+            setError(e.message || 'Invalid expression. Please check your input.');
         }
     };
 
-    const handlePress = (val: string) => {
-        setDisplay(prev => {
-            if (prev === '0' || prev === 'Error') return val;
-            return prev + val;
-        });
-    };
+    // Generate graph data for visualization
+    const generateGraphData = (originalExpr: string, resultExpr: string) => {
+        const data: { x: number; original: number; result: number }[] = [];
 
-    const handleOperation = (op: string) => {
-        if (display === 'Error') return;
-        setDisplay(prev => prev + op);
-    };
+        for (let x = -5; x <= 5; x += 0.2) {
+            try {
+                const originalVal = parseFloat(nerdamer(originalExpr, { x }).text('decimals'));
+                const resultVal = parseFloat(nerdamer(resultExpr, { x }).text('decimals'));
 
-    const handleFunction = (func: string) => {
-        if (display === 'Error') setDisplay('0');
-
-        setDisplay(prev => {
-            const isZero = prev === '0';
-            const suffix = '(';
-            return isZero ? func + suffix : prev + func + suffix;
-        });
-    };
-
-    const handleClear = () => {
-        setDisplay('0');
-        setEquation('');
-    };
-
-    const handleDelete = () => {
-        setDisplay(prev => {
-            if (prev.length === 1 || prev === 'Error') return '0';
-            return prev.slice(0, -1);
-        });
-    };
-
-    const handleEqual = () => {
-        const result = safeEvaluate(display);
-        if (result !== 'Error') {
-            setHistory(prev => [{ eq: display, res: result }, ...prev].slice(0, 50));
-            setEquation(display + ' =');
-            setDisplay(result);
-        } else {
-            setDisplay('Error');
+                // Skip if values are too large or NaN
+                if (Math.abs(originalVal) < 100 && Math.abs(resultVal) < 100 && !isNaN(originalVal) && !isNaN(resultVal)) {
+                    data.push({
+                        x: parseFloat(x.toFixed(2)),
+                        original: parseFloat(originalVal.toFixed(4)),
+                        result: parseFloat(resultVal.toFixed(4))
+                    });
+                }
+            } catch {
+                // Skip points that cause errors (like division by zero)
+            }
         }
+
+        setGraphData(data);
     };
 
-    // Keyboard support
-    const handleKeyDown = useCallback((e: KeyboardEvent) => {
-        const key = e.key;
-        if (/[0-9.]/.test(key)) handlePress(key);
-        if (['+', '-', '*', '/'].includes(key)) handleOperation(key === '*' ? '×' : key === '/' ? '÷' : key);
-        if (key === 'Enter') handleEqual();
-        if (key === 'Backspace') handleDelete();
-        if (key === 'Escape') handleClear();
-        if (key === '(' || key === ')') handlePress(key);
-    }, [display]); // Depend on display if needed, but setState functional updates handle it.
-
-    useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleKeyDown]);
-
-    const Btn = ({ label, onClick, variant = 'default', className = '' }: { label: React.ReactNode, onClick: () => void, variant?: 'default' | 'secondary' | 'accent' | 'ghost', className?: string }) => {
-        const baseStyle = "h-14 text-lg font-medium transition-all duration-200 active:scale-95";
-        const variants = {
-            default: "bg-secondary/50 hover:bg-secondary/80 text-foreground",
-            secondary: "bg-muted/50 hover:bg-muted/80 text-muted-foreground",
-            accent: "bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20",
-            ghost: "hover:bg-accent/20 text-accent-foreground"
-        };
-
-        return (
-            <Button
-                variant="ghost"
-                className={`${baseStyle} ${variants[variant]} ${className}`}
-                onClick={onClick}
-            >
-                {label}
-            </Button>
-        );
-    };
+    // Example expressions
+    const examples = [
+        { expr: 'x^3 + 2*x^2 - x + 5', label: 'Polynomial' },
+        { expr: 'sin(x) + cos(x)', label: 'Trigonometric' },
+        { expr: 'e^x + ln(x)', label: 'Exponential' },
+        { expr: 'x^2 * sin(x)', label: 'Product' },
+        { expr: '1/(x^2 + 1)', label: 'Rational' },
+    ];
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <Header />
             <div className="flex flex-1 overflow-hidden">
                 <Sidebar />
-                <main className="flex-1 flex flex-col p-4 md:p-8 overflow-y-auto">
-                    <div className="max-w-4xl mx-auto w-full space-y-6">
+                <main className="flex-1 flex flex-col min-h-0">
+                    {/* Study Mode Toggle */}
+                    <div className="px-6 py-3 border-b border-border bg-card/50 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <Calculator className="w-4 h-4 text-primary" />
+                                <span className="font-semibold">Calculus Calculator</span>
+                            </div>
 
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-bold flex items-center gap-2">
-                                <Calculator className="w-6 h-6 text-primary" />
-                                Engineering Calculator
-                            </h2>
-                            <div className="flex gap-2">
-                                <Button
-                                    variant={isRadians ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={() => setIsRadians(true)}
+                            <div className="flex items-center gap-2 ml-4">
+                                <Switch
+                                    id="study-mode"
+                                    checked={isStudyMode}
+                                    onCheckedChange={setIsStudyMode}
+                                />
+                                <Label
+                                    htmlFor="study-mode"
+                                    className={`text-sm cursor-pointer flex items-center gap-2 ${isStudyMode ? 'text-warning font-medium' : 'text-muted-foreground'}`}
                                 >
-                                    RAD
-                                </Button>
-                                <Button
-                                    variant={!isRadians ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={() => setIsRadians(false)}
-                                >
-                                    DEG
-                                </Button>
+                                    <GraduationCap className="w-4 h-4" />
+                                    Study Mode
+                                </Label>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* Calculator Interface */}
-                            <Card className="md:col-span-2 shadow-xl border-primary/10">
-                                <CardHeader className="bg-muted/20 pb-2">
-                                    <div className="flex justify-between items-center text-xs text-muted-foreground px-1 h-6">
-                                        <span>{equation}</span>
-                                        <span className="font-mono">{isRadians ? 'RAD' : 'DEG'}</span>
-                                    </div>
-                                    <div className="text-4xl font-mono font-medium text-right tracking-wider py-4 px-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
-                                        {display}
-                                    </div>
+                        {isStudyMode && (
+                            <span className="text-xs text-warning bg-warning/10 px-3 py-1 rounded-full border border-warning/30 animate-pulse">
+                                Step-by-step explanations active
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="flex-1 p-6 overflow-y-auto">
+                        <div className="max-w-6xl mx-auto space-y-6">
+
+                            {/* Main Calculator Card */}
+                            <Card className="shadow-xl border-primary/10">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <TrendingUp className="w-5 h-5 text-primary" />
+                                        Symbolic Calculus
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Enter a function to differentiate or integrate with step-by-step solutions
+                                    </CardDescription>
                                 </CardHeader>
-                                <CardContent className="p-4">
-                                    <div className="grid grid-cols-5 gap-3">
-                                        {/* Row 1: Memory & Clear */}
-                                        <Btn label="MC" variant="secondary" onClick={() => setMemory(0)} />
-                                        <Btn label="MR" variant="secondary" onClick={() => setDisplay(memory.toString())} />
-                                        <Btn label="M+" variant="secondary" onClick={() => setMemory(m => m + parseFloat(display))} />
-                                        <Btn label="AC" variant="secondary" className="text-red-400" onClick={handleClear} />
-                                        <Btn label={<Delete className="w-5 h-5" />} variant="secondary" className="text-orange-400" onClick={handleDelete} />
+                                <CardContent className="space-y-6">
+                                    {/* Operation Tabs */}
+                                    <Tabs value={operation} onValueChange={(v) => setOperation(v as any)} className="w-full">
+                                        <TabsList className="grid w-full grid-cols-2">
+                                            <TabsTrigger value="differentiate" className="gap-2">
+                                                d/dx Differentiate
+                                            </TabsTrigger>
+                                            <TabsTrigger value="integrate" className="gap-2">
+                                                ∫ Integrate
+                                            </TabsTrigger>
+                                        </TabsList>
+                                    </Tabs>
 
-                                        {/* Row 2: Sci Functions */}
-                                        <Btn label="sin" variant="secondary" onClick={() => handleFunction('sin')} />
-                                        <Btn label="cos" variant="secondary" onClick={() => handleFunction('cos')} />
-                                        <Btn label="tan" variant="secondary" onClick={() => handleFunction('tan')} />
-                                        <Btn label="(" variant="secondary" onClick={() => handlePress('(')} />
-                                        <Btn label=")" variant="secondary" onClick={() => handlePress(')')} />
+                                    {/* Input Section */}
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div className="md:col-span-3 space-y-2">
+                                            <Label>Function f(x)</Label>
+                                            <Input
+                                                value={expression}
+                                                onChange={(e) => setExpression(e.target.value)}
+                                                placeholder="e.g., x^3 + 2*x - sin(x)"
+                                                className="font-mono text-lg h-12"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Variable</Label>
+                                            <Input
+                                                value={variable}
+                                                onChange={(e) => setVariable(e.target.value)}
+                                                placeholder="x"
+                                                className="font-mono text-lg h-12"
+                                            />
+                                        </div>
+                                    </div>
 
-                                        {/* Row 3: More Sci */}
-                                        <Btn label="ln" variant="secondary" onClick={() => handleFunction('ln')} />
-                                        <Btn label="log" variant="secondary" onClick={() => handleFunction('log')} />
-                                        <Btn label="x²" variant="secondary" onClick={() => setDisplay(p => `${p}^2`)} />
-                                        <Btn label="√" variant="secondary" onClick={() => handleFunction('√')} />
-                                        <Btn label="x^y" variant="secondary" onClick={() => setDisplay(p => `${p}^`)} />
+                                    {/* Integration Bounds (only for integration) */}
+                                    {operation === 'integrate' && (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Lower Bound (optional)</Label>
+                                                <Input
+                                                    value={lowerBound}
+                                                    onChange={(e) => setLowerBound(e.target.value)}
+                                                    placeholder="e.g., 0"
+                                                    className="font-mono"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Upper Bound (optional)</Label>
+                                                <Input
+                                                    value={upperBound}
+                                                    onChange={(e) => setUpperBound(e.target.value)}
+                                                    placeholder="e.g., 1"
+                                                    className="font-mono"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
 
-                                        {/* Row 4: Numbers & Basic Op */}
-                                        <Btn label="7" onClick={() => handlePress('7')} />
-                                        <Btn label="8" onClick={() => handlePress('8')} />
-                                        <Btn label="9" onClick={() => handlePress('9')} />
-                                        <Btn label="÷" variant="default" className="bg-primary/10 text-primary" onClick={() => handleOperation('÷')} />
-                                        <Btn label="π" variant="secondary" onClick={() => handlePress('π')} />
+                                    {/* Actions */}
+                                    <div className="flex flex-wrap gap-3">
+                                        <Button onClick={calculate} className="gap-2">
+                                            <Play className="w-4 h-4" />
+                                            Calculate
+                                        </Button>
+                                        <Button variant="outline" onClick={() => setShowGraph(!showGraph)} className="gap-2">
+                                            <Eye className="w-4 h-4" />
+                                            {showGraph ? 'Hide Graph' : 'Show Graph'}
+                                        </Button>
+                                        <Button variant="ghost" onClick={() => {
+                                            setExpression('');
+                                            setResult(null);
+                                            setSteps([]);
+                                            setError(null);
+                                            setGraphData([]);
+                                        }} className="gap-2">
+                                            <RotateCcw className="w-4 h-4" />
+                                            Clear
+                                        </Button>
+                                    </div>
 
-                                        {/* Row 5 */}
-                                        <Btn label="4" onClick={() => handlePress('4')} />
-                                        <Btn label="5" onClick={() => handlePress('5')} />
-                                        <Btn label="6" onClick={() => handlePress('6')} />
-                                        <Btn label="×" variant="default" className="bg-primary/10 text-primary" onClick={() => handleOperation('×')} />
-                                        <Btn label="e" variant="secondary" onClick={() => handlePress('e')} />
-
-                                        {/* Row 6 */}
-                                        <Btn label="1" onClick={() => handlePress('1')} />
-                                        <Btn label="2" onClick={() => handlePress('2')} />
-                                        <Btn label="3" onClick={() => handlePress('3')} />
-                                        <Btn label="-" variant="default" className="bg-primary/10 text-primary" onClick={() => handleOperation('-')} />
-                                        <Btn label="Ans" variant="secondary" onClick={() => history.length > 0 && setDisplay(history[0].res)} />
-
-                                        {/* Row 7 */}
-                                        <Btn label="0" className="col-span-2" onClick={() => handlePress('0')} />
-                                        <Btn label="." onClick={() => handlePress('.')} />
-                                        <Btn label="=" variant="accent" onClick={handleEqual} />
-                                        <Btn label="+" variant="default" className="bg-primary/10 text-primary" onClick={() => handleOperation('+')} />
+                                    {/* Quick Examples */}
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="text-sm text-muted-foreground">Examples:</span>
+                                        {examples.map((ex) => (
+                                            <Button
+                                                key={ex.label}
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setExpression(ex.expr)}
+                                            >
+                                                {ex.label}
+                                            </Button>
+                                        ))}
                                     </div>
                                 </CardContent>
                             </Card>
 
-                            {/* History Sidebar */}
-                            <div className="space-y-6">
-                                <Card className="h-full flex flex-col">
-                                    <CardHeader className="py-4 border-b">
-                                        <div className="flex items-center justify-between">
-                                            <CardTitle className="text-base flex items-center gap-2">
-                                                <History className="w-4 h-4" />
-                                                History
-                                            </CardTitle>
-                                            <Button variant="ghost" size="icon" onClick={() => setHistory([])} disabled={history.length === 0}>
-                                                <Trash2 className="w-4 h-4 text-muted-foreground hover:text-red-400" />
-                                            </Button>
-                                        </div>
-                                    </CardHeader>
-                                    <ScrollArea className="flex-1 p-4 h-[500px]">
-                                        <div className="space-y-4">
-                                            {history.length === 0 ? (
-                                                <div className="text-center text-muted-foreground text-sm py-8">
-                                                    No calculations yet
-                                                </div>
-                                            ) : (
-                                                history.map((item, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className="group flex flex-col items-end p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors border border-transparent hover:border-border"
-                                                        onClick={() => setDisplay(item.res)}
-                                                    >
-                                                        <span className="text-xs text-muted-foreground mb-1">{item.eq} =</span>
-                                                        <span className="text-lg font-mono font-medium text-primary">{item.res}</span>
-                                                    </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    </ScrollArea>
-                                </Card>
+                            {/* Error Display */}
+                            {error && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400"
+                                >
+                                    <strong>Error:</strong> {error}
+                                </motion.div>
+                            )}
 
-                                <Card>
-                                    <CardHeader className="py-3">
-                                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                                            <Settings className="w-4 h-4" />
-                                            Constants
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="grid grid-cols-2 gap-2 text-sm">
-                                        <Button variant="outline" className="justify-between" onClick={() => handlePress('3.14159265')}>
-                                            <span>π</span>
-                                            <span className="text-xs text-muted-foreground">3.14159</span>
-                                        </Button>
-                                        <Button variant="outline" className="justify-between" onClick={() => handlePress('2.71828182')}>
-                                            <span>e</span>
-                                            <span className="text-xs text-muted-foreground">2.71828</span>
-                                        </Button>
-                                        <Button variant="outline" className="justify-between" onClick={() => handlePress('9.81')}>
-                                            <span>g</span>
-                                            <span className="text-xs text-muted-foreground">9.81</span>
-                                        </Button>
-                                        <Button variant="outline" className="justify-between" onClick={() => handlePress('299792458')}>
-                                            <span>c</span>
-                                            <span className="text-xs text-muted-foreground">3.00e8</span>
-                                        </Button>
-                                    </CardContent>
-                                </Card>
-                            </div>
+                            {/* Results Section */}
+                            {result && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                                >
+                                    {/* Result Card */}
+                                    <Card className="bg-primary/5 border-primary/20">
+                                        <CardHeader>
+                                            <CardTitle className="text-primary">Result</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="text-3xl font-mono font-bold text-center py-6 overflow-x-auto">
+                                                {operation === 'differentiate' ? "f'(x) = " : "∫f(x)dx = "}
+                                                {result}
+                                                {operation === 'integrate' && !upperBound && ' + C'}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Steps Card */}
+                                    {(showSteps || isStudyMode) && steps.length > 0 && (
+                                        <Card>
+                                            <CardHeader className="flex flex-row items-center justify-between">
+                                                <CardTitle className="flex items-center gap-2">
+                                                    <Info className="w-4 h-4" />
+                                                    Step-by-Step Solution
+                                                </CardTitle>
+                                                <Button variant="ghost" size="sm" onClick={() => setShowSteps(!showSteps)}>
+                                                    {showSteps ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                </Button>
+                                            </CardHeader>
+                                            <AnimatePresence>
+                                                {showSteps && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                    >
+                                                        <CardContent className="space-y-2">
+                                                            {steps.map((step, i) => (
+                                                                <motion.div
+                                                                    key={i}
+                                                                    initial={{ opacity: 0, x: -10 }}
+                                                                    animate={{ opacity: 1, x: 0 }}
+                                                                    transition={{ delay: i * 0.05 }}
+                                                                    className={`font-mono text-sm py-1 ${step === '---' ? 'border-t border-border my-2' : ''}`}
+                                                                >
+                                                                    {step !== '---' && step}
+                                                                </motion.div>
+                                                            ))}
+                                                        </CardContent>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </Card>
+                                    )}
+                                </motion.div>
+                            )}
+
+                            {/* Graph Visualization */}
+                            {showGraph && result && graphData.length > 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                >
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Graphical Visualization</CardTitle>
+                                            <CardDescription>
+                                                Comparing f(x) with its {operation === 'differentiate' ? 'derivative' : 'integral'}
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="h-80 w-full">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <LineChart data={graphData}>
+                                                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                                                        <XAxis
+                                                            dataKey="x"
+                                                            stroke="#94a3b8"
+                                                            label={{ value: 'x', position: 'insideBottomRight', offset: -5 }}
+                                                        />
+                                                        <YAxis
+                                                            stroke="#94a3b8"
+                                                            label={{ value: 'y', angle: -90, position: 'insideLeft' }}
+                                                        />
+                                                        <Tooltip
+                                                            contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155' }}
+                                                            labelStyle={{ color: '#f8fafc' }}
+                                                        />
+                                                        <ReferenceLine x={0} stroke="#64748b" />
+                                                        <ReferenceLine y={0} stroke="#64748b" />
+                                                        <Line
+                                                            type="monotone"
+                                                            dataKey="original"
+                                                            name="f(x)"
+                                                            stroke="#3b82f6"
+                                                            strokeWidth={2}
+                                                            dot={false}
+                                                        />
+                                                        <Line
+                                                            type="monotone"
+                                                            dataKey="result"
+                                                            name={operation === 'differentiate' ? "f'(x)" : "∫f(x)dx"}
+                                                            stroke="#10b981"
+                                                            strokeWidth={2}
+                                                            dot={false}
+                                                        />
+                                                    </LineChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                            <div className="flex justify-center gap-6 mt-4 text-sm">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-4 h-1 bg-blue-500 rounded" />
+                                                    <span>f(x) = {expression}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-4 h-1 bg-green-500 rounded" />
+                                                    <span>{operation === 'differentiate' ? "f'(x)" : "∫f(x)dx"} = {result}</span>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            )}
+
+                            {/* Study Mode Educational Content */}
+                            {isStudyMode && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                >
+                                    <Card className="border-warning/30 bg-warning/5">
+                                        <CardHeader>
+                                            <CardTitle className="text-warning flex items-center gap-2">
+                                                <Info className="w-5 h-5" />
+                                                Differentiation Rules
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-3 text-sm font-mono">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div>d/dx[c] = 0</div>
+                                                <div>d/dx[x^n] = nx^(n-1)</div>
+                                                <div>d/dx[sin(x)] = cos(x)</div>
+                                                <div>d/dx[cos(x)] = -sin(x)</div>
+                                                <div>d/dx[e^x] = e^x</div>
+                                                <div>d/dx[ln(x)] = 1/x</div>
+                                            </div>
+                                            <div className="pt-2 border-t border-warning/20 text-xs text-muted-foreground">
+                                                <strong>Chain Rule:</strong> d/dx[f(g(x))] = f'(g(x)) · g'(x)
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="border-warning/30 bg-warning/5">
+                                        <CardHeader>
+                                            <CardTitle className="text-warning flex items-center gap-2">
+                                                <Info className="w-5 h-5" />
+                                                Integration Rules
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-3 text-sm font-mono">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div>∫c dx = cx + C</div>
+                                                <div>∫x^n dx = x^(n+1)/(n+1)</div>
+                                                <div>∫sin(x) dx = -cos(x)</div>
+                                                <div>∫cos(x) dx = sin(x)</div>
+                                                <div>∫e^x dx = e^x</div>
+                                                <div>∫1/x dx = ln|x|</div>
+                                            </div>
+                                            <div className="pt-2 border-t border-warning/20 text-xs text-muted-foreground">
+                                                <strong>Integration by Parts:</strong> ∫u dv = uv - ∫v du
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            )}
 
                         </div>
                     </div>
