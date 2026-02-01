@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 export function Header() {
   return (
-    <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-6">
+    <header className="h-14 border-b border-white/10 bg-card/20 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-30 shadow-sm">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">

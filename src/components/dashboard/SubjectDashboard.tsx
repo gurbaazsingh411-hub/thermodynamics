@@ -109,14 +109,14 @@ export const SubjectDashboard = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/20 p-8">
+        <div className="min-h-screen bg-transparent p-8 relative z-10">
             <div className="max-w-7xl mx-auto space-y-12">
                 {/* Header */}
                 <div className="text-left space-y-4">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-primary via-blue-500 to-purple-600 bg-clip-text text-transparent"
+                        className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-primary via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-sm"
                     >
                         Engineering Concepts Simulator
                     </motion.h1>
@@ -124,7 +124,7 @@ export const SubjectDashboard = () => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-xl text-muted-foreground max-w-3xl"
+                        className="text-xl text-muted-foreground/80 max-w-3xl"
                     >
                         Select a subject to explore interactive simulations and master fundamental engineering principles.
                     </motion.p>
@@ -138,11 +138,12 @@ export const SubjectDashboard = () => {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: index * 0.05 }}
-                            whileHover={{ scale: 1.02 }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.98 }}
                             className="cursor-pointer group"
                             onClick={() => subject.status === 'active' && navigate(subject.route)}
                         >
-                            <Card className={`h-full border-none overflow-hidden relative glassmorphism-card bg-gradient-to-br ${subject.color}`}>
+                            <Card className={`h-full border-white/5 overflow-hidden relative bg-card/40 backdrop-blur-md hover:bg-card/60 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-primary/20 bg-gradient-to-br ${subject.color}`}>
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                                     {subject.icon}
                                 </div>

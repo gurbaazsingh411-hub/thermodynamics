@@ -37,7 +37,7 @@
 
     --radius: 0.5rem;
 
-    /* Custom ThermoVis Colors */
+  /* Custom ThermoVis Colors */
     --heat: 25 95% 53%;
     --heat-glow: 25 100% 60%;
     --cold: 210 100% 56%;
@@ -61,23 +61,18 @@
     --gradient-cold: linear-gradient(135deg, hsl(210 100% 56%), hsl(186 100% 50%));
     --gradient-efficiency: linear-gradient(135deg, hsl(142 76% 46%), hsl(186 100% 50%));
     --gradient-primary: linear-gradient(135deg, hsl(186 100% 50%), hsl(186 80% 40%));
-    --gradient-surface: linear-gradient(180deg, hsl(222 47% 10%), hsl(222 47% 6%));
+    --gradient-surface: linear-gradient(180deg, hsl(222 47% 10% / 0.8), hsl(222 47% 6% / 0.8));
 
     /* Shadows */
     --shadow-glow-primary: 0 0 20px hsl(186 100% 50% / 0.3);
     --shadow-glow-heat: 0 0 20px hsl(25 95% 53% / 0.3);
     --shadow-glow-cold: 0 0 20px hsl(210 100% 56% / 0.3);
-    --shadow-panel: 0 4px 24px hsl(222 47% 2% / 0.6);
-
-    /* Sidebar */
-    --sidebar-background: 222 47% 7%;
-    --sidebar-foreground: 210 40% 90%;
-    --sidebar-primary: 186 100% 50%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 222 30% 14%;
-    --sidebar-accent-foreground: 210 40% 90%;
-    --sidebar-border: 222 30% 16%;
-    --sidebar-ring: 186 100% 50%;
+    --shadow-panel: 0 8px 32px hsl(222 47% 2% / 0.4);
+    
+    /* Glassmorphism */
+    --glass-border: 222 30% 18% / 0.4;
+    --glass-bg: 222 47% 8% / 0.6;
+    --glass-highlight: 210 40% 96% / 0.05;
   }
 
   .dark {
@@ -94,6 +89,10 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
+    background-image: 
+        radial-gradient(circle at 50% 0%, hsl(186 100% 50% / 0.05), transparent 40%),
+        radial-gradient(circle at 0% 50%, hsl(25 95% 53% / 0.03), transparent 30%);
+    background-attachment: fixed;
   }
 
   /* Monospace for data displays */
@@ -105,12 +104,13 @@
 @layer components {
   /* Engineering Panel Styles */
   .panel {
-    @apply bg-card border border-border rounded-lg;
+    @apply bg-card/60 backdrop-blur-md border border-border/50 rounded-lg;
     box-shadow: var(--shadow-panel);
+    background-image: linear-gradient(to bottom right, var(--glass-highlight), transparent);
   }
 
   .panel-header {
-    @apply px-4 py-3 border-b border-border flex items-center justify-between;
+    @apply px-4 py-3 border-b border-border/50 flex items-center justify-between bg-muted/20;
   }
 
   .panel-title {
@@ -127,7 +127,7 @@
   }
 
   .data-row {
-    @apply flex justify-between items-center py-1.5 px-2 rounded bg-muted/30;
+    @apply flex justify-between items-center py-1.5 px-2 rounded-md bg-muted/20 border border-transparent hover:border-border/30 transition-colors;
   }
 
   .data-label {

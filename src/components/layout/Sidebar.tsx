@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 
 export function Sidebar() {
   const [isMinimized, setIsMinimized] = useState(false);
-  
+
   const {
     cycleType,
     fluid,
@@ -18,7 +18,7 @@ export function Sidebar() {
   } = useThermoStore();
 
   return (
-    <aside className={`${isMinimized ? 'w-12' : 'w-80'} border-r border-border bg-sidebar transition-all duration-300 ease-in-out overflow-y-auto relative`}>
+    <aside className={`${isMinimized ? 'w-12' : 'w-80'} border-r border-white/10 bg-sidebar/30 backdrop-blur-xl transition-all duration-300 ease-in-out overflow-y-auto relative shadow-2xl z-20`}>
       {!isMinimized ? (
         <div className="p-4">
           <ParameterPanel
