@@ -9,7 +9,8 @@ import {
     Info,
     Flame,
     Snowflake,
-    TrendingUp
+    TrendingUp,
+    Lightbulb
 } from 'lucide-react';
 import {
     LineChart,
@@ -237,44 +238,200 @@ const AppliedThermal = () => {
                                         </ResponsiveContainer>
                                     </div>
 
-                                    {/* Study Mode Content */}
+                                    {/* Study Mode Content - In Depth */}
                                     {isStudyMode && (
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                            className="space-y-6"
                                         >
+                                            {/* What is a Heat Engine? */}
                                             <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Info className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">First Law Analysis</CardTitle>
+                                                <CardHeader>
+                                                    <CardTitle className="text-warning flex items-center gap-2">
+                                                        <Flame className="w-5 h-5" />
+                                                        What is a Heat Engine?
+                                                    </CardTitle>
                                                 </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
+                                                <CardContent className="text-sm space-y-4">
                                                     <p>
-                                                        Energy cannot be created or destroyed. In a heat engine, the energy that goes in
-                                                        must either come out as net work or be rejected as waste heat.
+                                                        A <strong>Heat Engine</strong> is a device that converts <strong>thermal energy (heat)</strong> into
+                                                        <strong> mechanical work</strong>. It operates by exploiting the temperature difference between
+                                                        a <span className="text-red-400 font-semibold">hot reservoir (T_H)</span> and a
+                                                        <span className="text-blue-400 font-semibold"> cold reservoir (T_L)</span>.
                                                     </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
-                                                        W_net = Q_in - Q_out
+                                                    <div className="bg-background/80 p-4 rounded-lg border border-warning/20">
+                                                        <p className="text-muted-foreground mb-3 text-xs">The basic process of any heat engine:</p>
+                                                        <ol className="list-decimal list-inside space-y-2 text-sm">
+                                                            <li><strong>Absorb Heat (Q_in):</strong> Heat is absorbed from a high-temperature source (e.g., burning fuel, steam, solar energy).</li>
+                                                            <li><strong>Produce Work (W_net):</strong> Some of this energy is converted into useful mechanical work (e.g., spinning a turbine, moving a piston).</li>
+                                                            <li><strong>Reject Heat (Q_out):</strong> The remaining energy is discharged to a low-temperature sink (e.g., atmosphere, cooling water).</li>
+                                                        </ol>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground italic border-l-2 border-warning/50 pl-3">
+                                                        Examples: Steam power plants, internal combustion engines (cars), jet engines.
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* First Law & Carnot - Side by Side */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <Card className="border-primary/30 bg-primary/5">
+                                                    <CardHeader className="flex flex-row items-center gap-2 pb-2">
+                                                        <Info className="w-5 h-5 text-primary" />
+                                                        <CardTitle className="text-primary text-base">First Law of Thermodynamics</CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-3">
+                                                        <p>
+                                                            Energy is <strong>conserved</strong>. The net work output of a heat engine
+                                                            equals the difference between heat absorbed and heat rejected.
+                                                        </p>
+                                                        <div className="bg-background/80 p-4 rounded font-mono text-center text-lg border border-primary/20">
+                                                            W_net = Q_in - Q_out
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            This is an <strong>energy balance</strong>. All energy that enters must either be converted to work or leave as waste heat.
+                                                        </p>
+                                                    </CardContent>
+                                                </Card>
+
+                                                <Card className="border-secondary/30 bg-secondary/5">
+                                                    <CardHeader className="flex flex-row items-center gap-2 pb-2">
+                                                        <GraduationCap className="w-5 h-5 text-secondary" />
+                                                        <CardTitle className="text-secondary text-base">Thermal Efficiency (η)</CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-3">
+                                                        <p>
+                                                            Efficiency measures <strong>how much of the input heat is converted to useful work</strong>.
+                                                            It's always less than 100%.
+                                                        </p>
+                                                        <div className="bg-background/80 p-4 rounded font-mono text-center text-lg border border-secondary/20">
+                                                            η = W_net / Q_in = 1 - (Q_out / Q_in)
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Expressed as a percentage (e.g., η = 0.4 means 40% of heat becomes work).
+                                                        </p>
+                                                    </CardContent>
+                                                </Card>
+                                            </div>
+
+                                            {/* The Carnot Limit */}
+                                            <Card className="border-green-500/30 bg-green-500/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-green-400 flex items-center gap-2">
+                                                        <TrendingUp className="w-5 h-5" />
+                                                        The Carnot Limit: The Ultimate Efficiency
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-4">
+                                                    <p>
+                                                        The <strong>Second Law of Thermodynamics</strong> dictates that no real engine can be
+                                                        100% efficient. The theoretical maximum is the <strong className="text-green-400">Carnot Efficiency</strong>,
+                                                        achieved only by an idealized, reversible engine.
+                                                    </p>
+                                                    <div className="bg-background/80 p-4 rounded-lg border border-green-500/20 text-center">
+                                                        <div className="font-mono text-2xl text-green-400 mb-2">
+                                                            η_Carnot = 1 - (T_L / T_H)
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            (Temperatures MUST be in Kelvin!)
+                                                        </p>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4 text-xs">
+                                                        <div className="bg-red-500/10 p-3 rounded border border-red-500/20">
+                                                            <strong className="text-red-400">↑ Increase T_H</strong>
+                                                            <p className="text-muted-foreground mt-1">Hotter source = higher efficiency. This is why power plants use superheated steam.</p>
+                                                        </div>
+                                                        <div className="bg-blue-500/10 p-3 rounded border border-blue-500/20">
+                                                            <strong className="text-blue-400">↓ Decrease T_L</strong>
+                                                            <p className="text-muted-foreground mt-1">Colder sink = higher efficiency. Limited by ambient temperature.</p>
+                                                        </div>
                                                     </div>
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <GraduationCap className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">The Carnot Limit</CardTitle>
+                                            {/* Why Real Engines Are Less Efficient */}
+                                            <Card className="border-orange-500/30 bg-orange-500/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-orange-400 text-base">Why Are Real Engines Less Efficient?</CardTitle>
                                                 </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
-                                                    <p>
-                                                        The maximum possible efficiency of any heat engine is the <strong>Carnot Efficiency</strong>, defined by the temperature of the reservoirs:
-                                                    </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
-                                                        η_max = 1 - (T_L / T_H)
+                                                <CardContent className="text-sm">
+                                                    <p className="mb-3">Real engines have <strong>irreversibilities</strong> that cause energy loss:</p>
+                                                    <ul className="space-y-2">
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-orange-400 font-bold mt-0.5">1.</span>
+                                                            <span><strong>Friction:</strong> Moving parts (pistons, bearings) generate heat loss.</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-orange-400 font-bold mt-0.5">2.</span>
+                                                            <span><strong>Heat Leakage:</strong> Imperfect insulation allows heat to escape without doing work.</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-orange-400 font-bold mt-0.5">3.</span>
+                                                            <span><strong>Non-Quasi-Equilibrium Processes:</strong> Rapid expansions/compressions are not thermodynamically ideal.</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-orange-400 font-bold mt-0.5">4.</span>
+                                                            <span><strong>Incomplete Combustion:</strong> Fuel may not burn completely, wasting potential energy.</span>
+                                                        </li>
+                                                    </ul>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Real-World Comparison Table */}
+                                            <Card className="border-muted">
+                                                <CardHeader>
+                                                    <CardTitle className="text-sm">Real-World Heat Engine Efficiencies</CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="w-full text-sm">
+                                                            <thead>
+                                                                <tr className="border-b border-muted">
+                                                                    <th className="text-left py-2 px-3">Engine Type</th>
+                                                                    <th className="text-center py-2 px-3">Typical η</th>
+                                                                    <th className="text-left py-2 px-3">Notes</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="text-muted-foreground">
+                                                                <tr className="border-b border-muted/50">
+                                                                    <td className="py-2 px-3 font-medium text-foreground">Coal Power Plant</td>
+                                                                    <td className="text-center py-2 px-3 text-yellow-400">33-40%</td>
+                                                                    <td className="py-2 px-3">Uses Rankine cycle; T_H ≈ 550°C</td>
+                                                                </tr>
+                                                                <tr className="border-b border-muted/50">
+                                                                    <td className="py-2 px-3 font-medium text-foreground">Combined Cycle Gas Turbine</td>
+                                                                    <td className="text-center py-2 px-3 text-green-400">55-60%</td>
+                                                                    <td className="py-2 px-3">Most efficient; uses waste heat twice</td>
+                                                                </tr>
+                                                                <tr className="border-b border-muted/50">
+                                                                    <td className="py-2 px-3 font-medium text-foreground">Car Engine (Gasoline)</td>
+                                                                    <td className="text-center py-2 px-3 text-orange-400">25-30%</td>
+                                                                    <td className="py-2 px-3">Otto cycle; limited by material constraints</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td className="py-2 px-3 font-medium text-foreground">Diesel Engine</td>
+                                                                    <td className="text-center py-2 px-3 text-yellow-400">35-42%</td>
+                                                                    <td className="py-2 px-3">Higher compression ratio than gasoline</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
                                                     </div>
-                                                    <p className="text-xs text-muted-foreground border-t border-warning/20 pt-2">
-                                                        To increase efficiency, we must either increase the source temperature (T_H) or decrease the sink temperature (T_L).
-                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Did You Know? */}
+                                            <Card className="border-purple-500/30 bg-purple-500/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-purple-400 text-sm flex items-center gap-2">
+                                                        <Lightbulb className="w-4 h-4" />
+                                                        Did You Know?
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-xs text-muted-foreground space-y-2">
+                                                    <p>🔥 The <strong>Sun</strong> has a surface temperature of ~5,800K. If we could use it as T_H and outer space (~3K) as T_L, the Carnot efficiency would be 99.95%!</p>
+                                                    <p>🚗 Most of the energy in your car's fuel (~70%) is wasted as heat through the radiator and exhaust.</p>
+                                                    <p>💡 <strong>Cogeneration</strong> plants capture "waste" Q_out and use it for heating buildings, boosting overall energy utilization to 80%+.</p>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
