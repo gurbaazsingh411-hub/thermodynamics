@@ -259,88 +259,89 @@ const EngineeringMechanics = () => {
                                                         />
                                                         <text x="100" y="225" fill="#fbbf24" fontSize="14" fontWeight="bold">θ = {frictionParams.angle}°</text>
 
-                                                        {/* Animated Block Group */}
-                                                        <motion.g
-                                                            animate={{
-                                                                x: acceleration > 0 ? -120 : 0,
-                                                                y: acceleration > 0 ? 120 * Math.tan(angleRad) : 0
-                                                            }}
-                                                            transition={{
-                                                                duration: acceleration > 0 ? 2.5 : 0,
-                                                                repeat: acceleration > 0 ? Infinity : 0,
-                                                                repeatType: "loop",
-                                                                ease: "easeIn"
-                                                            }}
-                                                        >
-                                                            {/* Block position calculation */}
-                                                            <g transform={`translate(${150 + 100 * Math.cos(angleRad)}, ${220 - 100 * Math.sin(angleRad)}) rotate(-${frictionParams.angle})`}>
-                                                                {/* Block shadow */}
-                                                                <rect x="-27" y="-17" width="54" height="34" rx="3" fill="rgba(0,0,0,0.3)" />
-                                                                {/* Block body */}
-                                                                <rect x="-30" y="-20" width="60" height="40" rx="4" fill="url(#blockGradient)" stroke="#60a5fa" strokeWidth="2" />
-                                                                {/* Block highlight */}
-                                                                <rect x="-28" y="-18" width="56" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
-                                                                {/* Mass label */}
-                                                                <text x="0" y="5" fill="white" fontSize="11" fontWeight="bold" textAnchor="middle">{frictionParams.mass} kg</text>
+                                                        {/* Block that slides on the plane - inside the rotated coordinate system */}
+                                                        <g transform={`rotate(-${frictionParams.angle}, 50, 240)`}>
+                                                            <motion.g
+                                                                animate={{
+                                                                    x: acceleration > 0 ? 150 : 0
+                                                                }}
+                                                                transition={{
+                                                                    duration: acceleration > 0 ? 2.5 : 0,
+                                                                    repeat: acceleration > 0 ? Infinity : 0,
+                                                                    repeatType: "loop",
+                                                                    ease: "easeIn"
+                                                                }}
+                                                            >
+                                                                {/* Block positioned on the plane surface */}
+                                                                <g transform="translate(180, 200)">
+                                                                    {/* Block shadow */}
+                                                                    <rect x="-27" y="-17" width="54" height="34" rx="3" fill="rgba(0,0,0,0.3)" />
+                                                                    {/* Block body */}
+                                                                    <rect x="-30" y="-20" width="60" height="40" rx="4" fill="url(#blockGradient)" stroke="#60a5fa" strokeWidth="2" />
+                                                                    {/* Block highlight */}
+                                                                    <rect x="-28" y="-18" width="56" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                                                                    {/* Mass label */}
+                                                                    <text x="0" y="5" fill="white" fontSize="11" fontWeight="bold" textAnchor="middle">{frictionParams.mass} kg</text>
 
-                                                                {/* FORCE VECTORS FROM BLOCK CENTER */}
-                                                                {/* Gravity Vector (straight down in world coords, so we un-rotate) */}
-                                                                <g transform={`rotate(${frictionParams.angle})`}>
+                                                                    {/* FORCE VECTORS FROM BLOCK CENTER */}
+                                                                    {/* Gravity Vector (straight down in world coords, so we un-rotate) */}
+                                                                    <g transform={`rotate(${frictionParams.angle})`}>
+                                                                        <line
+                                                                            x1="0" y1="0"
+                                                                            x2="0" y2={Math.min(80, forceGravity * 0.8)}
+                                                                            stroke="#ef4444"
+                                                                            strokeWidth="3"
+                                                                            markerEnd="url(#arrowRed)"
+                                                                        />
+                                                                        <text x="8" y={Math.min(80, forceGravity * 0.8) - 5} fill="#ef4444" fontSize="10" fontWeight="bold">W</text>
+                                                                    </g>
+
+                                                                    {/* Normal Force (perpendicular to surface, pointing away) */}
                                                                     <line
                                                                         x1="0" y1="0"
-                                                                        x2="0" y2={Math.min(80, forceGravity * 0.8)}
-                                                                        stroke="#ef4444"
+                                                                        x2="0" y2={-Math.min(60, forceNormal * 0.6)}
+                                                                        stroke="#a855f7"
                                                                         strokeWidth="3"
-                                                                        markerEnd="url(#arrowRed)"
+                                                                        markerEnd="url(#arrowPurple)"
                                                                     />
-                                                                    <text x="8" y={Math.min(80, forceGravity * 0.8) - 5} fill="#ef4444" fontSize="10" fontWeight="bold">W</text>
+                                                                    <text x="8" y={-Math.min(60, forceNormal * 0.6) + 5} fill="#a855f7" fontSize="10" fontWeight="bold">N</text>
+
+                                                                    {/* Parallel Component (along surface, down-slope) */}
+                                                                    <line
+                                                                        x1="0" y1="0"
+                                                                        x2={Math.min(70, forceParallel * 0.7)} y2="0"
+                                                                        stroke="#3b82f6"
+                                                                        strokeWidth="3"
+                                                                        markerEnd="url(#arrowBlue)"
+                                                                    />
+                                                                    <text x={Math.min(70, forceParallel * 0.7) - 5} y="-8" fill="#3b82f6" fontSize="10" fontWeight="bold">F∥</text>
+
+                                                                    {/* Friction Force (opposite to motion direction) */}
+                                                                    <line
+                                                                        x1="0" y1="0"
+                                                                        x2={-Math.min(60, forceFrictionMax * 0.6)} y2="0"
+                                                                        stroke="#f97316"
+                                                                        strokeWidth="3"
+                                                                        markerEnd="url(#arrowOrange)"
+                                                                    />
+                                                                    <text x={-Math.min(60, forceFrictionMax * 0.6) + 5} y="-8" fill="#f97316" fontSize="10" fontWeight="bold">f</text>
+
+                                                                    {/* Net Force (if sliding) */}
+                                                                    {acceleration > 0 && (
+                                                                        <>
+                                                                            <line
+                                                                                x1="0" y1="25"
+                                                                                x2={Math.min(50, netForce * 0.5)} y2="25"
+                                                                                stroke="#22c55e"
+                                                                                strokeWidth="4"
+                                                                                markerEnd="url(#arrowGreen)"
+                                                                            />
+                                                                            <text x={Math.min(50, netForce * 0.5) + 5} y="28" fill="#22c55e" fontSize="10" fontWeight="bold">F_net</text>
+                                                                        </>
+                                                                    )}
                                                                 </g>
-
-                                                                {/* Normal Force (perpendicular to surface, pointing away) */}
-                                                                <line
-                                                                    x1="0" y1="0"
-                                                                    x2="0" y2={-Math.min(60, forceNormal * 0.6)}
-                                                                    stroke="#a855f7"
-                                                                    strokeWidth="3"
-                                                                    markerEnd="url(#arrowPurple)"
-                                                                />
-                                                                <text x="8" y={-Math.min(60, forceNormal * 0.6) + 5} fill="#a855f7" fontSize="10" fontWeight="bold">N</text>
-
-                                                                {/* Parallel Component (along surface, down-slope) */}
-                                                                <line
-                                                                    x1="0" y1="0"
-                                                                    x2={Math.min(70, forceParallel * 0.7)} y2="0"
-                                                                    stroke="#3b82f6"
-                                                                    strokeWidth="3"
-                                                                    markerEnd="url(#arrowBlue)"
-                                                                />
-                                                                <text x={Math.min(70, forceParallel * 0.7) - 5} y="-8" fill="#3b82f6" fontSize="10" fontWeight="bold">F∥</text>
-
-                                                                {/* Friction Force (opposite to motion direction) */}
-                                                                <line
-                                                                    x1="0" y1="0"
-                                                                    x2={-Math.min(60, forceFrictionMax * 0.6)} y2="0"
-                                                                    stroke="#f97316"
-                                                                    strokeWidth="3"
-                                                                    markerEnd="url(#arrowOrange)"
-                                                                />
-                                                                <text x={-Math.min(60, forceFrictionMax * 0.6) + 5} y="-8" fill="#f97316" fontSize="10" fontWeight="bold">f</text>
-
-                                                                {/* Net Force (if sliding) */}
-                                                                {acceleration > 0 && (
-                                                                    <>
-                                                                        <line
-                                                                            x1="0" y1="25"
-                                                                            x2={Math.min(50, netForce * 0.5)} y2="25"
-                                                                            stroke="#22c55e"
-                                                                            strokeWidth="4"
-                                                                            markerEnd="url(#arrowGreen)"
-                                                                        />
-                                                                        <text x={Math.min(50, netForce * 0.5) + 5} y="28" fill="#22c55e" fontSize="10" fontWeight="bold">F_net</text>
-                                                                    </>
-                                                                )}
-                                                            </g>
-                                                        </motion.g>
+                                                            </motion.g>
+                                                        </g>
 
                                                         {/* Legend */}
                                                         <g transform="translate(340, 15)">
