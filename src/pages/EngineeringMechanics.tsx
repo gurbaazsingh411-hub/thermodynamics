@@ -262,14 +262,14 @@ const EngineeringMechanics = () => {
                                                         {/* Animated Block Group */}
                                                         <motion.g
                                                             animate={{
-                                                                x: acceleration > 0 ? 200 : 0,
-                                                                y: acceleration > 0 ? 200 * Math.tan(angleRad) : 0
+                                                                x: acceleration > 0 ? 150 * Math.cos(angleRad) : 0,
+                                                                y: acceleration > 0 ? 150 * Math.sin(angleRad) : 0
                                                             }}
                                                             transition={{
-                                                                duration: acceleration > 0 ? 2 : 0,
+                                                                duration: acceleration > 0 ? 2.5 : 0,
                                                                 repeat: acceleration > 0 ? Infinity : 0,
                                                                 repeatType: "loop",
-                                                                ease: "linear"
+                                                                ease: "easeIn"
                                                             }}
                                                         >
                                                             {/* Block position calculation */}
@@ -370,8 +370,8 @@ const EngineeringMechanics = () => {
 
                                                     {/* Status Badge */}
                                                     <div className={`absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${acceleration > 0
-                                                            ? 'bg-green-500/20 border border-green-500/50 text-green-400'
-                                                            : 'bg-orange-500/20 border border-orange-500/50 text-orange-400'
+                                                        ? 'bg-green-500/20 border border-green-500/50 text-green-400'
+                                                        : 'bg-orange-500/20 border border-orange-500/50 text-orange-400'
                                                         }`}>
                                                         <motion.div
                                                             className={`w-2 h-2 rounded-full ${acceleration > 0 ? 'bg-green-400' : 'bg-orange-400'}`}
