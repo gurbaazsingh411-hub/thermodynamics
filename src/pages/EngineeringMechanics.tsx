@@ -174,56 +174,211 @@ const EngineeringMechanics = () => {
                                             </CardContent>
                                         </Card>
 
-                                        {/* Visualization */}
+                                        {/* Improved Visualization */}
                                         <Card className="lg:col-span-2">
                                             <CardHeader>
                                                 <CardTitle>Inclined Plane Dynamics</CardTitle>
                                                 <CardDescription>Visualizing forces and acceleration</CardDescription>
                                             </CardHeader>
-                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
-                                                <div className="relative w-full h-64 bg-muted/10 rounded-lg overflow-hidden flex items-end justify-center">
-                                                    {/* The Plane */}
-                                                    <div
-                                                        className="absolute bottom-0 left-0 w-[150%] h-2 bg-foreground origin-bottom-left"
-                                                        style={{ transform: `rotate(-${frictionParams.angle}deg)` }}
-                                                    />
+                                            <CardContent className="flex flex-col items-center justify-center min-h-[450px]">
+                                                {/* Main SVG Visualization */}
+                                                <div className="relative w-full h-80 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 rounded-xl overflow-hidden border border-slate-700/50">
+                                                    <svg viewBox="0 0 500 300" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+                                                        <defs>
+                                                            {/* Gradient for plane surface */}
+                                                            <linearGradient id="planeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                                <stop offset="0%" stopColor="#64748b" />
+                                                                <stop offset="50%" stopColor="#475569" />
+                                                                <stop offset="100%" stopColor="#334155" />
+                                                            </linearGradient>
+                                                            {/* Gradient for block */}
+                                                            <linearGradient id="blockGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                                <stop offset="0%" stopColor="#3b82f6" />
+                                                                <stop offset="100%" stopColor="#1d4ed8" />
+                                                            </linearGradient>
+                                                            {/* Arrow markers */}
+                                                            <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                                                <path d="M0,0 L0,6 L9,3 z" fill="#ef4444" />
+                                                            </marker>
+                                                            <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                                                <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6" />
+                                                            </marker>
+                                                            <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                                                <path d="M0,0 L0,6 L9,3 z" fill="#a855f7" />
+                                                            </marker>
+                                                            <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                                                <path d="M0,0 L0,6 L9,3 z" fill="#f97316" />
+                                                            </marker>
+                                                            <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                                                <path d="M0,0 L0,6 L9,3 z" fill="#22c55e" />
+                                                            </marker>
+                                                            {/* Ground pattern */}
+                                                            <pattern id="groundPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+                                                                <rect width="20" height="20" fill="#1e293b" />
+                                                                <line x1="0" y1="20" x2="20" y2="0" stroke="#334155" strokeWidth="1" />
+                                                            </pattern>
+                                                        </defs>
 
-                                                    {/* The Block */}
-                                                    <motion.div
-                                                        className="absolute bg-primary w-16 h-12 rounded border border-primary-foreground/20 flex items-center justify-center p-1"
-                                                        style={{
-                                                            bottom: '0',
-                                                            left: '20%',
-                                                            transform: `rotate(-${frictionParams.angle}deg)`,
-                                                            transformOrigin: 'bottom'
-                                                        }}
-                                                        animate={{
-                                                            x: acceleration > 0 ? 500 : 0,
-                                                            y: acceleration > 0 ? 500 * Math.tan(angleRad) : 0
-                                                        }}
-                                                        transition={{
-                                                            duration: acceleration > 0 ? Math.sqrt(2 * 1 / acceleration) * 2 : 0,
-                                                            repeat: acceleration > 0 ? Infinity : 0,
-                                                            ease: "linear"
-                                                        }}
-                                                    >
-                                                        <span className="text-[10px] text-primary-foreground font-bold">m = {frictionParams.mass}kg</span>
-                                                    </motion.div>
+                                                        {/* Ground */}
+                                                        <rect x="0" y="240" width="500" height="60" fill="url(#groundPattern)" />
+                                                        <line x1="0" y1="240" x2="500" y2="240" stroke="#475569" strokeWidth="2" />
 
-                                                    {/* Force Arrows */}
-                                                    <div className="absolute top-4 left-4 space-y-2">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-8 h-1 bg-red-500 rounded" />
-                                                            <span className="text-xs font-semibold">Gravity Force: {forceGravity.toFixed(1)} N</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-8 h-1 bg-blue-500 rounded" />
-                                                            <span className="text-xs font-semibold">Parallel Component: {forceParallel.toFixed(1)} N</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-8 h-1 bg-orange-500 rounded" />
-                                                            <span className="text-xs font-semibold">Friction Force: {forceFrictionMax.toFixed(1)} N</span>
-                                                        </div>
+                                                        {/* Inclined Plane - 3D effect with depth */}
+                                                        <g transform={`rotate(-${frictionParams.angle}, 50, 240)`}>
+                                                            {/* Plane depth/side */}
+                                                            <polygon
+                                                                points="50,240 450,240 450,250 50,250"
+                                                                fill="#1e293b"
+                                                                stroke="#334155"
+                                                                strokeWidth="1"
+                                                            />
+                                                            {/* Main plane surface */}
+                                                            <rect
+                                                                x="50"
+                                                                y="225"
+                                                                width="400"
+                                                                height="15"
+                                                                fill="url(#planeGradient)"
+                                                                stroke="#64748b"
+                                                                strokeWidth="1"
+                                                                rx="2"
+                                                            />
+                                                            {/* Surface texture lines */}
+                                                            {[100, 150, 200, 250, 300, 350, 400].map((x, i) => (
+                                                                <line key={i} x1={x} y1="227" x2={x} y2="238" stroke="#94a3b8" strokeWidth="0.5" opacity="0.3" />
+                                                            ))}
+                                                        </g>
+
+                                                        {/* Angle Arc */}
+                                                        <path
+                                                            d={`M 85 240 A 35 35 0 0 0 ${85 + 35 * Math.cos(angleRad)} ${240 - 35 * Math.sin(angleRad)}`}
+                                                            fill="none"
+                                                            stroke="#fbbf24"
+                                                            strokeWidth="2"
+                                                            strokeDasharray="3,2"
+                                                        />
+                                                        <text x="100" y="225" fill="#fbbf24" fontSize="14" fontWeight="bold">θ = {frictionParams.angle}°</text>
+
+                                                        {/* Animated Block Group */}
+                                                        <motion.g
+                                                            animate={{
+                                                                x: acceleration > 0 ? 200 : 0,
+                                                                y: acceleration > 0 ? 200 * Math.tan(angleRad) : 0
+                                                            }}
+                                                            transition={{
+                                                                duration: acceleration > 0 ? 2 : 0,
+                                                                repeat: acceleration > 0 ? Infinity : 0,
+                                                                repeatType: "loop",
+                                                                ease: "linear"
+                                                            }}
+                                                        >
+                                                            {/* Block position calculation */}
+                                                            <g transform={`translate(${150 + 100 * Math.cos(angleRad)}, ${220 - 100 * Math.sin(angleRad)}) rotate(-${frictionParams.angle})`}>
+                                                                {/* Block shadow */}
+                                                                <rect x="-27" y="-17" width="54" height="34" rx="3" fill="rgba(0,0,0,0.3)" />
+                                                                {/* Block body */}
+                                                                <rect x="-30" y="-20" width="60" height="40" rx="4" fill="url(#blockGradient)" stroke="#60a5fa" strokeWidth="2" />
+                                                                {/* Block highlight */}
+                                                                <rect x="-28" y="-18" width="56" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                                                                {/* Mass label */}
+                                                                <text x="0" y="5" fill="white" fontSize="11" fontWeight="bold" textAnchor="middle">{frictionParams.mass} kg</text>
+
+                                                                {/* FORCE VECTORS FROM BLOCK CENTER */}
+                                                                {/* Gravity Vector (straight down in world coords, so we un-rotate) */}
+                                                                <g transform={`rotate(${frictionParams.angle})`}>
+                                                                    <line
+                                                                        x1="0" y1="0"
+                                                                        x2="0" y2={Math.min(80, forceGravity * 0.8)}
+                                                                        stroke="#ef4444"
+                                                                        strokeWidth="3"
+                                                                        markerEnd="url(#arrowRed)"
+                                                                    />
+                                                                    <text x="8" y={Math.min(80, forceGravity * 0.8) - 5} fill="#ef4444" fontSize="10" fontWeight="bold">W</text>
+                                                                </g>
+
+                                                                {/* Normal Force (perpendicular to surface, pointing away) */}
+                                                                <line
+                                                                    x1="0" y1="0"
+                                                                    x2="0" y2={-Math.min(60, forceNormal * 0.6)}
+                                                                    stroke="#a855f7"
+                                                                    strokeWidth="3"
+                                                                    markerEnd="url(#arrowPurple)"
+                                                                />
+                                                                <text x="8" y={-Math.min(60, forceNormal * 0.6) + 5} fill="#a855f7" fontSize="10" fontWeight="bold">N</text>
+
+                                                                {/* Parallel Component (along surface, down-slope) */}
+                                                                <line
+                                                                    x1="0" y1="0"
+                                                                    x2={Math.min(70, forceParallel * 0.7)} y2="0"
+                                                                    stroke="#3b82f6"
+                                                                    strokeWidth="3"
+                                                                    markerEnd="url(#arrowBlue)"
+                                                                />
+                                                                <text x={Math.min(70, forceParallel * 0.7) - 5} y="-8" fill="#3b82f6" fontSize="10" fontWeight="bold">F∥</text>
+
+                                                                {/* Friction Force (opposite to motion direction) */}
+                                                                <line
+                                                                    x1="0" y1="0"
+                                                                    x2={-Math.min(60, forceFrictionMax * 0.6)} y2="0"
+                                                                    stroke="#f97316"
+                                                                    strokeWidth="3"
+                                                                    markerEnd="url(#arrowOrange)"
+                                                                />
+                                                                <text x={-Math.min(60, forceFrictionMax * 0.6) + 5} y="-8" fill="#f97316" fontSize="10" fontWeight="bold">f</text>
+
+                                                                {/* Net Force (if sliding) */}
+                                                                {acceleration > 0 && (
+                                                                    <>
+                                                                        <line
+                                                                            x1="0" y1="25"
+                                                                            x2={Math.min(50, netForce * 0.5)} y2="25"
+                                                                            stroke="#22c55e"
+                                                                            strokeWidth="4"
+                                                                            markerEnd="url(#arrowGreen)"
+                                                                        />
+                                                                        <text x={Math.min(50, netForce * 0.5) + 5} y="28" fill="#22c55e" fontSize="10" fontWeight="bold">F_net</text>
+                                                                    </>
+                                                                )}
+                                                            </g>
+                                                        </motion.g>
+
+                                                        {/* Legend */}
+                                                        <g transform="translate(340, 15)">
+                                                            <rect x="0" y="0" width="155" height="95" rx="6" fill="rgba(15, 23, 42, 0.9)" stroke="#334155" strokeWidth="1" />
+                                                            <text x="10" y="18" fill="#94a3b8" fontSize="10" fontWeight="bold">FORCE LEGEND</text>
+
+                                                            <line x1="10" y1="30" x2="35" y2="30" stroke="#ef4444" strokeWidth="3" />
+                                                            <text x="42" y="34" fill="#e2e8f0" fontSize="9">Weight: {forceGravity.toFixed(1)} N</text>
+
+                                                            <line x1="10" y1="45" x2="35" y2="45" stroke="#a855f7" strokeWidth="3" />
+                                                            <text x="42" y="49" fill="#e2e8f0" fontSize="9">Normal: {forceNormal.toFixed(1)} N</text>
+
+                                                            <line x1="10" y1="60" x2="35" y2="60" stroke="#3b82f6" strokeWidth="3" />
+                                                            <text x="42" y="64" fill="#e2e8f0" fontSize="9">Parallel: {forceParallel.toFixed(1)} N</text>
+
+                                                            <line x1="10" y1="75" x2="35" y2="75" stroke="#f97316" strokeWidth="3" />
+                                                            <text x="42" y="79" fill="#e2e8f0" fontSize="9">Friction: {forceFrictionMax.toFixed(1)} N</text>
+
+                                                            {acceleration > 0 && (
+                                                                <>
+                                                                    <line x1="10" y1="90" x2="35" y2="90" stroke="#22c55e" strokeWidth="3" />
+                                                                    <text x="42" y="94" fill="#22c55e" fontSize="9">Net: {netForce.toFixed(1)} N</text>
+                                                                </>
+                                                            )}
+                                                        </g>
+                                                    </svg>
+
+                                                    {/* Status Badge */}
+                                                    <div className={`absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${acceleration > 0
+                                                            ? 'bg-green-500/20 border border-green-500/50 text-green-400'
+                                                            : 'bg-orange-500/20 border border-orange-500/50 text-orange-400'
+                                                        }`}>
+                                                        <motion.div
+                                                            className={`w-2 h-2 rounded-full ${acceleration > 0 ? 'bg-green-400' : 'bg-orange-400'}`}
+                                                            animate={{ scale: [1, 1.3, 1] }}
+                                                            transition={{ duration: 1, repeat: Infinity }}
+                                                        />
+                                                        {acceleration > 0 ? 'SLIDING' : 'STATIC'}
                                                     </div>
                                                 </div>
 
