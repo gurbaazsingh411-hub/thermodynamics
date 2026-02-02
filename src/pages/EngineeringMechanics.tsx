@@ -911,40 +911,197 @@ const EngineeringMechanics = () => {
                                             animate={{ opacity: 1, y: 0 }}
                                             className="grid grid-cols-1 md:grid-cols-2 gap-6"
                                         >
+                                            {/* Vector Fundamentals */}
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Info className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Force Components</CardTitle>
+                                                    <CardTitle className="text-warning">Vector Fundamentals</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        Any diagonal force can be split (resolved) into two perpendicular components: Horizontal (Fx) and Vertical (Fy).
+                                                        A <strong>vector</strong> is a quantity with both <em>magnitude</em> (size) and
+                                                        <em>direction</em>. Unlike scalars (temperature, mass), vectors require direction to be fully defined.
                                                     </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4 space-y-2">
-                                                        <div>Fx = F · cos(θ)</div>
-                                                        <div>Fy = F · sin(θ)</div>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-xs my-2 space-y-1">
+                                                        <div className="flex justify-between border-b border-warning/20 pb-1">
+                                                            <span>Magnitude:</span>
+                                                            <span className="text-blue-400">|F| = √(Fx² + Fy²)</span>
+                                                        </div>
+                                                        <div className="flex justify-between border-b border-warning/20 pb-1">
+                                                            <span>Direction:</span>
+                                                            <span className="text-green-400">θ = arctan(Fy/Fx)</span>
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                            <span>Unit Vector:</span>
+                                                            <span className="text-purple-400">û = F/|F|</span>
+                                                        </div>
                                                     </div>
-                                                    <p>
-                                                        This is essential for analyzing structures, as we can sum up all X forces and all Y forces separately (ΣFx = 0, ΣFy = 0).
+                                                    <p className="text-xs text-muted-foreground">
+                                                        <strong>Common vector quantities:</strong> Force, velocity, acceleration, displacement, momentum,
+                                                        electric field, magnetic field.
                                                     </p>
                                                 </CardContent>
                                             </Card>
 
+                                            {/* Resolution & Composition */}
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Move className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Moment & Torque Basics</CardTitle>
+                                                    <GraduationCap className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Resolution & Composition</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p><strong>Resolution (Decomposition):</strong></p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Breaking a single vector into perpendicular components along chosen axes:
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-sm my-2 space-y-1">
+                                                        <div><span className="text-red-400">Fx = F · cos(θ)</span></div>
+                                                        <div><span className="text-green-400">Fy = F · sin(θ)</span></div>
+                                                    </div>
+                                                    <p><strong>Composition (Addition):</strong></p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Combining multiple vectors into a single <em>resultant</em>:
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-xs my-2">
+                                                        R = √((ΣFx)² + (ΣFy)²)
+                                                    </div>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10">
+                                                        <strong>Tip:</strong> Always choose axes aligned with the motion or geometry
+                                                        of the problem to minimize calculations!
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Trigonometry for Vectors */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Target className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Trigonometry for Vectors</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>Essential trigonometric relationships for vector analysis:</p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-xs my-2 space-y-1">
+                                                        <div className="flex justify-between border-b border-warning/20 pb-1">
+                                                            <span>sin(θ) =</span>
+                                                            <span>Opposite / Hypotenuse = Fy / F</span>
+                                                        </div>
+                                                        <div className="flex justify-between border-b border-warning/20 pb-1">
+                                                            <span>cos(θ) =</span>
+                                                            <span>Adjacent / Hypotenuse = Fx / F</span>
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                            <span>tan(θ) =</span>
+                                                            <span>Opposite / Adjacent = Fy / Fx</span>
+                                                        </div>
+                                                    </div>
+                                                    <p><strong>Special Angles (memorize!):</strong></p>
+                                                    <div className="grid grid-cols-4 gap-1 text-xs font-mono mt-2">
+                                                        <div className="bg-background/50 p-1 text-center font-bold">θ</div>
+                                                        <div className="bg-background/50 p-1 text-center font-bold">sin</div>
+                                                        <div className="bg-background/50 p-1 text-center font-bold">cos</div>
+                                                        <div className="bg-background/50 p-1 text-center font-bold">tan</div>
+                                                        <div className="p-1 text-center">30°</div><div className="p-1 text-center">0.5</div><div className="p-1 text-center">0.87</div><div className="p-1 text-center">0.58</div>
+                                                        <div className="p-1 text-center">45°</div><div className="p-1 text-center">0.71</div><div className="p-1 text-center">0.71</div><div className="p-1 text-center">1.0</div>
+                                                        <div className="p-1 text-center">60°</div><div className="p-1 text-center">0.87</div><div className="p-1 text-center">0.5</div><div className="p-1 text-center">1.73</div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Equilibrium Conditions */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Box className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Equilibrium Conditions</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        Vectors aren't just for pulling! When a force vector is applied at a distance <strong>d</strong> from a point, it creates a <strong>Moment (Torque)</strong>.
+                                                        For a body to be in <strong>static equilibrium</strong> (not accelerating),
+                                                        three conditions must be satisfied:
                                                     </p>
+                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-sm my-2 space-y-2">
+                                                        <div className="text-red-400">ΣFx = 0 (No net horizontal force)</div>
+                                                        <div className="text-green-400">ΣFy = 0 (No net vertical force)</div>
+                                                        <div className="text-blue-400">ΣM = 0 (No net moment/torque)</div>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        These equations are the foundation of <strong>Statics</strong> — the branch of mechanics
+                                                        that deals with bodies at rest or in uniform motion.
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10">
+                                                        <strong>Application:</strong> Engineers use these equations to design bridges, buildings,
+                                                        and any structure that must remain stable under load.
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Moment & Torque */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Move className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Moment & Torque</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        <strong>Cross Product:</strong> M = r × F = |r|·|F|·sin(θ). This determines the rotational effect of a force.
+                                                        When a force is applied at a distance from a pivot point, it creates a
+                                                        <strong> rotational effect</strong> called <strong>moment (M)</strong> or <strong>torque (τ)</strong>.
                                                     </p>
-                                                    <p className="text-xs italic text-muted-foreground border-t border-warning/10 pt-2">
-                                                        Only the component of force perpendicular to the lever arm contributes to the moment!
-                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-sm my-2">
+                                                        M = F × d = |F| · |d| · sin(θ)
+                                                    </div>
+                                                    <p><strong>Key Concepts:</strong></p>
+                                                    <ul className="text-xs space-y-1 text-muted-foreground">
+                                                        <li>• <strong>Moment Arm:</strong> Perpendicular distance from the line of action to the pivot</li>
+                                                        <li>• <strong>Sign Convention:</strong> Counterclockwise = positive, Clockwise = negative</li>
+                                                        <li>• <strong>Unit:</strong> Newton-meters (N·m) or foot-pounds (ft·lb)</li>
+                                                    </ul>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10 mt-2">
+                                                        <strong>Important:</strong> Only the force component perpendicular to the lever arm
+                                                        creates torque. The parallel component has no rotational effect!
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Did You Know */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Lightbulb className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Did You Know?</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <div className="space-y-3">
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🚗</span>
+                                                            <p className="text-xs">
+                                                                <strong>Car Crash Analysis:</strong> Forensic engineers use vector decomposition
+                                                                to reconstruct accidents. By analyzing skid marks and impact angles, they can
+                                                                determine pre-collision speeds and directions!
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🎮</span>
+                                                            <p className="text-xs">
+                                                                <strong>Video Games:</strong> Every physics engine uses vector math! When characters
+                                                                jump, fall, or collide, the game calculates velocity and force vectors hundreds
+                                                                of times per second.
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🛰️</span>
+                                                            <p className="text-xs">
+                                                                <strong>GPS Navigation:</strong> Your phone uses vector mathematics to calculate
+                                                                position from satellite signals. It computes the intersection of multiple
+                                                                distance vectors from orbiting satellites!
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🏗️</span>
+                                                            <p className="text-xs">
+                                                                <strong>Cable-Stayed Bridges:</strong> The cables in suspension bridges are
+                                                                designed using vector analysis. Each cable's tension is calculated to ensure
+                                                                the vertical components support the deck while horizontal components balance!
+                                                            </p>
+                                                        </div>
+                                                    </div>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
