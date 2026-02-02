@@ -263,7 +263,7 @@ const EngineeringMechanics = () => {
                                                         <g transform={`rotate(-${frictionParams.angle}, 50, 240)`}>
                                                             <motion.g
                                                                 animate={{
-                                                                    x: acceleration > 0 ? 150 : 0
+                                                                    x: acceleration > 0 ? -120 : 0
                                                                 }}
                                                                 transition={{
                                                                     duration: acceleration > 0 ? 2.5 : 0,
