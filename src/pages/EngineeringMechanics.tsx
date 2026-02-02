@@ -529,96 +529,212 @@ const EngineeringMechanics = () => {
                                             </CardContent>
                                         </Card>
 
-                                        {/* Visualization */}
+                                        {/* Enhanced Visualization */}
                                         <Card className="lg:col-span-2">
                                             <CardHeader>
                                                 <CardTitle>Vector Decomposition</CardTitle>
                                                 <CardDescription>Splitting a force into X and Y components</CardDescription>
                                             </CardHeader>
-                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
-                                                <div className="relative w-full h-80 bg-slate-50 border border-slate-200 rounded-lg flex items-end justify-start p-10 overflow-hidden">
+                                            <CardContent className="flex flex-col items-center justify-center min-h-[450px]">
+                                                <div className="relative w-full h-96 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl overflow-hidden border border-slate-700/50">
 
-                                                    {/* Grid Background */}
-                                                    <div className="absolute inset-0" style={{
-                                                        backgroundImage: 'linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)',
-                                                        backgroundSize: '20px 20px'
+                                                    {/* Subtle Grid Background */}
+                                                    <div className="absolute inset-0 opacity-20" style={{
+                                                        backgroundImage: 'linear-gradient(#475569 1px, transparent 1px), linear-gradient(90deg, #475569 1px, transparent 1px)',
+                                                        backgroundSize: '30px 30px'
                                                     }} />
 
-                                                    <svg width="100%" height="100%" viewBox="0 0 400 300" className="overflow-visible">
+                                                    <svg viewBox="0 0 500 350" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
                                                         <defs>
-                                                            <marker id="arrowhead-main" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                                                <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb" />
+                                                            {/* Main Force Vector Gradient */}
+                                                            <linearGradient id="forceGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                                <stop offset="0%" stopColor="#3b82f6" />
+                                                                <stop offset="100%" stopColor="#60a5fa" />
+                                                            </linearGradient>
+                                                            {/* X Component Gradient */}
+                                                            <linearGradient id="xGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                                <stop offset="0%" stopColor="#ef4444" />
+                                                                <stop offset="100%" stopColor="#f87171" />
+                                                            </linearGradient>
+                                                            {/* Y Component Gradient */}
+                                                            <linearGradient id="yGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                                                                <stop offset="0%" stopColor="#10b981" />
+                                                                <stop offset="100%" stopColor="#34d399" />
+                                                            </linearGradient>
+                                                            {/* Arrow markers */}
+                                                            <marker id="arrowMain" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+                                                                <path d="M0,0 L0,8 L12,4 z" fill="#60a5fa" />
                                                             </marker>
-                                                            <marker id="arrowhead-x" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                                                <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+                                                            <marker id="arrowX" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                                                <path d="M0,0 L0,6 L9,3 z" fill="#f87171" />
                                                             </marker>
-                                                            <marker id="arrowhead-y" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                                                <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+                                                            <marker id="arrowY" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                                                <path d="M0,0 L0,6 L9,3 z" fill="#34d399" />
                                                             </marker>
+                                                            {/* Glow effect */}
+                                                            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                                                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                                                                <feMerge>
+                                                                    <feMergeNode in="coloredBlur" />
+                                                                    <feMergeNode in="SourceGraphic" />
+                                                                </feMerge>
+                                                            </filter>
                                                         </defs>
 
-                                                        {/* Origin Translation */}
-                                                        <g transform="translate(40, 260) scale(1, -1)">
-                                                            {/* Axes */}
-                                                            <line x1="-20" y1="0" x2="350" y2="0" stroke="#94a3b8" strokeWidth="2" />
-                                                            <line x1="0" y1="-20" x2="0" y2="280" stroke="#94a3b8" strokeWidth="2" />
+                                                        {/* Coordinate System Origin at bottom-left */}
+                                                        <g transform="translate(80, 290)">
+                                                            {/* X Axis */}
+                                                            <line x1="-30" y1="0" x2="380" y2="0" stroke="#64748b" strokeWidth="2" />
+                                                            <text x="370" y="25" fill="#94a3b8" fontSize="16" fontWeight="bold">X</text>
+                                                            {/* Axis ticks */}
+                                                            {[50, 100, 150, 200, 250, 300].map((x, i) => (
+                                                                <g key={i}>
+                                                                    <line x1={x} y1="-5" x2={x} y2="5" stroke="#64748b" strokeWidth="1" />
+                                                                    <text x={x} y="20" fill="#64748b" fontSize="10" textAnchor="middle">{x}</text>
+                                                                </g>
+                                                            ))}
 
-                                                            {/* X Component */}
-                                                            <motion.line
-                                                                x1="0" y1="0"
-                                                                x2={fx * 1.5} y2="0" // Scale factor
-                                                                stroke="#ef4444"
-                                                                strokeWidth="4"
-                                                                markerEnd="url(#arrowhead-x)"
-                                                                initial={false}
-                                                                animate={{ x2: fx * 1.5 }}
-                                                            />
-                                                            {/* Y Component */}
-                                                            <motion.line
-                                                                x1="0" y1="0"
-                                                                x2="0" y2={fy * 1.5}
-                                                                stroke="#10b981"
-                                                                strokeWidth="4"
-                                                                markerEnd="url(#arrowhead-y)"
-                                                                initial={false}
-                                                                animate={{ y2: fy * 1.5 }}
-                                                            />
+                                                            {/* Y Axis */}
+                                                            <line x1="0" y1="30" x2="0" y2="-260" stroke="#64748b" strokeWidth="2" />
+                                                            <text x="-20" y="-240" fill="#94a3b8" fontSize="16" fontWeight="bold">Y</text>
+                                                            {/* Y Axis ticks */}
+                                                            {[50, 100, 150, 200].map((y, i) => (
+                                                                <g key={i}>
+                                                                    <line x1="-5" y1={-y} x2="5" y2={-y} stroke="#64748b" strokeWidth="1" />
+                                                                    <text x="-20" y={-y + 4} fill="#64748b" fontSize="10" textAnchor="end">{y}</text>
+                                                                </g>
+                                                            ))}
 
-                                                            {/* Component Connections (Dotted Lines) */}
+                                                            {/* Origin point with glow */}
+                                                            <motion.circle
+                                                                cx="0" cy="0" r="6"
+                                                                fill="#fbbf24"
+                                                                filter="url(#glow)"
+                                                                animate={{ scale: [1, 1.2, 1] }}
+                                                                transition={{ duration: 2, repeat: Infinity }}
+                                                            />
+                                                            <text x="8" y="18" fill="#fbbf24" fontSize="11" fontWeight="bold">Origin (0,0)</text>
+
+                                                            {/* Component Dotted Lines (Parallelogram) */}
                                                             <motion.line
                                                                 x1={fx * 1.5} y1="0"
-                                                                x2={fx * 1.5} y2={fy * 1.5}
+                                                                x2={fx * 1.5} y2={-fy * 1.5}
                                                                 stroke="#ef4444"
-                                                                strokeWidth="1"
-                                                                strokeDasharray="4"
-                                                                animate={{ x1: fx * 1.5, x2: fx * 1.5, y2: fy * 1.5 }}
+                                                                strokeWidth="2"
+                                                                strokeDasharray="6,4"
+                                                                opacity="0.6"
+                                                                animate={{ x1: fx * 1.5, x2: fx * 1.5, y2: -fy * 1.5 }}
                                                             />
                                                             <motion.line
-                                                                x1="0" y1={fy * 1.5}
-                                                                x2={fx * 1.5} y2={fy * 1.5}
+                                                                x1="0" y1={-fy * 1.5}
+                                                                x2={fx * 1.5} y2={-fy * 1.5}
                                                                 stroke="#10b981"
-                                                                strokeWidth="1"
-                                                                strokeDasharray="4"
-                                                                animate={{ y1: fy * 1.5, x2: fx * 1.5, y2: fy * 1.5 }}
+                                                                strokeWidth="2"
+                                                                strokeDasharray="6,4"
+                                                                opacity="0.6"
+                                                                animate={{ y1: -fy * 1.5, x2: fx * 1.5, y2: -fy * 1.5 }}
                                                             />
 
-                                                            {/* Main Resultant Vector */}
+                                                            {/* Right Angle Marker */}
+                                                            <motion.path
+                                                                d={`M ${fx * 1.5 - 12} 0 L ${fx * 1.5 - 12} -12 L ${fx * 1.5} -12`}
+                                                                stroke="#94a3b8"
+                                                                strokeWidth="1.5"
+                                                                fill="none"
+                                                                animate={{ d: `M ${fx * 1.5 - 12} 0 L ${fx * 1.5 - 12} -12 L ${fx * 1.5} -12` }}
+                                                            />
+
+                                                            {/* X Component Vector */}
                                                             <motion.line
                                                                 x1="0" y1="0"
-                                                                x2={fx * 1.5} y2={fy * 1.5}
-                                                                stroke="#2563eb"
-                                                                strokeWidth="6"
-                                                                markerEnd="url(#arrowhead-main)"
-                                                                animate={{ x2: fx * 1.5, y2: fy * 1.5 }}
+                                                                x2={fx * 1.5} y2="0"
+                                                                stroke="url(#xGradient)"
+                                                                strokeWidth="5"
+                                                                markerEnd="url(#arrowX)"
+                                                                filter="url(#glow)"
+                                                                animate={{ x2: fx * 1.5 }}
                                                             />
+                                                            {/* X Label */}
+                                                            <motion.g animate={{ x: fx * 0.75 }}>
+                                                                <rect x="-25" y="8" width="50" height="18" rx="4" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="1" />
+                                                                <text x="0" y="21" fill="#f87171" fontSize="11" fontWeight="bold" textAnchor="middle">
+                                                                    Fx = {fx.toFixed(0)}N
+                                                                </text>
+                                                            </motion.g>
+
+                                                            {/* Y Component Vector */}
+                                                            <motion.line
+                                                                x1="0" y1="0"
+                                                                x2="0" y2={-fy * 1.5}
+                                                                stroke="url(#yGradient)"
+                                                                strokeWidth="5"
+                                                                markerEnd="url(#arrowY)"
+                                                                filter="url(#glow)"
+                                                                animate={{ y2: -fy * 1.5 }}
+                                                            />
+                                                            {/* Y Label */}
+                                                            <motion.g animate={{ y: -fy * 0.75 }}>
+                                                                <rect x="-55" y="-9" width="50" height="18" rx="4" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="1" />
+                                                                <text x="-30" y="4" fill="#34d399" fontSize="11" fontWeight="bold" textAnchor="middle">
+                                                                    Fy = {fy.toFixed(0)}N
+                                                                </text>
+                                                            </motion.g>
+
+                                                            {/* Main Resultant Force Vector */}
+                                                            <motion.line
+                                                                x1="0" y1="0"
+                                                                x2={fx * 1.5} y2={-fy * 1.5}
+                                                                stroke="url(#forceGradient)"
+                                                                strokeWidth="7"
+                                                                markerEnd="url(#arrowMain)"
+                                                                filter="url(#glow)"
+                                                                animate={{ x2: fx * 1.5, y2: -fy * 1.5 }}
+                                                            />
+                                                            {/* F Label at vector tip */}
+                                                            <motion.g animate={{ x: fx * 0.75 + 15, y: -fy * 0.75 - 15 }}>
+                                                                <rect x="-30" y="-12" width="60" height="22" rx="5" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="1.5" />
+                                                                <text x="0" y="4" fill="#60a5fa" fontSize="12" fontWeight="bold" textAnchor="middle">
+                                                                    F = {vectorParams.magnitude}N
+                                                                </text>
+                                                            </motion.g>
 
                                                             {/* Angle Arc */}
-                                                            <path
-                                                                d={`M 30,0 A 30,30 0 0 1 ${30 * Math.cos(rad)},${30 * Math.sin(rad)}`}
-                                                                stroke="#64748b"
-                                                                strokeWidth="2"
-                                                                fill="transparent"
+                                                            <motion.path
+                                                                d={`M 40 0 A 40 40 0 0 0 ${40 * Math.cos(rad)} ${-40 * Math.sin(rad)}`}
+                                                                stroke="#fbbf24"
+                                                                strokeWidth="2.5"
+                                                                fill="none"
+                                                                strokeLinecap="round"
                                                             />
+                                                            {/* Angle Label */}
+                                                            <text
+                                                                x={55 * Math.cos(rad / 2)}
+                                                                y={-55 * Math.sin(rad / 2)}
+                                                                fill="#fbbf24"
+                                                                fontSize="14"
+                                                                fontWeight="bold"
+                                                                textAnchor="middle"
+                                                            >
+                                                                θ = {vectorParams.angle}°
+                                                            </text>
+                                                        </g>
+
+                                                        {/* Formula Legend */}
+                                                        <g transform="translate(320, 20)">
+                                                            <rect x="0" y="0" width="165" height="95" rx="8" fill="rgba(15, 23, 42, 0.9)" stroke="#334155" strokeWidth="1" />
+                                                            <text x="12" y="22" fill="#94a3b8" fontSize="11" fontWeight="bold">DECOMPOSITION</text>
+
+                                                            <line x1="12" y1="38" x2="30" y2="38" stroke="#3b82f6" strokeWidth="4" />
+                                                            <text x="38" y="42" fill="#e2e8f0" fontSize="11">F = {vectorParams.magnitude} N</text>
+
+                                                            <line x1="12" y1="55" x2="30" y2="55" stroke="#ef4444" strokeWidth="3" />
+                                                            <text x="38" y="59" fill="#e2e8f0" fontSize="10">Fx = F·cos(θ)</text>
+
+                                                            <line x1="12" y1="72" x2="30" y2="72" stroke="#10b981" strokeWidth="3" />
+                                                            <text x="38" y="76" fill="#e2e8f0" fontSize="10">Fy = F·sin(θ)</text>
+
+                                                            <circle cx="20" cy="87" r="4" fill="#fbbf24" />
+                                                            <text x="38" y="91" fill="#e2e8f0" fontSize="10">θ = {vectorParams.angle}°</text>
                                                         </g>
                                                     </svg>
                                                 </div>
