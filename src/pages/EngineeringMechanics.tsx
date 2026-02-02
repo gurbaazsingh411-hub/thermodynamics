@@ -427,64 +427,194 @@ const EngineeringMechanics = () => {
                                             animate={{ opacity: 1, scale: 1 }}
                                             className="grid grid-cols-1 md:grid-cols-2 gap-6"
                                         >
+                                            {/* Force Decomposition on Inclined Planes */}
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Info className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Force Decomposition</CardTitle>
+                                                    <CardTitle className="text-warning">Force Decomposition on Inclined Planes</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        On an inclined plane, gravity is split into two components relative to the surface:
+                                                        When an object rests on an inclined surface, the gravitational force (<strong>W = mg</strong>)
+                                                        must be resolved into two components relative to the plane's surface:
                                                     </p>
                                                     <ul className="space-y-2 font-mono text-xs">
                                                         <li className="flex justify-between border-b border-warning/20 pb-1">
-                                                            <span>Parallel (Down-plane):</span>
-                                                            <span className="text-blue-500">F_p = m·g·sin(θ)</span>
+                                                            <span className="text-blue-400">Parallel Component (F∥):</span>
+                                                            <span className="text-blue-500">F∥ = mg·sin(θ)</span>
                                                         </li>
                                                         <li className="flex justify-between border-b border-warning/20 pb-1">
-                                                            <span>Normal (Into-plane):</span>
-                                                            <span className="text-purple-500">F_n = m·g·cos(θ)</span>
+                                                            <span className="text-purple-400">Normal Component (F⊥):</span>
+                                                            <span className="text-purple-500">F⊥ = mg·cos(θ)</span>
                                                         </li>
                                                     </ul>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        The <strong>parallel component</strong> tries to slide the object down the plane, while
+                                                        the <strong>normal component</strong> presses the object into the surface, determining
+                                                        the friction force available.
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10">
+                                                        <strong>Key Insight:</strong> As angle increases, sin(θ) increases and cos(θ) decreases.
+                                                        This means the sliding force grows while friction capacity shrinks!
+                                                    </div>
                                                 </CardContent>
                                             </Card>
 
+                                            {/* Newton's Laws on Inclined Planes */}
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <GraduationCap className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Condition for Sliding</CardTitle>
+                                                    <CardTitle className="text-warning">Newton's Laws on Inclined Planes</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        A block will only slide if the parallel component of gravity exceeds the maximum
-                                                        static friction force.
+                                                        Applying Newton's Second Law (<strong>ΣF = ma</strong>) along the incline:
                                                     </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-sm my-4">
-                                                        m·g·sin(θ) {'>'} μ · m·g·cos(θ)
-                                                        <br />
-                                                        tan(θ) {'>'} μ
+                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-sm my-2 space-y-1">
+                                                        <div>ΣF∥ = mg·sin(θ) - f = ma</div>
+                                                        <div className="text-xs text-muted-foreground">where f = friction force</div>
                                                     </div>
-                                                    <p>
-                                                        Notice how the mass cancels out! Whether it's a pebble or a truck, the angle of
-                                                        repose depends only on the material properties (μ).
+                                                    <p><strong>Case 1: Object at Rest (Static Equilibrium)</strong></p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        If a = 0 and object doesn't move: mg·sin(θ) ≤ μₛ·mg·cos(θ)
+                                                    </p>
+                                                    <p><strong>Case 2: Object Sliding Down</strong></p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        a = g(sin(θ) - μₖ·cos(θ)) — Acceleration depends only on angle and μₖ, NOT mass!
+                                                    </p>
+                                                    <p><strong>Case 3: Object Pushed Up</strong></p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Friction now acts downward: a = g(sin(θ) + μₖ·cos(θ))
                                                     </p>
                                                 </CardContent>
                                             </Card>
 
+                                            {/* Static vs Kinetic Friction */}
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
-                                                    <GraduationCap className="w-5 h-5 text-warning" />
+                                                    <Target className="w-5 h-5 text-warning" />
                                                     <CardTitle className="text-warning">Static vs. Kinetic Friction</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        <strong>Static Friction (μs):</strong> The force keeping an object at rest. It must be overcome to start moving.
+                                                        <strong>Static Friction (fₛ):</strong> The force that prevents an object from starting to move.
+                                                        It can vary from 0 up to a maximum value:
                                                     </p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-sm my-2">
+                                                        fₛ ≤ μₛ · N (where N = normal force)
+                                                    </div>
                                                     <p>
-                                                        <strong>Kinetic Friction (μk):</strong> The force acting on an object in motion. Usually, μk {'<'} μs, which is why it's harder to start a heavy box moving than to keep it sliding.
+                                                        <strong>Kinetic Friction (fₖ):</strong> The constant force acting on a moving object:
                                                     </p>
-                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10">
-                                                        <strong>Tip:</strong> The angle where sliding starts is called the "Angle of Repose". It satisfies: <strong>tan(θ) = μs</strong>.
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-sm my-2">
+                                                        fₖ = μₖ · N (always opposing motion)
+                                                    </div>
+                                                    <div className="text-xs space-y-1">
+                                                        <p><strong>Typical Coefficient Values:</strong></p>
+                                                        <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
+                                                            <li>Rubber on concrete: μₛ ≈ 0.8-1.0, μₖ ≈ 0.6-0.8</li>
+                                                            <li>Steel on steel: μₛ ≈ 0.6, μₖ ≈ 0.4</li>
+                                                            <li>Ice on ice: μₛ ≈ 0.1, μₖ ≈ 0.03</li>
+                                                            <li>Teflon on steel: μₛ ≈ 0.04, μₖ ≈ 0.04</li>
+                                                        </ul>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Energy on Inclined Planes */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <GraduationCap className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Energy Considerations</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        The <strong>Work-Energy Theorem</strong> provides an alternative approach to solving inclined plane problems:
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-xs my-2">
+                                                        W_net = ΔKE = ½mv₂² - ½mv₁²
+                                                    </div>
+                                                    <p><strong>Work done by various forces:</strong></p>
+                                                    <ul className="text-xs space-y-1 text-muted-foreground">
+                                                        <li>• <strong>Gravity:</strong> W_g = mgh (positive going down)</li>
+                                                        <li>• <strong>Friction:</strong> W_f = -μₖ·N·d (always negative, energy lost to heat)</li>
+                                                        <li>• <strong>Normal Force:</strong> W_N = 0 (perpendicular to motion)</li>
+                                                    </ul>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10 mt-2">
+                                                        <strong>Mechanical Advantage:</strong> An inclined plane is a simple machine!
+                                                        It trades distance for force — you push a lighter force over a longer distance
+                                                        to lift an object the same height.
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Angle of Repose */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Box className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Angle of Repose</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        The <strong>Angle of Repose (θᵣ)</strong> is the steepest angle at which an object
+                                                        will remain stationary on an inclined surface without sliding.
+                                                    </p>
+                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-sm my-2">
+                                                        tan(θᵣ) = μₛ → θᵣ = arctan(μₛ)
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        This remarkable result shows that the angle of repose depends ONLY on the
+                                                        coefficient of static friction, not on the object's mass!
+                                                    </p>
+                                                    <p><strong>Applications:</strong></p>
+                                                    <ul className="text-xs list-disc pl-4 space-y-1 text-muted-foreground">
+                                                        <li>Determining safe slopes for roads and railways</li>
+                                                        <li>Designing hoppers and chutes for bulk materials</li>
+                                                        <li>Measuring friction coefficients experimentally</li>
+                                                        <li>Analyzing stability of granular piles (sand, grain)</li>
+                                                    </ul>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Did You Know */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Lightbulb className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Did You Know?</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <div className="space-y-3">
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🏛️</span>
+                                                            <p className="text-xs">
+                                                                <strong>Egyptian Pyramids:</strong> The ancient Egyptians used inclined planes (ramps)
+                                                                to move massive stone blocks weighing up to 80 tons. A 1:10 slope reduces
+                                                                the required force to about 10% of the block's weight!
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🔩</span>
+                                                            <p className="text-xs">
+                                                                <strong>Screws & Wedges:</strong> A screw is essentially an inclined plane wrapped
+                                                                around a cylinder! This gives enormous mechanical advantage — a small rotation
+                                                                creates a powerful linear force.
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">📦</span>
+                                                            <p className="text-xs">
+                                                                <strong>Conveyor Belts:</strong> Modern logistics use inclined conveyors at carefully
+                                                                calculated angles. Too steep and packages slide backward; too shallow wastes space
+                                                                and energy!
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">⛷️</span>
+                                                            <p className="text-xs">
+                                                                <strong>Ski Slopes:</strong> Professional ski runs are classified by slope angle.
+                                                                Green runs are typically 6-25% grade, while black diamond runs can exceed 40%!
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </CardContent>
                                             </Card>
