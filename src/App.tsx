@@ -17,7 +17,7 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-import BackgroundParticles from "@/components/layout/BackgroundParticles";
+import ScienceBackground from "@/components/layout/3d/ScienceBackground";
 
 const App = () => (
   <ErrorBoundary>
@@ -25,7 +25,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BackgroundParticles />
+        <ScienceBackground />
         <BrowserRouter>
           <div className="min-h-screen flex flex-col relative z-10">
             <Routes>
