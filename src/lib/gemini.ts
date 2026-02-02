@@ -1,6 +1,6 @@
 // Gemini API utility for ThermoBot chatbot
 const GEMINI_API_KEY = 'AIzaSyDMTMWvbtBf8HotNYQoTpuP7XefSmVNSxw';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
 
 const SYSTEM_PROMPT = `You are ThermoBot, a friendly and knowledgeable AI assistant specialized in engineering concepts, particularly:
 - Thermodynamics (laws, cycles, heat engines, refrigeration)
