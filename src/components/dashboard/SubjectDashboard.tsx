@@ -5,12 +5,13 @@ import {
     Droplets,
     Settings,
     Zap,
-    Infinity,
     ChevronRight,
     Thermometer,
     Wind,
-    Layers,
-    Activity
+    Activity,
+    FlaskConical,
+    GraduationCap,
+    Globe
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -112,22 +113,35 @@ export const SubjectDashboard = () => {
         <div className="min-h-screen bg-transparent p-8 relative z-10">
             <div className="max-w-7xl mx-auto space-y-12">
                 {/* Header */}
-                <div className="text-left space-y-4">
+                <div className="text-center space-y-6">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-primary via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-sm"
+                        className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-sm"
                     >
                         Engineering Concepts Simulator
                     </motion.h1>
-                    <motion.p
+
+                    {/* Feature Tabs */}
+                    <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-xl text-muted-foreground/80 max-w-3xl"
+                        className="flex justify-center gap-4 flex-wrap"
                     >
-                        Select a subject to explore interactive simulations and master fundamental engineering principles.
-                    </motion.p>
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400">
+                            <FlaskConical className="w-4 h-4" />
+                            <span className="text-sm font-medium">Simulation First</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 transition-colors cursor-pointer">
+                            <GraduationCap className="w-4 h-4" />
+                            <span className="text-sm font-medium">Educational Mode</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 transition-colors cursor-pointer">
+                            <Globe className="w-4 h-4" />
+                            <span className="text-sm font-medium">Web-Based</span>
+                        </div>
+                    </motion.div>
                 </div>
 
                 {/* Subjects Grid */}

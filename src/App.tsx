@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 import ScienceBackground from "@/components/layout/3d/ScienceBackground";
+import { ThermoBot } from "@/components/chatbot/ThermoBot";
 
 const App = () => (
   <ErrorBoundary>
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
+          <ThermoBot />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
@@ -49,3 +51,4 @@ const App = () => (
 );
 
 export default App;
+
