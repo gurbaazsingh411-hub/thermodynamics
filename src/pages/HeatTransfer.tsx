@@ -4,6 +4,7 @@ import { Header } from '@/components/layout/Header';
 import {
     Thermometer,
     ArrowRight,
+    ArrowLeft,
     RotateCcw,
     GraduationCap,
     Info,
@@ -1115,158 +1116,158 @@ const HeatTransfer = () => {
                                                 <CardDescription>Counter-Flow Heat Exchange</CardDescription>
                                             </CardHeader>
                                             <CardContent className="flex flex-col items-center justify-center min-h-[400px] space-y-8">
-                                                <CardContent className="flex flex-col items-center justify-center min-h-[400px] space-y-8">
-                                                    {/* Pipe Visualization (Concentric Cutaway) */}
-                                                    <div className="relative w-full bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-inner p-6 flex flex-col justify-center gap-2">
 
-                                                        {/* Legend / Flow Indicators */}
-                                                        <div className="absolute top-2 left-4 right-4 flex justify-between text-[10px] text-slate-400 font-mono tracking-widest uppercase">
-                                                            <span>Cold Left (In)</span>
-                                                            <span>Hot Right (In)</span>
+                                                {/* Pipe Visualization (Concentric Cutaway) */}
+                                                <div className="relative w-full bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-inner p-6 flex flex-col justify-center gap-2">
+
+                                                    {/* Legend / Flow Indicators */}
+                                                    <div className="absolute top-2 left-4 right-4 flex justify-between text-[10px] text-slate-400 font-mono tracking-widest uppercase">
+                                                        <span>Cold Left (In)</span>
+                                                        <span>Hot Right (In)</span>
+                                                    </div>
+
+                                                    {/* OUTER ANNULUS (TOP) - HOT FLUID (Right -> Left) */}
+                                                    <div className="relative w-full h-8 bg-slate-800 rounded-t-sm flex items-center border-b border-white/10">
+                                                        <div className="absolute right-2 text-[10px] font-bold text-red-400 z-10 flex items-center">
+                                                            <ArrowLeft className="w-3 h-3 mr-1" /> Hot In
                                                         </div>
-
-                                                        {/* OUTER ANNULUS (TOP) - HOT FLUID (Right -> Left) */}
-                                                        <div className="relative w-full h-8 bg-slate-800 rounded-t-sm flex items-center border-b border-white/10">
-                                                            <div className="absolute right-2 text-[10px] font-bold text-red-400 z-10 flex items-center">
-                                                                <ArrowLeft className="w-3 h-3 mr-1" /> Hot In
-                                                            </div>
-                                                            <div className="w-full h-full opacity-90"
-                                                                style={{
-                                                                    background: `linear-gradient(to left, 
+                                                        <div className="w-full h-full opacity-90"
+                                                            style={{
+                                                                background: `linear-gradient(to left, 
                                                                     hsl(${((exchangerParams.tHotIn - 273) / 227) * 40}, 100%, 50%), 
                                                                     hsl(${((tHotOut - 273) / 227) * 40}, 100%, 50%))`
-                                                                }}
+                                                            }}
+                                                        />
+                                                        {/* Particles Moving Left */}
+                                                        {[...Array(6)].map((_, i) => (
+                                                            <motion.div
+                                                                key={`h-top-${i}`}
+                                                                className="absolute w-1.5 h-1.5 bg-white/70 rounded-full blur-[0.5px]"
+                                                                initial={{ x: 600, opacity: 0 }}
+                                                                animate={{ x: 0, opacity: [0, 1, 0] }}
+                                                                transition={{ duration: 4 / exchangerParams.mHot, repeat: Infinity, delay: i * 0.4, ease: "linear" }}
                                                             />
-                                                            {/* Particles Moving Left */}
-                                                            {[...Array(6)].map((_, i) => (
-                                                                <motion.div
-                                                                    key={`h-top-${i}`}
-                                                                    className="absolute w-1.5 h-1.5 bg-white/70 rounded-full blur-[0.5px]"
-                                                                    initial={{ x: 600, opacity: 0 }}
-                                                                    animate={{ x: 0, opacity: [0, 1, 0] }}
-                                                                    transition={{ duration: 4 / exchangerParams.mHot, repeat: Infinity, delay: i * 0.4, ease: "linear" }}
-                                                                />
-                                                            ))}
+                                                        ))}
+                                                    </div>
+
+                                                    {/* INNER PIPE - COLD FLUID (Left -> Right) */}
+                                                    <div className="relative w-full h-16 bg-slate-800 my-1 rounded-sm flex items-center shadow-lg z-10 border-y border-white/20">
+                                                        <div className="absolute left-2 text-[10px] font-bold text-cyan-300 z-10 flex items-center">
+                                                            Cold In <ArrowRight className="w-3 h-3 ml-1" />
+                                                        </div>
+                                                        <div className="absolute right-2 text-[10px] font-bold text-cyan-300 z-10 flex items-center">
+                                                            <ArrowRight className="w-3 h-3 mr-1" /> Cold Out
                                                         </div>
 
-                                                        {/* INNER PIPE - COLD FLUID (Left -> Right) */}
-                                                        <div className="relative w-full h-16 bg-slate-800 my-1 rounded-sm flex items-center shadow-lg z-10 border-y border-white/20">
-                                                            <div className="absolute left-2 text-[10px] font-bold text-cyan-300 z-10 flex items-center">
-                                                                Cold In <ArrowRight className="w-3 h-3 ml-1" />
-                                                            </div>
-                                                            <div className="absolute right-2 text-[10px] font-bold text-cyan-300 z-10 flex items-center">
-                                                                <ArrowRight className="w-3 h-3 mr-1" /> Cold Out
-                                                            </div>
-
-                                                            <div className="w-full h-full opacity-90"
-                                                                style={{
-                                                                    background: `linear-gradient(to right, 
+                                                        <div className="w-full h-full opacity-90"
+                                                            style={{
+                                                                background: `linear-gradient(to right, 
                                                                     hsl(200, 100%, ${30 + ((exchangerParams.tColdIn - 273) / 100) * 40}%), 
                                                                     hsl(200, 100%, ${30 + ((tColdOut - 273) / 100) * 40}%))`
-                                                                }}
+                                                            }}
+                                                        />
+
+                                                        {/* Particles Moving Right */}
+                                                        {[...Array(8)].map((_, i) => (
+                                                            <motion.div
+                                                                key={`c-mid-${i}`}
+                                                                className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full blur-[1px]"
+                                                                initial={{ x: 0, opacity: 0 }}
+                                                                animate={{ x: 600, opacity: [0, 1, 0] }}
+                                                                transition={{ duration: 4 / exchangerParams.mCold, repeat: Infinity, delay: i * 0.3, ease: "linear" }}
                                                             />
+                                                        ))}
+                                                    </div>
 
-                                                            {/* Particles Moving Right */}
-                                                            {[...Array(8)].map((_, i) => (
-                                                                <motion.div
-                                                                    key={`c-mid-${i}`}
-                                                                    className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full blur-[1px]"
-                                                                    initial={{ x: 0, opacity: 0 }}
-                                                                    animate={{ x: 600, opacity: [0, 1, 0] }}
-                                                                    transition={{ duration: 4 / exchangerParams.mCold, repeat: Infinity, delay: i * 0.3, ease: "linear" }}
-                                                                />
-                                                            ))}
+                                                    {/* OUTER ANNULUS (BOTTOM) - HOT FLUID (Right -> Left) */}
+                                                    <div className="relative w-full h-8 bg-slate-800 rounded-b-sm flex items-center border-t border-white/10">
+                                                        <div className="absolute left-2 text-[10px] font-bold text-red-400 z-10 flex items-center">
+                                                            Hot Out <ArrowLeft className="w-3 h-3 ml-1" />
                                                         </div>
-
-                                                        {/* OUTER ANNULUS (BOTTOM) - HOT FLUID (Right -> Left) */}
-                                                        <div className="relative w-full h-8 bg-slate-800 rounded-b-sm flex items-center border-t border-white/10">
-                                                            <div className="absolute left-2 text-[10px] font-bold text-red-400 z-10 flex items-center">
-                                                                Hot Out <ArrowLeft className="w-3 h-3 ml-1" />
-                                                            </div>
-                                                            <div className="w-full h-full opacity-90"
-                                                                style={{
-                                                                    background: `linear-gradient(to left, 
+                                                        <div className="w-full h-full opacity-90"
+                                                            style={{
+                                                                background: `linear-gradient(to left, 
                                                                     hsl(${((exchangerParams.tHotIn - 273) / 227) * 40}, 100%, 50%), 
                                                                     hsl(${((tHotOut - 273) / 227) * 40}, 100%, 50%))`
-                                                                }}
+                                                            }}
+                                                        />
+                                                        {/* Particles Moving Left */}
+                                                        {[...Array(6)].map((_, i) => (
+                                                            <motion.div
+                                                                key={`h-bot-${i}`}
+                                                                className="absolute w-1.5 h-1.5 bg-white/70 rounded-full blur-[0.5px]"
+                                                                initial={{ x: 600, opacity: 0 }}
+                                                                animate={{ x: 0, opacity: [0, 1, 0] }}
+                                                                transition={{ duration: 4 / exchangerParams.mHot, repeat: Infinity, delay: i * 0.4, ease: "linear" }}
                                                             />
-                                                            {/* Particles Moving Left */}
-                                                            {[...Array(6)].map((_, i) => (
-                                                                <motion.div
-                                                                    key={`h-bot-${i}`}
-                                                                    className="absolute w-1.5 h-1.5 bg-white/70 rounded-full blur-[0.5px]"
-                                                                    initial={{ x: 600, opacity: 0 }}
-                                                                    animate={{ x: 0, opacity: [0, 1, 0] }}
-                                                                    transition={{ duration: 4 / exchangerParams.mHot, repeat: Infinity, delay: i * 0.4, ease: "linear" }}
-                                                                />
-                                                            ))}
-                                                        </div>
-
-                                                        {/* Labels for Structure */}
-                                                        <div className="absolute -right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
-                                                            <div className="h-20 w-[1px] bg-slate-500 absolute left-[-10px] top-[-10px]"></div>
-                                                            <span className="text-[9px] text-slate-500 rotate-90 whitespace-nowrap origin-center translate-y-8">Annulus (Hot)</span>
-                                                            <span className="text-[9px] text-slate-500 rotate-90 whitespace-nowrap origin-center translate-y-[-20px]">Inner (Cold)</span>
-                                                        </div>
+                                                        ))}
                                                     </div>
 
-                                                    {/* Results */}
-                                                    <div className="grid grid-cols-3 gap-4 w-full">
-                                                        <div className="p-4 rounded bg-red-500/10 border border-red-500/20 text-center">
-                                                            <div className="text-2xl font-bold text-red-500">{tHotOut.toFixed(1)} K</div>
-                                                            <div className="text-xs text-muted-foreground uppercase">Th,out (Exit)</div>
-                                                        </div>
-                                                        <div className="p-4 rounded bg-emerald-500/10 border border-emerald-500/20 text-center">
-                                                            <div className="text-2xl font-bold text-emerald-500">{(Q_actual / 1000).toFixed(1)} kW</div>
-                                                            <div className="text-xs text-muted-foreground uppercase">Heat Transfer (Q)</div>
-                                                        </div>
-                                                        <div className="p-4 rounded bg-cyan-500/10 border border-cyan-500/20 text-center">
-                                                            <div className="text-2xl font-bold text-cyan-500">{tColdOut.toFixed(1)} K</div>
-                                                            <div className="text-xs text-muted-foreground uppercase">Tc,out (Exit)</div>
-                                                        </div>
+                                                    {/* Labels for Structure */}
+                                                    <div className="absolute -right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
+                                                        <div className="h-20 w-[1px] bg-slate-500 absolute left-[-10px] top-[-10px]"></div>
+                                                        <span className="text-[9px] text-slate-500 rotate-90 whitespace-nowrap origin-center translate-y-8">Annulus (Hot)</span>
+                                                        <span className="text-[9px] text-slate-500 rotate-90 whitespace-nowrap origin-center translate-y-[-20px]">Inner (Cold)</span>
                                                     </div>
+                                                </div>
 
-                                                    {/* Graph */}
-                                                    <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4 relative">
-                                                        <div className="flex justify-between items-center mb-2">
-                                                            <div className="text-sm font-semibold text-slate-100">Temperature Profile</div>
-                                                            {isStudyMode && (
-                                                                <div className="text-xs font-mono text-warning">
-                                                                    LMTD: {lmtd.toFixed(1)} K
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <ResponsiveContainer width="100%" height="100%">
-                                                            <LineChart data={exchangerData}>
-                                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
-                                                                <XAxis dataKey="x" stroke="#94a3b8" label={{ value: 'Length (m)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
-                                                                <YAxis stroke="#94a3b8" domain={[270, 'auto']} label={{ value: 'Temp (K)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
-                                                                <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} formatter={(value) => Number(value).toFixed(1)} />
-                                                                <Line type="monotone" dataKey="tHot" name="Hot Fluid" stroke="#ef4444" strokeWidth={3} dot={{ r: 4 }} />
-                                                                <Line type="monotone" dataKey="tCold" name="Cold Fluid" stroke="#06b6d4" strokeWidth={3} dot={{ r: 4 }} />
+                                                {/* Results */}
+                                                <div className="grid grid-cols-3 gap-4 w-full">
+                                                    <div className="p-4 rounded bg-red-500/10 border border-red-500/20 text-center">
+                                                        <div className="text-2xl font-bold text-red-500">{tHotOut.toFixed(1)} K</div>
+                                                        <div className="text-xs text-muted-foreground uppercase">Th,out (Exit)</div>
+                                                    </div>
+                                                    <div className="p-4 rounded bg-emerald-500/10 border border-emerald-500/20 text-center">
+                                                        <div className="text-2xl font-bold text-emerald-500">{(Q_actual / 1000).toFixed(1)} kW</div>
+                                                        <div className="text-xs text-muted-foreground uppercase">Heat Transfer (Q)</div>
+                                                    </div>
+                                                    <div className="p-4 rounded bg-cyan-500/10 border border-cyan-500/20 text-center">
+                                                        <div className="text-2xl font-bold text-cyan-500">{tColdOut.toFixed(1)} K</div>
+                                                        <div className="text-xs text-muted-foreground uppercase">Tc,out (Exit)</div>
+                                                    </div>
+                                                </div>
 
-                                                                {isStudyMode && (
-                                                                    <>
-                                                                        {/* Annotations for Delta T */}
-                                                                        <ReferenceLine x={0} stroke="#ffffff" strokeDasharray="3 3" opacity={0.3} />
-                                                                        <ReferenceLine x={exchangerParams.length} stroke="#ffffff" strokeDasharray="3 3" opacity={0.3} />
-                                                                    </>
-                                                                )}
-                                                            </LineChart>
-                                                        </ResponsiveContainer>
-
+                                                {/* Graph */}
+                                                <div className="w-full mt-6 h-64 bg-slate-900 border border-slate-800 rounded-lg p-4 relative">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <div className="text-sm font-semibold text-slate-100">Temperature Profile</div>
                                                         {isStudyMode && (
-                                                            <>
-                                                                <div className="absolute top-1/2 left-16 -translate-y-1/2 flex flex-col items-center pointer-events-none">
-                                                                    <span className="text-[10px] text-white/50 border-l border-white/30 pl-1">ΔT1: {deltaT1.toFixed(0)}K</span>
-                                                                </div>
-                                                                <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col items-center pointer-events-none">
-                                                                    <span className="text-[10px] text-white/50 border-r border-white/30 pr-1">ΔT2: {deltaT2.toFixed(0)}K</span>
-                                                                </div>
-                                                            </>
+                                                            <div className="text-xs font-mono text-warning">
+                                                                LMTD: {lmtd.toFixed(1)} K
+                                                            </div>
                                                         )}
                                                     </div>
-                                                </CardContent>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart data={exchangerData}>
+                                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} stroke="#fff" />
+                                                            <XAxis dataKey="x" stroke="#94a3b8" label={{ value: 'Length (m)', position: 'insideBottom', offset: -5, fill: '#94a3b8' }} />
+                                                            <YAxis stroke="#94a3b8" domain={[270, 'auto']} label={{ value: 'Temp (K)', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                                                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }} formatter={(value) => Number(value).toFixed(1)} />
+                                                            <Line type="monotone" dataKey="tHot" name="Hot Fluid" stroke="#ef4444" strokeWidth={3} dot={{ r: 4 }} />
+                                                            <Line type="monotone" dataKey="tCold" name="Cold Fluid" stroke="#06b6d4" strokeWidth={3} dot={{ r: 4 }} />
+
+                                                            {isStudyMode && (
+                                                                <>
+                                                                    {/* Annotations for Delta T */}
+                                                                    <ReferenceLine x={0} stroke="#ffffff" strokeDasharray="3 3" opacity={0.3} />
+                                                                    <ReferenceLine x={exchangerParams.length} stroke="#ffffff" strokeDasharray="3 3" opacity={0.3} />
+                                                                </>
+                                                            )}
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
+
+                                                    {isStudyMode && (
+                                                        <>
+                                                            <div className="absolute top-1/2 left-16 -translate-y-1/2 flex flex-col items-center pointer-events-none">
+                                                                <span className="text-[10px] text-white/50 border-l border-white/30 pl-1">ΔT1: {deltaT1.toFixed(0)}K</span>
+                                                            </div>
+                                                            <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col items-center pointer-events-none">
+                                                                <span className="text-[10px] text-white/50 border-r border-white/30 pr-1">ΔT2: {deltaT2.toFixed(0)}K</span>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </CardContent>
                                         </Card>
                                     </div>
 
