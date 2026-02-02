@@ -22,7 +22,8 @@ import {
     GraduationCap,
     Info,
     Activity,
-    Navigation
+    Navigation,
+    Lightbulb
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -312,48 +313,167 @@ const FluidMechanics = () => {
                                         </Card>
                                     </div>
 
-                                    {/* Study Mode Content */}
+                                    {/* Study Mode Content - In Depth */}
                                     {isStudyMode && (
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.98 }}
                                             animate={{ opacity: 1, scale: 1 }}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                            className="space-y-6"
                                         >
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Info className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Bernoulli's Principle</CardTitle>
+                                            {/* What is Bernoulli's Principle? */}
+                                            <Card className="border-primary/30 bg-primary/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-primary flex items-center gap-2">
+                                                        <Activity className="w-5 h-5" />
+                                                        What is Bernoulli's Principle?
+                                                    </CardTitle>
                                                 </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
+                                                <CardContent className="text-sm space-y-4">
                                                     <p>
-                                                        Named after Daniel Bernoulli, this principle states that an increase in the speed of a fluid
-                                                        occurs simultaneously with a decrease in static pressure or a decrease in the fluid's potential energy.
+                                                        <strong>Bernoulli's Principle</strong> (1738) describes the behavior of a moving fluid. It states that
+                                                        as the <span className="text-blue-400 font-semibold">speed of a fluid increases</span>, its
+                                                        <span className="text-red-400 font-semibold"> static pressure decreases</span>, and vice versa.
                                                     </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-xs sm:text-sm my-4 overflow-x-auto">
-                                                        P + ½ρv² + ρgh = constant
+                                                    <div className="bg-background/80 p-4 rounded-lg border border-primary/20 text-center">
+                                                        <div className="font-mono text-xl mb-2">P + ½ρv² + ρgh = constant</div>
+                                                        <p className="text-xs text-muted-foreground">Along any streamline in an ideal fluid</p>
                                                     </div>
-                                                    <p className="text-xs italic text-muted-foreground">
-                                                        Note: This assumes laminar, incompressible, and non-viscous flow.
+                                                    <p className="text-xs text-muted-foreground italic border-l-2 border-primary/50 pl-3">
+                                                        Named after Swiss mathematician <strong>Daniel Bernoulli</strong>, this is essentially
+                                                        the <strong>conservation of mechanical energy</strong> applied to flowing fluids.
                                                     </p>
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <GraduationCap className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">The Venturi Effect & Energy</CardTitle>
+                                            {/* The Three Energy Terms */}
+                                            <Card className="border-secondary/30 bg-secondary/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-secondary">Understanding the Energy Terms</CardTitle>
                                                 </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
-                                                    <p>
-                                                        Bernoulli's principle is essentially <strong>Energy Conservation</strong> for flowing fluids. The total energy (Pressure + Kinetic + Potential) remains constant along a streamline.
-                                                    </p>
-                                                    <p>
-                                                        <strong>Venturi Effect in Engineering:</strong> By constricting a pipe, we create a low-pressure zone. This "suction" is used to mix fluids (carbs) or measure flow rate (Venturi meters).
-                                                    </p>
-                                                    <div className="flex gap-2 items-center text-xs font-semibold text-warning mt-2 border-t border-warning/10 pt-2">
-                                                        <div className="p-1 rounded bg-warning/20">Observation</div>
-                                                        <span>Notice how velocity spikes in the constriction while pressure drops!</span>
+                                                <CardContent className="text-sm space-y-4">
+                                                    <p>Bernoulli's equation represents <strong>three forms of energy per unit volume</strong>:</p>
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        <div className="bg-red-500/10 p-4 rounded-lg border border-red-500/20">
+                                                            <div className="font-mono text-lg text-red-400 mb-2">P</div>
+                                                            <div className="font-semibold text-red-400 mb-1">Pressure Energy</div>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                The potential energy stored in the fluid due to pressure.
+                                                                Think of it as the "push" the fluid exerts.
+                                                            </p>
+                                                        </div>
+                                                        <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/20">
+                                                            <div className="font-mono text-lg text-blue-400 mb-2">½ρv²</div>
+                                                            <div className="font-semibold text-blue-400 mb-1">Kinetic Energy</div>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                Energy due to motion. Faster flow = higher kinetic energy.
+                                                                (Dynamic pressure)
+                                                            </p>
+                                                        </div>
+                                                        <div className="bg-green-500/10 p-4 rounded-lg border border-green-500/20">
+                                                            <div className="font-mono text-lg text-green-400 mb-2">ρgh</div>
+                                                            <div className="font-semibold text-green-400 mb-1">Potential Energy</div>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                Gravitational potential energy based on height.
+                                                                Higher elevation = more stored energy.
+                                                            </p>
+                                                        </div>
                                                     </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Venturi Effect & Applications */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <Card className="border-warning/30 bg-warning/5">
+                                                    <CardHeader className="pb-2">
+                                                        <CardTitle className="text-warning text-base flex items-center gap-2">
+                                                            <Navigation className="w-4 h-4" />
+                                                            The Venturi Effect
+                                                        </CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-3">
+                                                        <p>
+                                                            When fluid flows through a <strong>constriction</strong> (narrower pipe),
+                                                            its velocity must increase (continuity). By Bernoulli's principle,
+                                                            this causes <strong>pressure to drop</strong>.
+                                                        </p>
+                                                        <div className="bg-background/80 p-3 rounded text-center text-xs">
+                                                            <span className="text-muted-foreground">Wide pipe: </span>
+                                                            <span className="text-green-400">Low v, High P</span>
+                                                            <span className="mx-2">→</span>
+                                                            <span className="text-muted-foreground">Narrow: </span>
+                                                            <span className="text-red-400">High v, Low P</span>
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            This low-pressure zone creates "suction" that can draw in other fluids or particles.
+                                                        </p>
+                                                    </CardContent>
+                                                </Card>
+
+                                                <Card className="border-green-500/30 bg-green-500/5">
+                                                    <CardHeader className="pb-2">
+                                                        <CardTitle className="text-green-400 text-base">Real-World Applications</CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-2">
+                                                        <div className="flex items-start gap-2">
+                                                            <span className="text-green-400 font-bold">✈️</span>
+                                                            <span><strong>Airplane Wings:</strong> Air flows faster over the curved top, creating lower pressure → lift!</span>
+                                                        </div>
+                                                        <div className="flex items-start gap-2">
+                                                            <span className="text-green-400 font-bold">🚗</span>
+                                                            <span><strong>Carburetors:</strong> Venturi draws fuel into the air stream for combustion.</span>
+                                                        </div>
+                                                        <div className="flex items-start gap-2">
+                                                            <span className="text-green-400 font-bold">🩺</span>
+                                                            <span><strong>Blood Flow:</strong> Arterial stenosis → high velocity → low pressure → potential collapse.</span>
+                                                        </div>
+                                                        <div className="flex items-start gap-2">
+                                                            <span className="text-green-400 font-bold">📏</span>
+                                                            <span><strong>Venturi Meters:</strong> Measure flow rate by pressure drop.</span>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </div>
+
+                                            {/* Assumptions & Limitations */}
+                                            <Card className="border-orange-500/30 bg-orange-500/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-orange-400 text-base">Assumptions & Limitations</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm">
+                                                    <p className="mb-3">Bernoulli's equation is an <strong>idealization</strong>. It assumes:</p>
+                                                    <ul className="space-y-2">
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-orange-400 font-bold">1.</span>
+                                                            <span><strong>Incompressible Fluid:</strong> Density (ρ) doesn't change. Valid for liquids; gases at low Mach.</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-orange-400 font-bold">2.</span>
+                                                            <span><strong>Inviscid (No Friction):</strong> Ignores viscosity. Real pipes have friction losses.</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-orange-400 font-bold">3.</span>
+                                                            <span><strong>Steady Flow:</strong> Flow properties don't change with time at any point.</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-orange-400 font-bold">4.</span>
+                                                            <span><strong>Along a Streamline:</strong> Equation applies only along a single streamline.</span>
+                                                        </li>
+                                                    </ul>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Did You Know? */}
+                                            <Card className="border-purple-500/30 bg-purple-500/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-purple-400 text-sm flex items-center gap-2">
+                                                        <Lightbulb className="w-4 h-4" />
+                                                        Did You Know?
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-xs text-muted-foreground space-y-2">
+                                                    <p>⚾ A curveball in baseball works because of Bernoulli! Spinning ball creates pressure differences → curved path.</p>
+                                                    <p>🚂 Standing too close to a fast train is dangerous: air speed creates low pressure that can pull you toward it.</p>
+                                                    <p>🏠 In hurricanes, roofs fly off because fast wind over the roof creates low pressure above while inside pressure stays normal.</p>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
@@ -542,47 +662,184 @@ const FluidMechanics = () => {
                                         </Card>
                                     </div>
 
-                                    {/* Study Mode Content */}
+                                    {/* Study Mode Content - In Depth */}
                                     {isStudyMode && (
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                            className="space-y-6"
                                         >
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Info className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Reynolds Number (Re)</CardTitle>
+                                            {/* What is Reynolds Number? */}
+                                            <Card className="border-blue-500/30 bg-blue-500/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-blue-400 flex items-center gap-2">
+                                                        <Navigation className="w-5 h-5" />
+                                                        What is the Reynolds Number?
+                                                    </CardTitle>
                                                 </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
+                                                <CardContent className="text-sm space-y-4">
                                                     <p>
-                                                        The Reynolds number is a dimensionless quantity that helps predict flow patterns. It represents the ratio of inertial forces to viscous forces.
+                                                        The <strong>Reynolds Number (Re)</strong> is a <strong>dimensionless quantity</strong> that
+                                                        predicts whether fluid flow will be <span className="text-green-400">laminar</span> (smooth) or
+                                                        <span className="text-red-400"> turbulent</span> (chaotic).
                                                     </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
-                                                        Re = (ρ · v · D) / μ
+                                                    <div className="bg-background/80 p-4 rounded-lg border border-blue-500/20 text-center">
+                                                        <div className="font-mono text-xl mb-2">Re = (ρ · v · D) / μ = (v · D) / ν</div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            ρ = density, v = velocity, D = diameter, μ = dynamic viscosity, ν = kinematic viscosity
+                                                        </p>
                                                     </div>
-                                                    <ul className="list-disc pl-5 space-y-1">
-                                                        <li><strong>Re {'<'} 2300:</strong> Laminar flow (smooth, organized)</li>
-                                                        <li><strong>Re {'>'} 4000:</strong> Turbulent flow (chaotic, mixing)</li>
+                                                    <p className="text-xs text-muted-foreground italic border-l-2 border-blue-500/50 pl-3">
+                                                        Named after <strong>Osborne Reynolds</strong> (1883), who demonstrated the transition
+                                                        from laminar to turbulent flow using dye injection in a glass tube.
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Laminar vs Turbulent */}
+                                            <Card className="border-secondary/30 bg-secondary/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-secondary">Laminar vs Turbulent Flow</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        <div className="bg-green-500/10 p-4 rounded-lg border border-green-500/20">
+                                                            <div className="font-mono text-lg text-green-400 mb-2">Re {'<'} 2300</div>
+                                                            <div className="font-semibold text-green-400 mb-1">Laminar Flow</div>
+                                                            <ul className="text-xs text-muted-foreground space-y-1">
+                                                                <li>• Smooth, orderly layers</li>
+                                                                <li>• Parabolic velocity profile</li>
+                                                                <li>• Low friction losses</li>
+                                                                <li>• Predictable behavior</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div className="bg-yellow-500/10 p-4 rounded-lg border border-yellow-500/20">
+                                                            <div className="font-mono text-lg text-yellow-400 mb-2">2300 - 4000</div>
+                                                            <div className="font-semibold text-yellow-400 mb-1">Transition Zone</div>
+                                                            <ul className="text-xs text-muted-foreground space-y-1">
+                                                                <li>• Unstable, fluctuating</li>
+                                                                <li>• Intermittent turbulence</li>
+                                                                <li>• Hard to predict</li>
+                                                                <li>• Avoid in design!</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div className="bg-red-500/10 p-4 rounded-lg border border-red-500/20">
+                                                            <div className="font-mono text-lg text-red-400 mb-2">Re {'>'} 4000</div>
+                                                            <div className="font-semibold text-red-400 mb-1">Turbulent Flow</div>
+                                                            <ul className="text-xs text-muted-foreground space-y-1">
+                                                                <li>• Chaotic eddies & mixing</li>
+                                                                <li>• Flatter velocity profile</li>
+                                                                <li>• Higher friction losses</li>
+                                                                <li>• Better heat transfer</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Velocity Profiles & Friction */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <Card className="border-warning/30 bg-warning/5">
+                                                    <CardHeader className="pb-2">
+                                                        <CardTitle className="text-warning text-base">Velocity Profiles</CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-3">
+                                                        <p>
+                                                            <strong>Laminar:</strong> Velocity is highest at the center (no-slip at walls).
+                                                            The profile forms a <strong>parabola</strong>.
+                                                        </p>
+                                                        <div className="bg-background/80 p-3 rounded font-mono text-center text-sm border border-warning/20">
+                                                            v(r) = v_max × [1 - (r/R)²]
+                                                        </div>
+                                                        <p>
+                                                            <strong>Turbulent:</strong> Momentum mixes across the pipe, creating a
+                                                            <strong> blunter, flatter profile</strong>. Flow is more uniform.
+                                                        </p>
+                                                    </CardContent>
+                                                </Card>
+
+                                                <Card className="border-orange-500/30 bg-orange-500/5">
+                                                    <CardHeader className="pb-2">
+                                                        <CardTitle className="text-orange-400 text-base">Friction & Head Loss</CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-3">
+                                                        <p>
+                                                            Flowing fluid loses energy to friction. The <strong>Darcy-Weisbach</strong> equation
+                                                            calculates this head loss:
+                                                        </p>
+                                                        <div className="bg-background/80 p-3 rounded font-mono text-center text-sm border border-orange-500/20">
+                                                            h_f = f × (L/D) × (v²/2g)
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            f = friction factor (depends on Re and pipe roughness), L = length, D = diameter
+                                                        </p>
+                                                    </CardContent>
+                                                </Card>
+                                            </div>
+
+                                            {/* Physical Meaning */}
+                                            <Card className="border-primary/30 bg-primary/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-primary text-base flex items-center gap-2">
+                                                        <Info className="w-4 h-4" />
+                                                        Physical Interpretation
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm">
+                                                    <p className="mb-3">The Reynolds number is the ratio of two forces:</p>
+                                                    <div className="bg-background/80 p-4 rounded text-center font-mono border border-primary/20">
+                                                        Re = <span className="text-blue-400">Inertial Forces</span> / <span className="text-green-400">Viscous Forces</span>
+                                                    </div>
+                                                    <ul className="mt-4 space-y-2 text-sm">
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-blue-400 font-bold">↑</span>
+                                                            <span><strong>High Re:</strong> Inertia dominates → fluid keeps moving chaotically → <strong>Turbulent</strong></span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-green-400 font-bold">↓</span>
+                                                            <span><strong>Low Re:</strong> Viscosity dominates → fluid resists disruption → <strong>Laminar</strong></span>
+                                                        </li>
                                                     </ul>
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Navigation className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Flow Transition & Profile</CardTitle>
+                                            {/* Real-World & Tips */}
+                                            <Card className="border-green-500/30 bg-green-500/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-green-400 text-base">Engineering Applications</CardTitle>
                                                 </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
-                                                    <p>
-                                                        <strong>Laminar (Re {'<'} 2300):</strong> Fluid flows in parallel layers. The velocity profile is a perfect parabola.
-                                                    </p>
-                                                    <p>
-                                                        <strong>Turbulent (Re {'>'} 4000):</strong> Chaotic eddies mix the fluid. The velocity profile is "blunt" or flattened because momentum is transferred more efficiently across the pipe.
-                                                    </p>
-                                                    <p className="text-xs italic text-muted-foreground">
-                                                        The region between 2300 and 4000 is the <strong>Transition Zone</strong> where flow can flip unpredictably between laminar and turbulent.
-                                                    </p>
+                                                <CardContent className="text-sm space-y-2">
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-400 font-bold">🔧</span>
+                                                        <span><strong>HVAC Ducts:</strong> Designed for turbulent flow (Re ~ 10,000+) for better mixing & heat transfer.</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-400 font-bold">🩸</span>
+                                                        <span><strong>Blood Flow:</strong> Normally laminar (Re ~ 1,000). Turbulence indicates artery blockage!</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-400 font-bold">🛢️</span>
+                                                        <span><strong>Oil Pipelines:</strong> Often laminar (high viscosity) → lower pumping costs.</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-400 font-bold">🚰</span>
+                                                        <span><strong>Water Mains:</strong> Turbulent flow reduces bacteria growth vs stagnant laminar zones.</span>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Did You Know? */}
+                                            <Card className="border-purple-500/30 bg-purple-500/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-purple-400 text-sm flex items-center gap-2">
+                                                        <Lightbulb className="w-4 h-4" />
+                                                        Did You Know?
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-xs text-muted-foreground space-y-2">
+                                                    <p>🐟 Fish and dolphins have evolved skin patterns that delay transition to turbulence, reducing drag!</p>
+                                                    <p>✈️ Golf ball dimples force early transition to turbulence, which actually reduces drag on spheres.</p>
+                                                    <p>🍯 Honey pouring has Re ~ 0.1 (extremely laminar). Water from a tap is typically Re ~ 10,000+ (turbulent).</p>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
@@ -745,46 +1002,185 @@ const FluidMechanics = () => {
                                         </Card>
                                     </div>
 
-                                    {/* Study Mode Content */}
+                                    {/* Study Mode Content - In Depth */}
                                     {isStudyMode && (
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                            className="space-y-6"
                                         >
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Info className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Continuity Equation</CardTitle>
+                                            {/* What is the Continuity Equation? */}
+                                            <Card className="border-cyan-500/30 bg-cyan-500/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-cyan-400 flex items-center gap-2">
+                                                        <Waves className="w-5 h-5" />
+                                                        What is the Continuity Equation?
+                                                    </CardTitle>
                                                 </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
+                                                <CardContent className="text-sm space-y-4">
                                                     <p>
-                                                        Since mass cannot be created or destroyed (conservation of mass), the amount of fluid entering a pipe must equal the amount leaving it.
+                                                        The <strong>Continuity Equation</strong> is a mathematical statement of
+                                                        <strong> Conservation of Mass</strong>. For a steady, incompressible flow,
+                                                        the amount of fluid entering any section of a pipe equals the amount leaving.
                                                     </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4">
-                                                        A₁ · v₁ = A₂ · v₂
+                                                    <div className="bg-background/80 p-4 rounded-lg border border-cyan-500/20 text-center">
+                                                        <div className="font-mono text-xl mb-2">A₁ · v₁ = A₂ · v₂</div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            A = cross-sectional area, v = fluid velocity
+                                                        </p>
                                                     </div>
-                                                    <p>
-                                                        If the pipe gets narrower (Area decreases), the fluid MUST speed up (Velocity increases) to maintain the same flow rate.
+                                                    <p className="text-xs text-muted-foreground italic border-l-2 border-cyan-500/50 pl-3">
+                                                        This is why fluids speed up when they pass through constrictions—the same volume
+                                                        must pass through in the same time, so velocity must increase when area decreases.
                                                     </p>
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Waves className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Incompressible Mass Balance</CardTitle>
+                                            {/* Flow Rate Concepts */}
+                                            <Card className="border-secondary/30 bg-secondary/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-secondary">Understanding Flow Rates</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/20">
+                                                            <div className="font-mono text-lg text-blue-400 mb-2">Q = A × v</div>
+                                                            <div className="font-semibold text-blue-400 mb-1">Volumetric Flow Rate</div>
+                                                            <ul className="text-xs text-muted-foreground space-y-1">
+                                                                <li>• Units: m³/s or L/min</li>
+                                                                <li>• Volume passing per unit time</li>
+                                                                <li>• For incompressible: Q₁ = Q₂</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div className="bg-green-500/10 p-4 rounded-lg border border-green-500/20">
+                                                            <div className="font-mono text-lg text-green-400 mb-2">ṁ = ρ × A × v</div>
+                                                            <div className="font-semibold text-green-400 mb-1">Mass Flow Rate</div>
+                                                            <ul className="text-xs text-muted-foreground space-y-1">
+                                                                <li>• Units: kg/s</li>
+                                                                <li>• Mass passing per unit time</li>
+                                                                <li>• For all flows: ṁ₁ = ṁ₂</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Area-Velocity Relationship */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <Card className="border-warning/30 bg-warning/5">
+                                                    <CardHeader className="pb-2">
+                                                        <CardTitle className="text-warning text-base">The Key Insight</CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-3">
+                                                        <p>
+                                                            Since A × v = constant:
+                                                        </p>
+                                                        <ul className="space-y-2">
+                                                            <li className="flex items-start gap-2">
+                                                                <span className="text-red-400 font-bold">↓</span>
+                                                                <span><strong>Area decreases</strong> → Velocity <strong>increases</strong></span>
+                                                            </li>
+                                                            <li className="flex items-start gap-2">
+                                                                <span className="text-green-400 font-bold">↑</span>
+                                                                <span><strong>Area increases</strong> → Velocity <strong>decreases</strong></span>
+                                                            </li>
+                                                        </ul>
+                                                        <div className="bg-background/80 p-3 rounded font-mono text-center text-sm border border-warning/20">
+                                                            v₂ = v₁ × (A₁ / A₂) = v₁ × (D₁ / D₂)²
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Halving the diameter increases velocity by <strong>4×</strong>!
+                                                        </p>
+                                                    </CardContent>
+                                                </Card>
+
+                                                <Card className="border-orange-500/30 bg-orange-500/5">
+                                                    <CardHeader className="pb-2">
+                                                        <CardTitle className="text-orange-400 text-base">Compressible vs Incompressible</CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-3">
+                                                        <p>
+                                                            <strong className="text-blue-400">Incompressible (Liquids):</strong> Density stays constant.
+                                                            Simple A₁v₁ = A₂v₂ applies.
+                                                        </p>
+                                                        <p>
+                                                            <strong className="text-orange-400">Compressible (Gases at high speed):</strong> Density can change.
+                                                            Must use ρ₁A₁v₁ = ρ₂A₂v₂.
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground italic">
+                                                            At speeds below Mach 0.3, even gases can be treated as incompressible.
+                                                        </p>
+                                                    </CardContent>
+                                                </Card>
+                                            </div>
+
+                                            {/* Physical Meaning */}
+                                            <Card className="border-primary/30 bg-primary/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-primary text-base flex items-center gap-2">
+                                                        <Info className="w-4 h-4" />
+                                                        Why Mass is Conserved
+                                                    </CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        This simple equation assumes the fluid density doesn't change (incompressible).
+                                                        Mass cannot appear or disappear. In a steady-state flow (nothing changing with time),
+                                                        what goes in must come out. Think of it like traffic:
                                                     </p>
-                                                    <p>
-                                                        <strong>Engineering Application:</strong> Fire nozzles use this to shoot water long distances. By reducing the outlet diameter, velocity is forced to increase significantly.
+                                                    <div className="bg-background/80 p-4 rounded border border-primary/20 text-center text-sm">
+                                                        <p className="text-muted-foreground">
+                                                            If 100 cars/hour enter a tunnel → 100 cars/hour must exit (assuming no cars disappear inside!)
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        This also explains why rivers flow faster through narrow gorges and
+                                                        why garden hose water speeds up when you put your thumb over the end.
                                                     </p>
-                                                    <p className="text-xs border-t border-warning/10 pt-2">
-                                                        <strong>Volumetric Flow Rate (Q):</strong> Q = Area × Velocity. Q₁ = Q₂.
-                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Real-World Applications */}
+                                            <Card className="border-green-500/30 bg-green-500/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-green-400 text-base">Engineering Applications</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-2">
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-400 font-bold">🚒</span>
+                                                        <span><strong>Fire Nozzles:</strong> Small outlet → very high jet velocity for long-range reach.</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-400 font-bold">⛲</span>
+                                                        <span><strong>Fountains:</strong> Nozzle design controls water pattern and height.</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-400 font-bold">🏭</span>
+                                                        <span><strong>Pipelines:</strong> Engineers size pipes to control velocity (avoid erosion or stagnation).</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-400 font-bold">🩺</span>
+                                                        <span><strong>Blood Vessels:</strong> Capillaries have small area but MANY of them—total cross-section is huge, so blood slows down for exchange.</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-400 font-bold">🌊</span>
+                                                        <span><strong>Rivers:</strong> Rapids form where the channel narrows—same water, less space, higher speed!</span>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Did You Know? */}
+                                            <Card className="border-purple-500/30 bg-purple-500/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-purple-400 text-sm flex items-center gap-2">
+                                                        <Lightbulb className="w-4 h-4" />
+                                                        Did You Know?
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-xs text-muted-foreground space-y-2">
+                                                    <p>🏊 Olympic swimmers cup their hands to increase "area" and push more water backward per stroke.</p>
+                                                    <p>🚿 Low-flow showerheads use small holes to maintain pressure while using less water (same Q with smaller A means higher v).</p>
+                                                    <p>🌬️ Your lungs have ~300 million alveoli—total surface area of a tennis court! Air slows down for gas exchange.</p>
+                                                    <p>🏞️ The Amazon River is so wide in places that it flows as slowly as 1.5 mph despite massive volumes.</p>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
