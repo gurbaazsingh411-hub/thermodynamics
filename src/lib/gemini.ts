@@ -1,6 +1,6 @@
-// Gemini API utility for ThermoBot chatbot
-const GEMINI_API_KEY = 'AIzaSyAZo8_Wfr5gHXxxusURFC-Q1HGzcxcu1Y0';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
+// OpenRouter API utility for ThermoBot chatbot
+const OPENROUTER_API_KEY = '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';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 const SYSTEM_PROMPT = `You are ThermoBot, a friendly and knowledgeable AI assistant specialized in engineering concepts, particularly:
 - Thermodynamics (laws, cycles, heat engines, refrigeration)
@@ -28,49 +28,37 @@ export async function sendMessageToGemini(
     conversationHistory: ChatMessage[] = []
 ): Promise<string> {
     try {
-        // Build the conversation with system prompt embedded in first user message
-        const contents = [
+        // Build messages array for OpenRouter (OpenAI-compatible format)
+        const messages = [
+            {
+                role: 'system',
+                content: SYSTEM_PROMPT
+            },
+            ...conversationHistory.map(msg => ({
+                role: msg.role,
+                content: msg.content
+            })),
             {
                 role: 'user',
-                parts: [{ text: `${SYSTEM_PROMPT}\n\nNow, please respond to this question: ${conversationHistory.length === 0 ? message : ''}` }]
-            },
-            {
-                role: 'model',
-                parts: [{ text: 'Hello! I\'m ThermoBot, your virtual assistant for engineering concepts. I\'m ready to help you with thermodynamics, fluid mechanics, heat transfer, and more!' }]
+                content: message
             }
         ];
 
-        // Add conversation history
-        for (const msg of conversationHistory) {
-            contents.push({
-                role: msg.role === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.content }]
-            });
-        }
+        console.log('Sending request to OpenRouter API...');
 
-        // Add current message if there's history (otherwise it's in the system prompt)
-        if (conversationHistory.length > 0) {
-            contents.push({
-                role: 'user',
-                parts: [{ text: message }]
-            });
-        }
-
-        console.log('Sending request to Gemini API...');
-
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(OPENROUTER_API_URL, {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
                 'Content-Type': 'application/json',
+                'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'http://localhost',
+                'X-Title': 'ThermoBot - Engineering Assistant'
             },
             body: JSON.stringify({
-                contents,
-                generationConfig: {
-                    temperature: 0.7,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 1024,
-                }
+                model: 'google/gemini-2.0-flash-exp:free',
+                messages: messages,
+                temperature: 0.7,
+                max_tokens: 1024,
             })
         });
 
@@ -78,24 +66,23 @@ export async function sendMessageToGemini(
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Gemini API Error Response:', errorText);
+            console.error('OpenRouter API Error Response:', errorText);
             throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
-        console.log('Gemini response:', data);
+        console.log('OpenRouter response:', data);
 
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-            return data.candidates[0].content.parts[0].text;
+        if (data.choices && data.choices[0]?.message?.content) {
+            return data.choices[0].message.content;
         }
 
         throw new Error('Unexpected response format: ' + JSON.stringify(data));
     } catch (error) {
-        console.error('Error calling Gemini API:', error);
+        console.error('Error calling OpenRouter API:', error);
         if (error instanceof Error) {
             return `I'm having trouble connecting: ${error.message}. Please check the browser console for details.`;
         }
         return 'I apologize, but I\'m having trouble connecting right now. Please try again in a moment!';
     }
 }
-
