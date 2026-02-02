@@ -419,98 +419,95 @@ const FluidMechanics = () => {
                                                 <CardTitle>Pipe Flow Visualization</CardTitle>
                                                 <CardDescription>Laminar vs Turbulent Flow</CardDescription>
                                             </CardHeader>
-                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
-                                                <div className="relative w-full h-48 bg-slate-900 rounded-lg overflow-hidden border border-slate-700 flex items-center">
-                                                    {/* Pipe Walls */}
-                                                    <div className="absolute top-0 left-0 right-0 h-3 bg-slate-600 z-20 border-b border-slate-950 shadow-md" />
-                                                    <div className="absolute bottom-0 left-0 right-0 h-3 bg-slate-600 z-20 border-t border-slate-950 shadow-md" />
+                                            <CardContent className="flex flex-col items-center justify-center min-h-[400px] bg-slate-950/50 p-8">
+                                                {/* Premium Glass Pipe Container */}
+                                                <div className="relative w-full h-56 flex items-center justify-center">
 
-                                                    {/* FLUID PARTICLES (Blue) */}
-                                                    {[...Array(30)].map((_, i) => {
-                                                        // Vertical position (-1 to 1)
-                                                        const rRatio = (Math.random() * 2) - 1;
-                                                        const rAbs = Math.abs(rRatio);
+                                                    {/* The Pipe Itself */}
+                                                    <div className="relative w-full h-40 bg-slate-900/40 rounded-r-lg overflow-hidden border-y border-slate-700 backdrop-blur-sm">
 
-                                                        // Velocity Calculation based on Regime
-                                                        // Laminar: Parabolic (1 - r^2)
-                                                        // Turbulent: Power Law (1 - r)^(1/7) approx uniform
-                                                        const isLaminar = reynoldsNumber < 2300;
-                                                        const velocityFactor = isLaminar
-                                                            ? (1 - Math.pow(rAbs, 2))
-                                                            : Math.pow(1 - rAbs, 0.14);
+                                                        {/* Glass Highlights/Reflections */}
+                                                        <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/5 to-transparent pointer-events-none z-20" />
+                                                        <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-white/5 to-transparent pointer-events-none z-20" />
+                                                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent pointer-events-none z-0" />
 
-                                                        return (
-                                                            <motion.div
-                                                                key={`fluid-${i}`}
-                                                                className="absolute w-2 h-0.5 bg-blue-400/40 rounded-full blur-[0.5px]"
-                                                                style={{
-                                                                    top: `${50 + rRatio * 40}%`,
-                                                                }}
-                                                                initial={{ x: -20, opacity: 0 }}
-                                                                animate={{
-                                                                    x: 650,
-                                                                    opacity: [0, 1, 1, 0],
-                                                                    // Turbulent Jitter
-                                                                    y: !isLaminar ? [0, Math.random() * 10 - 5, 0] : 0
-                                                                }}
-                                                                transition={{
-                                                                    duration: 5 / (velocityFactor * pipeParams.velocity + 0.1), // Avoid div/0
-                                                                    repeat: Infinity,
-                                                                    delay: Math.random() * 2,
-                                                                    ease: "linear"
-                                                                }}
-                                                            />
-                                                        )
-                                                    })}
+                                                        {/* Grid Background inside Pipe */}
+                                                        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px]" />
 
-                                                    {/* DYE INJECTION NEEDLE */}
-                                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-1 bg-slate-400 z-20 rounded-r-full shadow-sm flex items-center">
-                                                        <div className="absolute right-0 w-1 h-1 bg-red-500 rounded-full animate-pulse" />
-                                                    </div>
+                                                        {/* FLOW PARTICLES (Blue Tracers) */}
+                                                        {[...Array(40)].map((_, i) => {
+                                                            const rRatio = (Math.random() * 2) - 1;
+                                                            const rAbs = Math.abs(rRatio);
+                                                            const isLaminar = reynoldsNumber < 2300;
+                                                            // Parabolic vs Blunted profile
+                                                            const velocityFactor = isLaminar ? (1 - Math.pow(rAbs, 2)) : Math.pow(1 - rAbs, 0.14);
 
-                                                    {/* DYE VISUALIZATION (Red) */}
-                                                    {reynoldsNumber < 2300 ? (
-                                                        // LAMINAR DYE: Single straight filament
-                                                        <motion.div
-                                                            className="absolute left-16 top-1/2 -translate-y-[1px] h-[2px] bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)] z-10 origin-left"
-                                                            initial={{ width: 0 }}
-                                                            animate={{ width: "85%" }}
-                                                            transition={{ duration: 0.5 }}
-                                                        />
-                                                    ) : (
-                                                        // TURBULENT DYE: Chaotic particles
-                                                        <>
-                                                            <motion.div
-                                                                className="absolute left-16 top-1/2 -translate-y-[1px] w-12 h-[2px] bg-red-500 z-10"
-                                                            />
-                                                            {[...Array(20)].map((_, i) => (
+                                                            return (
                                                                 <motion.div
-                                                                    key={`dye-${i}`}
-                                                                    className="absolute left-28 w-2 h-2 rounded-full bg-red-500/60 blur-[3px]"
-                                                                    style={{ top: '50%' }}
-                                                                    initial={{ x: 0, scale: 1 }}
+                                                                    key={`trace-${i}`}
+                                                                    className="absolute w-1 h-0.5 bg-blue-300/30 rounded-full"
+                                                                    style={{ top: `${50 + rRatio * 42}%` }}
+                                                                    initial={{ x: -10, opacity: 0 }}
                                                                     animate={{
-                                                                        x: 400,
-                                                                        y: [0, (Math.random() - 0.5) * 150], // Spread out vertically
-                                                                        scale: [1, 4],
-                                                                        opacity: [0.8, 0]
+                                                                        x: 700,
+                                                                        opacity: [0, 0.5, 0.5, 0],
+                                                                        y: !isLaminar ? [0, (Math.random() - 0.5) * 10, 0] : 0
                                                                     }}
                                                                     transition={{
-                                                                        duration: 1.5,
+                                                                        duration: 4 / (velocityFactor * pipeParams.velocity + 0.1),
                                                                         repeat: Infinity,
-                                                                        delay: i * 0.05,
-                                                                        ease: "easeOut"
+                                                                        delay: Math.random() * 3,
+                                                                        ease: "linear"
                                                                     }}
                                                                 />
-                                                            ))}
-                                                        </>
-                                                    )}
+                                                            )
+                                                        })}
 
-                                                    {/* Regime Label */}
-                                                    <div className={`absolute top-4 right-4 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider ${reynoldsNumber < 2300 ? 'bg-green-500/20 text-green-400' :
-                                                            reynoldsNumber > 4000 ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
-                                                        }`}>
-                                                        {reynoldsNumber < 2300 ? "Laminar" : reynoldsNumber > 4000 ? "Turbulent" : "Transition"}
+                                                        {/* DYE INJECTION SYSTEM */}
+                                                        {/* Needle */}
+                                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-[2px] bg-slate-400 z-30 shadow-md" />
+
+                                                        {/* DYE VISUALS */}
+                                                        {reynoldsNumber < 2300 ? (
+                                                            // LAMINAR: Glowing Laser Filament
+                                                            <div className="absolute left-12 top-1/2 -translate-y-[1px] w-full h-[2px] overflow-hidden z-20">
+                                                                <motion.div
+                                                                    className="w-full h-full bg-red-500 shadow-[0_0_6px_2px_rgba(239,68,68,0.6)]"
+                                                                    initial={{ x: "-100%" }}
+                                                                    animate={{ x: "0%" }}
+                                                                    transition={{ duration: 0.8, ease: "out" }}
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            // TURBULENT: Particle Cloud (Ink)
+                                                            <>
+                                                                {[...Array(50)].map((_, i) => (
+                                                                    <motion.div
+                                                                        key={`ink-${i}`}
+                                                                        className="absolute left-12 w-2 h-2 rounded-full bg-red-500/40 blur-[4px]"
+                                                                        style={{ top: '50%' }}
+                                                                        initial={{ x: 0, scale: 0.5, opacity: 0.8 }}
+                                                                        animate={{
+                                                                            x: 600,
+                                                                            y: [0, (Math.random() - 0.5) * 200], // Wide dispersion
+                                                                            scale: [0.5, 4],
+                                                                            opacity: [0.8, 0]
+                                                                        }}
+                                                                        transition={{
+                                                                            duration: 2,
+                                                                            repeat: Infinity,
+                                                                            delay: Math.random() * 0.5,
+                                                                            ease: "easeOut"
+                                                                        }}
+                                                                    />
+                                                                ))}
+                                                            </>
+                                                        )}
+
+                                                        {/* Regime Badge */}
+                                                        <div className="absolute bottom-3 right-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono tracking-widest uppercase text-white/70">
+                                                            {reynoldsNumber < 2300 ? "Laminar Flow" : reynoldsNumber > 4000 ? "Turbulent Flow" : "Transition Zone"}
+                                                        </div>
                                                     </div>
                                                 </div>
 
