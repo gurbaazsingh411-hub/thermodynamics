@@ -376,14 +376,32 @@ const RenewableEnergy = () => {
                                                         }}
                                                     >
                                                         {/* Hub */}
-                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-slate-600 z-30" />
+                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-slate-600 z-30 shadow-md" />
 
                                                         {/* Blade 1 */}
-                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full w-2 bg-slate-100 rounded-full border border-slate-300 origin-bottom" style={{ height: `${windParams.diameter}px` }} />
-                                                        {/* Blade 2 (Rotated 120) */}
-                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full w-2 bg-slate-100 rounded-full border border-slate-300 origin-bottom" style={{ height: `${windParams.diameter}px`, rotate: '120deg' }} />
-                                                        {/* Blade 3 (Rotated 240) */}
-                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full w-2 bg-slate-100 rounded-full border border-slate-300 origin-bottom" style={{ height: `${windParams.diameter}px`, rotate: '240deg' }} />
+                                                        <div className="absolute top-1/2 left-1/2 w-2 bg-slate-100 rounded-full border border-slate-300"
+                                                            style={{
+                                                                height: `${windParams.diameter}px`,
+                                                                transformOrigin: 'bottom center',
+                                                                transform: 'translate(-50%, -100%) rotate(0deg)'
+                                                            }}
+                                                        />
+                                                        {/* Blade 2 */}
+                                                        <div className="absolute top-1/2 left-1/2 w-2 bg-slate-100 rounded-full border border-slate-300"
+                                                            style={{
+                                                                height: `${windParams.diameter}px`,
+                                                                transformOrigin: 'bottom center',
+                                                                transform: 'translate(-50%, -100%) rotate(120deg)'
+                                                            }}
+                                                        />
+                                                        {/* Blade 3 */}
+                                                        <div className="absolute top-1/2 left-1/2 w-2 bg-slate-100 rounded-full border border-slate-300"
+                                                            style={{
+                                                                height: `${windParams.diameter}px`,
+                                                                transformOrigin: 'bottom center',
+                                                                transform: 'translate(-50%, -100%) rotate(240deg)'
+                                                            }}
+                                                        />
                                                     </motion.div>
 
                                                     {/* Stats Overlay */}
