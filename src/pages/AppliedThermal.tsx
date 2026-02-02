@@ -587,46 +587,239 @@ const AppliedThermal = () => {
                                         </ResponsiveContainer>
                                     </div>
 
-                                    {/* Study Mode Content */}
+                                    {/* Study Mode Content - In Depth */}
                                     {isStudyMode && (
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                            className="space-y-6"
                                         >
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Info className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Coefficient of Performance (COP)</CardTitle>
+                                            {/* What is a Refrigerator/Heat Pump? */}
+                                            <Card className="border-blue-500/30 bg-blue-500/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-blue-400 flex items-center gap-2">
+                                                        <Snowflake className="w-5 h-5" />
+                                                        What is a Refrigerator / Heat Pump?
+                                                    </CardTitle>
                                                 </CardHeader>
-                                                <CardContent className="text-sm space-y-3">
+                                                <CardContent className="text-sm space-y-4">
                                                     <p>
-                                                        Unlike efficiency (which must be &lt; 100%), COP can be greater than 1. It measures how much heat you move per unit of work input.
+                                                        A <strong>Refrigerator</strong> and <strong>Heat Pump</strong> are essentially the same device—they both
+                                                        move heat from a <span className="text-blue-400 font-semibold">cold region</span> to a
+                                                        <span className="text-red-400 font-semibold"> hot region</span>. The difference is in the goal:
                                                     </p>
-                                                    <div className="bg-background/80 p-3 rounded font-mono text-center text-lg my-4 space-y-2">
-                                                        <div>COP = Heat Removed / Work Input</div>
-                                                        <div>COP = Q_cold / W_in</div>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/20">
+                                                            <div className="flex items-center gap-2 font-semibold text-blue-400 mb-2">
+                                                                <Snowflake className="w-4 h-4" />
+                                                                Refrigerator / AC
+                                                            </div>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                <strong>Goal:</strong> Cool the inside (cold reservoir). We care about <strong>Q_cold</strong> (heat removed).
+                                                            </p>
+                                                        </div>
+                                                        <div className="bg-red-500/10 p-4 rounded-lg border border-red-500/20">
+                                                            <div className="flex items-center gap-2 font-semibold text-red-400 mb-2">
+                                                                <Flame className="w-4 h-4" />
+                                                                Heat Pump
+                                                            </div>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                <strong>Goal:</strong> Heat the inside (hot reservoir). We care about <strong>Q_hot</strong> (heat delivered).
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground italic border-l-2 border-blue-500/50 pl-3">
+                                                        Both require external <strong>work input</strong> because heat naturally flows from hot to cold, not the reverse.
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* The Vapor Compression Cycle */}
+                                            <Card className="border-secondary/30 bg-secondary/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-secondary flex items-center gap-2">
+                                                        <RotateCcw className="w-5 h-5" />
+                                                        The Vapor Compression Cycle
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-4">
+                                                    <p>
+                                                        The most common refrigeration cycle. A <strong>refrigerant</strong> (a fluid that changes phase easily)
+                                                        circulates through four components:
+                                                    </p>
+                                                    <ol className="list-none space-y-3">
+                                                        <li className="flex items-start gap-3 bg-background/50 p-3 rounded border border-secondary/10">
+                                                            <span className="w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                                                            <div>
+                                                                <strong>Compressor:</strong> Compresses low-pressure vapor → high-pressure, high-temperature vapor. <span className="text-muted-foreground">(Work is added here)</span>
+                                                            </div>
+                                                        </li>
+                                                        <li className="flex items-start gap-3 bg-background/50 p-3 rounded border border-secondary/10">
+                                                            <span className="w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                                                            <div>
+                                                                <strong>Condenser:</strong> Hot vapor releases heat to the surroundings and condenses into liquid. <span className="text-red-400">(Q_hot rejected)</span>
+                                                            </div>
+                                                        </li>
+                                                        <li className="flex items-start gap-3 bg-background/50 p-3 rounded border border-secondary/10">
+                                                            <span className="w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                                                            <div>
+                                                                <strong>Expansion Valve:</strong> High-pressure liquid rapidly expands → low-pressure, cold liquid/vapor mix.
+                                                            </div>
+                                                        </li>
+                                                        <li className="flex items-start gap-3 bg-background/50 p-3 rounded border border-secondary/10">
+                                                            <span className="w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-bold shrink-0">4</span>
+                                                            <div>
+                                                                <strong>Evaporator:</strong> Cold refrigerant absorbs heat from the cold space and evaporates. <span className="text-blue-400">(Q_cold absorbed)</span>
+                                                            </div>
+                                                        </li>
+                                                    </ol>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* COP Formulas - Side by Side */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <Card className="border-blue-400/30 bg-blue-400/5">
+                                                    <CardHeader className="pb-2">
+                                                        <CardTitle className="text-blue-400 text-base flex items-center gap-2">
+                                                            <Snowflake className="w-4 h-4" />
+                                                            COP (Refrigerator)
+                                                        </CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-3">
+                                                        <p className="text-muted-foreground text-xs">
+                                                            How much cooling do we get per unit of work?
+                                                        </p>
+                                                        <div className="bg-background/80 p-4 rounded font-mono text-center text-lg border border-blue-400/20">
+                                                            COP_R = Q_cold / W_in
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            <strong>Carnot Limit:</strong> COP_R,max = T_L / (T_H - T_L)
+                                                        </p>
+                                                    </CardContent>
+                                                </Card>
+
+                                                <Card className="border-red-400/30 bg-red-400/5">
+                                                    <CardHeader className="pb-2">
+                                                        <CardTitle className="text-red-400 text-base flex items-center gap-2">
+                                                            <Flame className="w-4 h-4" />
+                                                            COP (Heat Pump)
+                                                        </CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="text-sm space-y-3">
+                                                        <p className="text-muted-foreground text-xs">
+                                                            How much heating do we get per unit of work?
+                                                        </p>
+                                                        <div className="bg-background/80 p-4 rounded font-mono text-center text-lg border border-red-400/20">
+                                                            COP_HP = Q_hot / W_in
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            <strong>Carnot Limit:</strong> COP_HP,max = T_H / (T_H - T_L)
+                                                        </p>
+                                                    </CardContent>
+                                                </Card>
+                                            </div>
+
+                                            {/* Key Relationship */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-warning text-base flex items-center gap-2">
+                                                        <Info className="w-4 h-4" />
+                                                        Key Energy Relationship
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm">
+                                                    <p className="mb-3">The First Law still applies. Energy entering the system equals energy leaving:</p>
+                                                    <div className="bg-background/80 p-4 rounded font-mono text-center text-xl border border-warning/20">
+                                                        Q_hot = Q_cold + W_in
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground mt-3">
+                                                        This means COP_HP = COP_R + 1. Heat pumps always have a COP at least 1 higher than the equivalent refrigerator!
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Real-World Comparison Table */}
+                                            <Card className="border-muted">
+                                                <CardHeader>
+                                                    <CardTitle className="text-sm">Real-World COP Values</CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="w-full text-sm">
+                                                            <thead>
+                                                                <tr className="border-b border-muted">
+                                                                    <th className="text-left py-2 px-3">System Type</th>
+                                                                    <th className="text-center py-2 px-3">Typical COP</th>
+                                                                    <th className="text-left py-2 px-3">Notes</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="text-muted-foreground">
+                                                                <tr className="border-b border-muted/50">
+                                                                    <td className="py-2 px-3 font-medium text-foreground">Household Refrigerator</td>
+                                                                    <td className="text-center py-2 px-3 text-blue-400">2.5 - 3.5</td>
+                                                                    <td className="py-2 px-3">Runs continuously at low power</td>
+                                                                </tr>
+                                                                <tr className="border-b border-muted/50">
+                                                                    <td className="py-2 px-3 font-medium text-foreground">Window Air Conditioner</td>
+                                                                    <td className="text-center py-2 px-3 text-blue-400">2.5 - 4.0</td>
+                                                                    <td className="py-2 px-3">EER ratings in BTU/(W·h)</td>
+                                                                </tr>
+                                                                <tr className="border-b border-muted/50">
+                                                                    <td className="py-2 px-3 font-medium text-foreground">Air-Source Heat Pump</td>
+                                                                    <td className="text-center py-2 px-3 text-green-400">3.0 - 4.5</td>
+                                                                    <td className="py-2 px-3">Efficiency drops in extreme cold</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td className="py-2 px-3 font-medium text-foreground">Ground-Source Heat Pump</td>
+                                                                    <td className="text-center py-2 px-3 text-green-400">4.0 - 6.0</td>
+                                                                    <td className="py-2 px-3">More stable T_L from ground</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
                                                     </div>
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="border-warning/30 bg-warning/5">
-                                                <CardHeader className="flex flex-row items-center gap-2">
-                                                    <Flame className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Refrigerants & Environment</CardTitle>
+                                            {/* Refrigerants & Environment */}
+                                            <Card className="border-green-500/30 bg-green-500/5">
+                                                <CardHeader>
+                                                    <CardTitle className="text-green-400 text-base">Refrigerants & The Environment</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
-                                                    <p>
-                                                        Most systems use the <strong>Vapor Compression Cycle</strong> (Compression → Condensation → Expansion → Evaporation).
-                                                    </p>
-                                                    <div className="space-y-1 text-xs outline outline-1 outline-warning/20 p-2 rounded bg-background/50">
-                                                        <p><strong>Impact Metrics:</strong></p>
-                                                        <p>1. <strong>GWP:</strong> Global Warming Potential.</p>
-                                                        <p>2. <strong>ODP:</strong> Ozone Depletion Potential.</p>
+                                                    <p>Refrigerants have evolved due to environmental concerns:</p>
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                                        <div className="bg-red-500/10 p-3 rounded border border-red-500/20">
+                                                            <strong className="text-red-400">CFCs (Freon)</strong>
+                                                            <p className="text-muted-foreground mt-1">High ODP. Banned by Montreal Protocol (1987).</p>
+                                                        </div>
+                                                        <div className="bg-yellow-500/10 p-3 rounded border border-yellow-500/20">
+                                                            <strong className="text-yellow-400">HFCs (R-134a)</strong>
+                                                            <p className="text-muted-foreground mt-1">Zero ODP, but high GWP (1430). Being phased out.</p>
+                                                        </div>
+                                                        <div className="bg-green-500/10 p-3 rounded border border-green-500/20">
+                                                            <strong className="text-green-400">Natural (CO2, Ammonia)</strong>
+                                                            <p className="text-muted-foreground mt-1">Low GWP. Future of sustainable HVAC/R.</p>
+                                                        </div>
                                                     </div>
-                                                    <p className="text-xs italic text-muted-foreground">
-                                                        Modern engineering focuses on GWP {'<'} 150 (like R-1234yf or CO2) to mitigate climate impact.
+                                                    <p className="text-xs text-muted-foreground italic">
+                                                        <strong>GWP</strong> = Global Warming Potential. <strong>ODP</strong> = Ozone Depletion Potential.
                                                     </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Did You Know? */}
+                                            <Card className="border-purple-500/30 bg-purple-500/5">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-purple-400 text-sm flex items-center gap-2">
+                                                        <Lightbulb className="w-4 h-4" />
+                                                        Did You Know?
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-xs text-muted-foreground space-y-2">
+                                                    <p>❄️ A COP of 4 means for every 1 kW of electricity, you move 4 kW of heat. That's 400% "efficiency"!</p>
+                                                    <p>🏠 Heat pumps can be <strong>3-4x more efficient</strong> than electric resistance heaters (which have COP = 1).</p>
+                                                    <p>🌍 If all heating switched to heat pumps, global energy use for space heating could drop by ~50%.</p>
+                                                    <p>🧊 Your freezer at -18°C has a lower COP than your fridge at 4°C because of the larger temperature difference (T_H - T_L).</p>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
