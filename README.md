@@ -25,24 +25,41 @@ Analyze statics and dynamics with visual decomposition.
 - **Torque & Moments:** Interactive moment calculation and vector cross-product visualization.
 
 ### ☀️ Renewable Energy
-Physics-based simulations of green energy systems.
+Physics-based simulations of green energy systems with comprehensive study mode.
 - **Solar Power:** Efficiency analysis using the Shockley-Queisser limit and irradiance equations.
 - **Wind Power:** Power curve modeling based on the Betz Limit (59.3%) and cubic wind speed relationships.
+- **Study Mode:** 6 detailed educational cards per topic covering photovoltaic effect, panel types, wind power equations, turbine types, and real-world applications.
+
+### 🔥 Heat Transfer
+Interactive simulations of thermal energy transport mechanisms.
+- **Conduction:** Fourier's Law with thermal resistance analysis and material property comparisons.
+- **Convection:** Newton's Law of Cooling with boundary layer visualization and dimensionless number analysis.
+- **Study Mode:** 12 comprehensive educational cards covering theory, formulas, applications, and interesting facts.
 
 ### 🧮 Engineering Calculator
 A unified, high-performance tool for symbolic and scientific math.
 - **Standard Tab:** Complete scientific calculator with physics constants (c, G, R, etc.) and history.
 - **Calculus Tab:** Symbolic differentiation and integration with step-by-step logic and interactive graphing.
 
+### 🤖 ThermoBot AI Assistant
+Intelligent chatbot for instant engineering help.
+- **Floating Widget:** Always accessible from any page via bottom-right corner button.
+- **Hardcoded Responses:** Instant answers for common questions about thermodynamics, heat transfer, Bernoulli's principle, and heat engines.
+- **Educational Focus:** Detailed explanations with formulas, applications, and real-world examples.
+
 ---
 
 ## ✨ Recent Enhancements
 
 We have recently upgraded the platform with significant educational and UI improvements:
+- **ThermoBot AI Assistant:** Floating chatbot widget with intelligent responses for common engineering questions.
+- **Enhanced Study Modes:** 
+  - Renewable Energy: 12 comprehensive cards (6 Solar + 6 Wind) covering theory, limits, and applications.
+  - Heat Transfer: 12 detailed cards (6 Conduction + 6 Convection) with formulas, dimensionless numbers, and real-world examples.
+- **Dashboard Redesign:** Centered title with gradient styling and feature tabs (Simulation First, Educational Mode, Web-Based).
 - **Consolidated Calculators:** Combined Scientific and Symbolic Calculus calculators into a single tabbed interface.
-- **Expanded Study Mode:** Deep-dive theoretical explanations added to every module, featuring engineering derivations and practical context.
 - **Focused UI:** Streamlined the interface by restricting navigation sidebars to specialized modules, improving workspace focus.
-- **Advanced Physics Context:** Integrated concepts like LMTD (Log Mean Temperature Difference), Heat Exchanger effectiveness, and material-specific conductivities.
+- **Advanced Physics Context:** Integrated concepts like LMTD, Betz Limit, Shockley-Queisser limit, and material-specific thermal conductivities.
 
 ---
 
