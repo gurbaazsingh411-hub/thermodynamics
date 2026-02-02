@@ -616,62 +616,112 @@ const HeatTransfer = () => {
                                                 <div className="relative w-full max-w-lg h-64 bg-slate-100 rounded-lg overflow-hidden border border-border">
                                                     {/* Surface */}
                                                     <div
-                                                        className="absolute bottom-0 left-0 right-0 h-16 transition-colors duration-500"
+                                                        className="absolute bottom-0 left-0 right-0 h-16 transition-colors duration-500 z-20"
                                                         style={{
                                                             backgroundColor: `hsl(${200 - (Math.min(convectionParams.tempSurface - 273, 200) / 200) * 180}, 70%, 50%)`
                                                         }}
                                                     >
                                                         <div className="absolute top-2 left-4 text-xs font-bold text-white/80">Surface (Ts)</div>
+                                                        {/* Heat Shimmer Effect */}
+                                                        {convectionParams.tempSurface > 350 && (
+                                                            <div className="absolute -top-6 left-0 right-0 h-6 bg-white/10 blur-md animate-pulse pointer-events-none" />
+                                                        )}
                                                     </div>
 
                                                     {/* Fluid Particles */}
                                                     {/* Fluid Particles & Boundary Layer */}
-                                                    <div className="absolute inset-0 bottom-16 overflow-hidden">
-                                                        {/* Boundary Layer Indicator */}
+                                                    <div className="absolute inset-0 bottom-16 overflow-hidden bg-sky-50/50">
+                                                        {/* Boundary Layer Gradient */}
                                                         {isStudyMode && (
                                                             <motion.div
-                                                                className="absolute bottom-0 left-0 right-0 border-t border-dashed border-white/50 bg-white/5 pointer-events-none z-10"
+                                                                className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-orange-500/30 to-transparent pointer-events-none z-10"
                                                                 animate={{
-                                                                    height: convectionType === 'natural' ? [30, 35, 30] : [10, 12, 10]
+                                                                    height: convectionType === 'natural' ? 80 : 30, // Thicker BL for natural
+                                                                    opacity: convectionType === 'natural' ? 0.6 : 0.4
                                                                 }}
-                                                                transition={{ duration: 4, repeat: Infinity }}
+                                                                transition={{ duration: 1 }}
                                                             >
-                                                                <span className="absolute right-2 top-0 -translate-y-full text-[10px] text-white/70 italic">
+                                                                <span className="absolute right-2 top-0 -translate-y-full text-[10px] text-white/70 italic border-b border-white/50 pr-2">
                                                                     Boundary Layer
                                                                 </span>
                                                             </motion.div>
                                                         )}
 
-                                                        {/* Flow Particles */}
-                                                        {[...Array(3)].map((_, r) => (
-                                                            <div key={`row-${r}`} className="absolute w-full h-12" style={{ top: `${r * 33}%` }}>
-                                                                {[...Array(5)].map((_, i) => (
+                                                        {/* NATURAL CONVECTION: Rising Plumes */}
+                                                        {convectionType === 'natural' && (
+                                                            <>
+                                                                {[...Array(15)].map((_, i) => (
                                                                     <motion.div
-                                                                        key={`p-${r}-${i}`}
-                                                                        className="absolute w-8 h-1 rounded-full opacity-60"
+                                                                        key={`nat-${i}`}
+                                                                        className="absolute w-4 h-4 rounded-full blur-[4px]"
                                                                         style={{
-                                                                            backgroundColor: `hsl(${200 - (Math.min(convectionParams.tempFluid - 273, 200) / 200) * 180}, 70%, 60%)`,
-                                                                            boxShadow: qConvection > 1000 && r === 2 ? '0 0 10px rgba(255,100,0,0.5)' : 'none'
+                                                                            backgroundColor: `hsl(${200 - (Math.min(convectionParams.tempSurface - 273, 200) / 200) * 180}, 70%, 50%)`,
+                                                                            left: `${Math.random() * 100}%`,
                                                                         }}
-                                                                        initial={{ x: -50 }}
+                                                                        initial={{ y: 0, opacity: 0, scale: 0.5 }}
                                                                         animate={{
-                                                                            x: 600,
-                                                                            y: convectionType === 'natural'
-                                                                                ? (r === 2 ? [-10, -40, -80] : [0, -5, -10]) // Rise up for natural
-                                                                                : (r === 2 && qConvection > 0 ? [-10, -15, -10] : [0, 0, 0]), // Straighter for forced
-                                                                            opacity: r === 2 && qConvection > 0 ? [1, 0.5, 0] : 0.6,
+                                                                            y: [-20, -200], // Rise vertically
+                                                                            x: [0, Math.sin(i) * 30], // Meander
+                                                                            opacity: [0, 0.6, 0],
+                                                                            scale: [0.5, 1.5]
                                                                         }}
                                                                         transition={{
-                                                                            // Faster for forced convection (higher h)
-                                                                            duration: convectionType === 'natural' ? 3 : 30 / convectionParams.hCoeff,
+                                                                            duration: 2 + Math.random() * 2, // Varies
                                                                             repeat: Infinity,
-                                                                            delay: i * 0.4 + r * 0.2,
-                                                                            ease: "linear"
+                                                                            delay: Math.random() * 2,
+                                                                            ease: "easeOut"
                                                                         }}
                                                                     />
                                                                 ))}
-                                                            </div>
-                                                        ))}
+                                                                {/* Buoyancy Arrow */}
+                                                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center opacity-50 z-20">
+                                                                    <div className="text-[10px] uppercase font-bold text-slate-500 mb-1">Buoyancy</div>
+                                                                    <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+                                                                        <Wind className="rotate-[-90deg] text-slate-400 w-6 h-6" />
+                                                                    </motion.div>
+                                                                </div>
+                                                            </>
+                                                        )}
+
+                                                        {/* FORCED CONVECTION: Horizontal Streamlines with Profile */}
+                                                        {convectionType === 'forced' && (
+                                                            <>
+                                                                {[...Array(20)].map((_, i) => {
+                                                                    const pRow = i % 5; // 0 (bottom) to 4 (top)
+                                                                    // Velocity Profile: Slower at bottom (pRow=0), faster at top
+                                                                    const speedFactor = 0.5 + (pRow * 0.4);
+
+                                                                    return (
+                                                                        <motion.div
+                                                                            key={`forced-${i}`}
+                                                                            className="absolute h-[2px] rounded-full bg-slate-400/60"
+                                                                            style={{
+                                                                                top: `${80 - (pRow * 20)}%`, // Distribute vertically
+                                                                                width: `${20 + Math.random() * 40}px`,
+                                                                            }}
+                                                                            initial={{ x: -60, opacity: 0 }}
+                                                                            animate={{
+                                                                                x: 600,
+                                                                                opacity: [0, 1, 1, 0],
+                                                                                // Turbulence: Jitter for bottom rows
+                                                                                y: pRow < 2 ? [0, Math.random() * 4 - 2, 0] : 0
+                                                                            }}
+                                                                            transition={{
+                                                                                duration: 5 / (speedFactor * (convectionParams.hCoeff / 20)), // Scale speed with hCoeff
+                                                                                repeat: Infinity,
+                                                                                delay: Math.random() * 2,
+                                                                                ease: "linear"
+                                                                            }}
+                                                                        />
+                                                                    );
+                                                                })}
+                                                                {/* Flow Arrow */}
+                                                                <div className="absolute top-1/2 left-4 -translate-y-1/2 flex items-center opacity-50 z-20">
+                                                                    <div className="text-[10px] uppercase font-bold text-slate-500 mr-1 rotate-[-90deg]">Flow</div>
+                                                                    <Wind className="text-slate-400 w-6 h-6" />
+                                                                </div>
+                                                            </>
+                                                        )}
                                                     </div>
 
                                                     {/* Heat Transfer Arrow */}
