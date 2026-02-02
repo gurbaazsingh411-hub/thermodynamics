@@ -262,8 +262,8 @@ const EngineeringMechanics = () => {
                                                         {/* Animated Block Group */}
                                                         <motion.g
                                                             animate={{
-                                                                x: acceleration > 0 ? 150 * Math.cos(angleRad) : 0,
-                                                                y: acceleration > 0 ? 150 * Math.sin(angleRad) : 0
+                                                                x: acceleration > 0 ? -120 : 0,
+                                                                y: acceleration > 0 ? 120 * Math.tan(angleRad) : 0
                                                             }}
                                                             transition={{
                                                                 duration: acceleration > 0 ? 2.5 : 0,
