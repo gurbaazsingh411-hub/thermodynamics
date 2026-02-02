@@ -475,18 +475,88 @@ const CalculusCalculator = ({ isStudyMode }: { isStudyMode: boolean }) => {
                         </CardContent>
                     </Card>
 
-                    {/* Steps Card */}
+                    {/* Steps Card - Redesigned */}
                     {(showSteps || isStudyMode) && steps.length > 0 && (
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle className="flex items-center gap-2"><Info className="w-4 h-4" />Solution Steps</CardTitle>
+                        <Card className="border-secondary/20 overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between bg-secondary/5 border-b border-secondary/10">
+                                <CardTitle className="flex items-center gap-2 text-secondary"><Info className="w-5 h-5" />Solution Steps</CardTitle>
                                 <Button variant="ghost" size="sm" onClick={() => setShowSteps(!showSteps)}>{showSteps ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</Button>
                             </CardHeader>
                             <AnimatePresence>
                                 {showSteps && (
-                                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}>
-                                        <CardContent className="space-y-1">
-                                            {steps.map((step, i) => (<motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }} className={`font-mono text-sm ${step === '---' ? 'border-t border-border my-2' : ''}`}>{step !== '---' && step}</motion.div>))}
+                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }}>
+                                        <CardContent className="p-6">
+                                            <div className="relative pl-8 space-y-4">
+                                                {/* Vertical Timeline Line */}
+                                                <div className="absolute left-3 top-2 bottom-2 w-0.5 bg-gradient-to-b from-primary via-secondary to-green-500 rounded-full" />
+
+                                                {steps.map((step, i) => {
+                                                    if (step === '---') return null;
+
+                                                    const isGiven = step.startsWith('Given:');
+                                                    const isOperation = step.startsWith('Operation:');
+                                                    const isTerm = step.startsWith('Term');
+                                                    const isRule = step.startsWith('  →');
+                                                    const isResult = step.startsWith('Result:') || step.startsWith('Definite');
+
+                                                    return (
+                                                        <motion.div
+                                                            key={i}
+                                                            initial={{ opacity: 0, x: -20 }}
+                                                            animate={{ opacity: 1, x: 0 }}
+                                                            transition={{ delay: i * 0.05 }}
+                                                            className="relative"
+                                                        >
+                                                            {/* Step Node */}
+                                                            <div className={`absolute -left-8 top-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isResult ? 'bg-green-500 text-white' :
+                                                                    isGiven || isOperation ? 'bg-primary text-primary-foreground' :
+                                                                        isTerm ? 'bg-secondary text-secondary-foreground' :
+                                                                            'bg-muted text-muted-foreground'
+                                                                }`}>
+                                                                {isResult ? '✓' : isRule ? '' : i + 1}
+                                                            </div>
+
+                                                            {/* Step Content */}
+                                                            <div className={`rounded-lg p-3 ${isResult ? 'bg-green-500/10 border border-green-500/30' :
+                                                                    isGiven || isOperation ? 'bg-primary/10 border border-primary/20' :
+                                                                        isTerm ? 'bg-secondary/10 border border-secondary/20' :
+                                                                            isRule ? 'bg-muted/30 ml-4 text-sm italic text-muted-foreground' :
+                                                                                'bg-muted/50'
+                                                                }`}>
+                                                                {isGiven && (
+                                                                    <div className="font-mono">
+                                                                        <span className="text-muted-foreground">Given: </span>
+                                                                        <span className="text-primary font-semibold">f(x) = {step.replace('Given: f(x) = ', '')}</span>
+                                                                    </div>
+                                                                )}
+                                                                {isOperation && (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-muted-foreground">Operation:</span>
+                                                                        <span className={`px-2 py-0.5 rounded text-xs font-semibold ${operation === 'differentiate' ? 'bg-blue-500/20 text-blue-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                                                                            {operation === 'differentiate' ? 'd/dx' : '∫ dx'}
+                                                                        </span>
+                                                                    </div>
+                                                                )}
+                                                                {isTerm && (
+                                                                    <div className="font-mono">
+                                                                        <span className="text-muted-foreground">{step.split(':')[0]}: </span>
+                                                                        <span className="text-secondary font-semibold">{step.split(':')[1]}</span>
+                                                                    </div>
+                                                                )}
+                                                                {isRule && <span>{step.replace('  → ', '')}</span>}
+                                                                {isResult && (
+                                                                    <div className="font-mono font-bold text-green-400">
+                                                                        {step}
+                                                                    </div>
+                                                                )}
+                                                                {!isGiven && !isOperation && !isTerm && !isRule && !isResult && (
+                                                                    <span className="font-mono text-sm">{step}</span>
+                                                                )}
+                                                            </div>
+                                                        </motion.div>
+                                                    );
+                                                })}
+                                            </div>
                                         </CardContent>
                                     </motion.div>
                                 )}
