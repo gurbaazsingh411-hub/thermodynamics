@@ -32,7 +32,10 @@ import {
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    ReferenceLine
+    ReferenceLine,
+    Area,
+    AreaChart,
+    Legend
 } from 'recharts';
 
 // Import nerdamer and its modules
@@ -312,7 +315,8 @@ const CalculusCalculator = ({ isStudyMode }: { isStudyMode: boolean }) => {
 
             setResult(res);
             setSteps(generatedSteps);
-            if (showGraph) generateGraphData(expression, res);
+            // Always generate graph data after successful calculation
+            generateGraphData(expression, res);
         } catch (e: any) {
             setError(e.message || 'Invalid expression.');
         }
@@ -337,6 +341,8 @@ const CalculusCalculator = ({ isStudyMode }: { isStudyMode: boolean }) => {
         { expr: 'x^3 + 2*x^2 - x + 5', label: 'Polynomial' },
         { expr: 'sin(x) + cos(x)', label: 'Trig' },
         { expr: 'e^x + ln(x)', label: 'Exp/Log' },
+        { expr: 'x^4 - 3*x^2 + 2', label: 'Quartic' },
+        { expr: 'x/(1+x^2)', label: 'Rational' },
     ];
 
     return (
@@ -388,20 +394,92 @@ const CalculusCalculator = ({ isStudyMode }: { isStudyMode: boolean }) => {
             {error && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400"><strong>Error:</strong> {error}</motion.div>)}
 
             {result && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Card className="bg-primary/5 border-primary/20">
-                        <CardHeader><CardTitle className="text-primary">Result</CardTitle></CardHeader>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 gap-6">
+                    {/* Result Card - Enhanced */}
+                    <Card className="bg-gradient-to-br from-primary/10 via-background to-secondary/10 border-primary/30">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-primary flex items-center gap-2"><TrendingUp className="w-5 h-5" />Result</CardTitle>
+                        </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-mono font-bold text-center py-4 overflow-x-auto">
-                                {operation === 'differentiate' ? "f'(x) = " : "∫f(x)dx = "}{result}{operation === 'integrate' && !upperBound && ' + C'}
+                            <div className="text-3xl md:text-4xl font-mono font-bold text-center py-6 overflow-x-auto bg-background/50 rounded-lg border border-primary/10">
+                                <span className="text-muted-foreground">{operation === 'differentiate' ? "f'(x) = " : "∫f(x)dx = "}</span>
+                                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{result}</span>
+                                {operation === 'integrate' && !upperBound && <span className="text-muted-foreground"> + C</span>}
                             </div>
                         </CardContent>
                     </Card>
 
+                    {/* Graph Card - Always visible after result */}
+                    <Card className="border-primary/20">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Eye className="w-5 h-5" />Interactive Graph</CardTitle>
+                            <CardDescription>
+                                {operation === 'differentiate'
+                                    ? "Blue: f(x) | Green: f'(x) - The derivative shows the slope at each point"
+                                    : "The shaded area represents the definite integral"}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-80 w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    {operation === 'integrate' && upperBound && lowerBound ? (
+                                        // AreaChart for definite integrals
+                                        <AreaChart data={graphData}>
+                                            <defs>
+                                                <linearGradient id="colorIntegral" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.6} />
+                                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.05} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                                            <XAxis dataKey="x" stroke="#94a3b8" tickFormatter={(v) => v.toFixed(1)} />
+                                            <YAxis stroke="#94a3b8" />
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px' }}
+                                                formatter={(value: number) => [value.toFixed(4), '']}
+                                            />
+                                            <ReferenceLine x={0} stroke="#64748b" strokeDasharray="3 3" />
+                                            <ReferenceLine y={0} stroke="#64748b" strokeDasharray="3 3" />
+                                            <Area type="monotone" dataKey="original" name="f(x)" stroke="#3b82f6" fill="url(#colorIntegral)" strokeWidth={2} />
+                                            <Legend />
+                                        </AreaChart>
+                                    ) : (
+                                        // LineChart for derivatives and indefinite integrals
+                                        <LineChart data={graphData}>
+                                            <defs>
+                                                <linearGradient id="colorOriginal" x1="0" y1="0" x2="1" y2="0">
+                                                    <stop offset="0%" stopColor="#3b82f6" />
+                                                    <stop offset="100%" stopColor="#8b5cf6" />
+                                                </linearGradient>
+                                                <linearGradient id="colorResult" x1="0" y1="0" x2="1" y2="0">
+                                                    <stop offset="0%" stopColor="#10b981" />
+                                                    <stop offset="100%" stopColor="#14b8a6" />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                                            <XAxis dataKey="x" stroke="#94a3b8" tickFormatter={(v) => v.toFixed(1)} />
+                                            <YAxis stroke="#94a3b8" />
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px' }}
+                                                formatter={(value: number, name: string) => [value.toFixed(4), name]}
+                                            />
+                                            <ReferenceLine x={0} stroke="#64748b" strokeDasharray="3 3" />
+                                            <ReferenceLine y={0} stroke="#64748b" strokeDasharray="3 3" />
+                                            <Line type="monotone" dataKey="original" name="f(x)" stroke="url(#colorOriginal)" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: '#3b82f6' }} />
+                                            <Line type="monotone" dataKey="result" name={operation === 'differentiate' ? "f'(x)" : "∫f(x)dx"} stroke="url(#colorResult)" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: '#10b981' }} />
+                                            <Legend />
+                                        </LineChart>
+                                    )}
+                                </ResponsiveContainer>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Steps Card */}
                     {(showSteps || isStudyMode) && steps.length > 0 && (
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle className="flex items-center gap-2"><Info className="w-4 h-4" />Steps</CardTitle>
+                                <CardTitle className="flex items-center gap-2"><Info className="w-4 h-4" />Solution Steps</CardTitle>
                                 <Button variant="ghost" size="sm" onClick={() => setShowSteps(!showSteps)}>{showSteps ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</Button>
                             </CardHeader>
                             <AnimatePresence>
@@ -415,30 +493,6 @@ const CalculusCalculator = ({ isStudyMode }: { isStudyMode: boolean }) => {
                             </AnimatePresence>
                         </Card>
                     )}
-                </motion.div>
-            )}
-
-            {showGraph && result && graphData.length > 0 && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <Card>
-                        <CardHeader><CardTitle>Graph</CardTitle></CardHeader>
-                        <CardContent>
-                            <div className="h-72 w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={graphData}>
-                                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                                        <XAxis dataKey="x" stroke="#94a3b8" />
-                                        <YAxis stroke="#94a3b8" />
-                                        <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155' }} />
-                                        <ReferenceLine x={0} stroke="#64748b" />
-                                        <ReferenceLine y={0} stroke="#64748b" />
-                                        <Line type="monotone" dataKey="original" name="f(x)" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                                        <Line type="monotone" dataKey="result" name={operation === 'differentiate' ? "f'(x)" : "∫f(x)dx"} stroke="#10b981" strokeWidth={2} dot={false} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </CardContent>
-                    </Card>
                 </motion.div>
             )}
 
