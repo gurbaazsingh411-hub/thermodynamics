@@ -17,10 +17,10 @@ import { ExportButtons } from '@/components/ExportButtons';
 import { PresetSelector } from '@/components/PresetSelector';
 
 import { CycleType, FluidProperties } from '@/types/thermodynamics';
-import { 
-  FLUIDS, 
-  generateOttoCycle, 
-  generateDieselCycle, 
+import {
+  FLUIDS,
+  generateOttoCycle,
+  generateDieselCycle,
   generateBraytonCycle,
   generateCarnotCycle,
   generateRankineCycle,
@@ -214,10 +214,10 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       <div className="flex flex-1">
         <Sidebar />
-        
+
         <main className="flex-1 flex flex-col min-h-0">
           {/* Mode Toggle */}
           <div className="px-6 py-3 border-b border-border bg-card/50 flex items-center justify-between">
@@ -228,10 +228,10 @@ const Index = () => {
               </div>
               <PresetSelector />
               <ExportButtons cycle={displayCycle} pvDiagramId="pv-diagram" tsDiagramId="ts-diagram" />
-              
-              <Button 
-                variant="outline" 
-                size="sm" 
+
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   // Removed authentication - just show a demo profile or settings
                   alert('Authentication removed - profile feature coming soon');
@@ -241,7 +241,7 @@ const Index = () => {
                 <User className="w-4 h-4" />
                 Profile
               </Button>
-              
+
               {/* Real Gas and Steam Quality Controls */}
               <div className="flex items-center gap-2">
                 <Switch
@@ -249,14 +249,14 @@ const Index = () => {
                   checked={useRealGas}
                   onCheckedChange={setUseRealGas}
                 />
-                <Label 
-                  htmlFor="real-gas" 
+                <Label
+                  htmlFor="real-gas"
                   className="text-sm cursor-pointer"
                 >
                   Real Gas Behavior
                 </Label>
               </div>
-              
+
               {fluid.name === 'Water' && (
                 <div className="flex items-center gap-2">
                   <Label htmlFor="steam-quality" className="text-sm">
@@ -274,7 +274,7 @@ const Index = () => {
                   />
                 </div>
               )}
-              
+
               {/* Rankine Cycle Parameters */}
               {cycleType === 'rankine' && (
                 <div className="flex items-center gap-4 ml-4">
@@ -289,7 +289,7 @@ const Index = () => {
                       max="10000"
                       step="10"
                       value={rankineParams.boilerPressure}
-                      onChange={(e) => setRankineParams({...rankineParams, boilerPressure: parseFloat(e.target.value) || 3000})}
+                      onChange={(e) => setRankineParams({ ...rankineParams, boilerPressure: parseFloat(e.target.value) || 3000 })}
                       className="w-24"
                     />
                   </div>
@@ -304,13 +304,13 @@ const Index = () => {
                       max="1000"
                       step="10"
                       value={rankineParams.turbineInletTemp}
-                      onChange={(e) => setRankineParams({...rankineParams, turbineInletTemp: parseFloat(e.target.value) || 800})}
+                      onChange={(e) => setRankineParams({ ...rankineParams, turbineInletTemp: parseFloat(e.target.value) || 800 })}
                       className="w-24"
                     />
                   </div>
                 </div>
               )}
-              
+
               {/* Refrigeration Cycle Parameters */}
               {cycleType === 'refrigeration' && (
                 <div className="flex items-center gap-4 ml-4">
@@ -325,7 +325,7 @@ const Index = () => {
                       max="300"
                       step="1"
                       value={refrigerationParams.evaporatorTemp}
-                      onChange={(e) => setRefrigerationParams({...refrigerationParams, evaporatorTemp: parseFloat(e.target.value) || 273.15})}
+                      onChange={(e) => setRefrigerationParams({ ...refrigerationParams, evaporatorTemp: parseFloat(e.target.value) || 273.15 })}
                       className="w-24"
                     />
                   </div>
@@ -340,7 +340,7 @@ const Index = () => {
                       max="400"
                       step="1"
                       value={refrigerationParams.condenserTemp}
-                      onChange={(e) => setRefrigerationParams({...refrigerationParams, condenserTemp: parseFloat(e.target.value) || 313.15})}
+                      onChange={(e) => setRefrigerationParams({ ...refrigerationParams, condenserTemp: parseFloat(e.target.value) || 313.15 })}
                       className="w-24"
                     />
                   </div>
@@ -353,8 +353,8 @@ const Index = () => {
               />
               <div className="flex items-center gap-2">
                 <GraduationCap className={`w-4 h-4 ${isEducationalMode ? 'text-warning' : 'text-muted-foreground'}`} />
-                <Label 
-                  htmlFor="educational-mode" 
+                <Label
+                  htmlFor="educational-mode"
                   className={`text-sm cursor-pointer ${isEducationalMode ? 'text-warning font-medium' : 'text-muted-foreground'}`}
                 >
                   Educational Mode
@@ -375,7 +375,7 @@ const Index = () => {
                 {/* Educational Mode Content */}
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                   <div className="xl:col-span-2">
-                    <EducationalMode 
+                    <EducationalMode
                       cycle={displayCycle}
                       compressionRatio={parameters.compressionRatio}
                       pressureRatio={parameters.pressureRatio}
@@ -387,7 +387,7 @@ const Index = () => {
                     <AnimatedCycleDiagram cycle={displayCycle} currentProcess={0} />
                   </div>
                 </div>
-                
+
                 {/* Diagrams in Educational Mode */}
                 <div className="grid grid-cols-2 gap-6">
                   <div id="pv-diagram">
@@ -404,7 +404,7 @@ const Index = () => {
                 <div className="animate-fade-in">
                   <MetricsPanel cycle={displayCycle} />
                 </div>
-                
+
                 {/* Diagrams */}
                 <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
                   <Tabs defaultValue="both" className="w-full">
@@ -415,7 +415,7 @@ const Index = () => {
                       <TabsTrigger value="ph">P-H Only</TabsTrigger>
                       <TabsTrigger value="hs">H-S Only</TabsTrigger>
                     </TabsList>
-                    
+
                     <TabsContent value="both">
                       <div className="grid grid-cols-2 gap-6">
                         <div id="pv-diagram">
@@ -426,28 +426,28 @@ const Index = () => {
                         </div>
                       </div>
                     </TabsContent>
-                    
+
                     <TabsContent value="pv">
                       <div id="pv-diagram">
                         <PVDiagram cycle={displayCycle} className="max-w-3xl mx-auto" />
                       </div>
                     </TabsContent>
-                    
+
                     <TabsContent value="ts">
                       <div id="ts-diagram">
                         <TSDiagram cycle={displayCycle} className="max-w-3xl mx-auto" />
                       </div>
                     </TabsContent>
-                    
+
                     <TabsContent value="ph">
                       <div id="ph-diagram">
-                        <PHDiagram className="max-w-3xl mx-auto" />
+                        <PHDiagram cycle={displayCycle} className="max-w-3xl mx-auto" />
                       </div>
                     </TabsContent>
-                    
+
                     <TabsContent value="hs">
                       <div id="hs-diagram">
-                        <HSDiagram className="max-w-3xl mx-auto" />
+                        <HSDiagram cycle={displayCycle} className="max-w-3xl mx-auto" />
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -455,14 +455,14 @@ const Index = () => {
               </div>
             )}
           </div>
-          
+
           {/* Bottom Panel - Will now scroll with the rest of the content */}
           <div className="mt-auto">
             <BottomPanel cycle={displayCycle} />
           </div>
         </main>
       </div>
-      
+
 
     </div>
   );

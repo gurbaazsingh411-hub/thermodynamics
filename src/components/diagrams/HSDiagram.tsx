@@ -9,9 +9,9 @@ interface HSDiagramProps {
 
 const HSDiagram: React.FC<HSDiagramProps> = ({ cycle, className }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { 
-    fluid, 
-    cycleType, 
+  const {
+    fluid,
+    cycleType,
     useRealGas,
     steamQuality
   } = useThermoStore();
@@ -39,7 +39,7 @@ const HSDiagram: React.FC<HSDiagramProps> = ({ cycle, className }) => {
     }
 
     // Draw cycle or process based on current selection
-    if (cycle && cycleType && cycleType !== 'otto') { // Using 'otto' as default since it's the base case
+    if (cycle) {
       drawCycle(ctx, canvas.width, canvas.height, cycleType, cycle);
     }
 
@@ -86,31 +86,31 @@ const HSDiagram: React.FC<HSDiagramProps> = ({ cycle, className }) => {
     ctx.strokeStyle = '#60A5FA';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 3]); // Dashed line for saturation dome
-    
+
     ctx.beginPath();
-    
+
     // Simplified saturation dome curve (this is a rough approximation)
     // In a real implementation, we'd use actual steam table data
     const centerX = width / 2;
     const centerY = height / 2;
     const radiusX = width * 0.3;
     const radiusY = height * 0.4;
-    
+
     // Draw an ellipse-like shape for the saturation dome
     for (let angle = 0; angle <= Math.PI; angle += 0.01) {
       const x = centerX + radiusX * Math.cos(angle);
       const y = centerY + radiusY * Math.sin(angle);
-      
+
       if (angle === 0) {
         ctx.moveTo(x, y);
       } else {
         ctx.lineTo(x, y);
       }
     }
-    
+
     ctx.stroke();
     ctx.setLineDash([]);
-    
+
     // Label the dome
     ctx.fillStyle = '#93C5FD';
     ctx.font = '12px sans-serif';
@@ -131,6 +131,62 @@ const HSDiagram: React.FC<HSDiagramProps> = ({ cycle, className }) => {
         // Draw other cycles if needed
         drawGenericCycle(ctx, width, height, cycle);
         break;
+    }
+  };
+
+  // Function to draw generic cycle
+  const drawGenericCycle = (ctx: CanvasRenderingContext2D, width: number, height: number, cycle: ThermodynamicCycle) => {
+    if (!cycle?.states?.length) return;
+
+    // Draw a generic representation based on the cycle's states
+    ctx.strokeStyle = '#34D399';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([]);
+
+    // Get min/max for scaling
+    const enthalpies = cycle.states.map(s => s.enthalpy);
+    const entropies = cycle.states.map(s => s.entropy);
+
+    const minH = Math.min(...enthalpies) * 0.9;
+    const maxH = Math.max(...enthalpies) * 1.1;
+    const minS = Math.min(...entropies) * 0.9;
+    const maxS = Math.max(...entropies) * 1.1;
+
+    // Map the states to H-S coordinates
+    const points = cycle.states.map(state => ({
+      h: state.enthalpy,
+      s: state.entropy
+    }));
+
+    // Convert points to canvas coordinates
+    const canvasPoints = points.map(point => ({
+      x: mapValue(point.s, minS, maxS, 40, width - 40),  // Entropy on x-axis
+      y: mapValue(point.h, minH, maxH, height - 40, 40) // Enthalpy on y-axis (inverted)
+    }));
+
+    if (canvasPoints.length > 1) {
+      // Draw the cycle
+      ctx.beginPath();
+      ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y);
+
+      for (let i = 1; i < canvasPoints.length; i++) {
+        ctx.lineTo(canvasPoints[i].x, canvasPoints[i].y);
+      }
+
+      ctx.closePath();
+      ctx.stroke();
+
+      // Draw points and labels
+      canvasPoints.forEach((point, index) => {
+        ctx.fillStyle = '#34D399';
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#F3F4F6';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText(`${index + 1}`, point.x - 5, point.y - 10);
+      });
     }
   };
 
@@ -158,11 +214,11 @@ const HSDiagram: React.FC<HSDiagramProps> = ({ cycle, className }) => {
     // Draw the cycle
     ctx.beginPath();
     ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y);
-    
+
     for (let i = 1; i < canvasPoints.length; i++) {
       ctx.lineTo(canvasPoints[i].x, canvasPoints[i].y);
     }
-    
+
     ctx.closePath();
     ctx.stroke();
 
@@ -172,7 +228,7 @@ const HSDiagram: React.FC<HSDiagramProps> = ({ cycle, className }) => {
       ctx.beginPath();
       ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
       ctx.fill();
-      
+
       ctx.fillStyle = '#F3F4F6';
       ctx.font = 'bold 12px sans-serif';
       ctx.fillText(`${index + 1}`, point.x - 5, point.y - 10);
@@ -203,11 +259,11 @@ const HSDiagram: React.FC<HSDiagramProps> = ({ cycle, className }) => {
     // Draw the cycle
     ctx.beginPath();
     ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y);
-    
+
     for (let i = 1; i < canvasPoints.length; i++) {
       ctx.lineTo(canvasPoints[i].x, canvasPoints[i].y);
     }
-    
+
     ctx.closePath();
     ctx.stroke();
 
@@ -217,59 +273,14 @@ const HSDiagram: React.FC<HSDiagramProps> = ({ cycle, className }) => {
       ctx.beginPath();
       ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
       ctx.fill();
-      
+
       ctx.fillStyle = '#F3F4F6';
       ctx.font = 'bold 12px sans-serif';
       ctx.fillText(`${index + 1}`, point.x - 5, point.y - 10);
     });
   };
 
-  // Function to draw generic cycle
-  const drawGenericCycle = (ctx: CanvasRenderingContext2D, width: number, height: number, cycle: ThermodynamicCycle) => {
-    if (!cycle?.states?.length) return;
 
-    // Draw a generic representation based on the cycle's states
-    ctx.strokeStyle = '#34D399';
-    ctx.lineWidth = 3;
-    ctx.setLineDash([]);
-
-    // Map the first few states to H-S coordinates
-    const points = cycle.states.slice(0, 4).map(state => ({
-      h: state.enthalpy,
-      s: state.entropy
-    }));
-
-    // Convert points to canvas coordinates
-    const canvasPoints = points.map(point => ({
-      x: mapValue(point.s, 0, 10, 0, width),  // Entropy on x-axis
-      y: mapValue(point.h, 0, 4000, height, 0) // Enthalpy on y-axis (inverted)
-    }));
-
-    if (canvasPoints.length > 1) {
-      // Draw the cycle
-      ctx.beginPath();
-      ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y);
-      
-      for (let i = 1; i < canvasPoints.length; i++) {
-        ctx.lineTo(canvasPoints[i].x, canvasPoints[i].y);
-      }
-      
-      ctx.closePath();
-      ctx.stroke();
-
-      // Draw points and labels
-      canvasPoints.forEach((point, index) => {
-        ctx.fillStyle = '#34D399';
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.fillStyle = '#F3F4F6';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText(`${index + 1}`, point.x - 5, point.y - 10);
-      });
-    }
-  };
 
   // Function to draw current state point
   const drawCurrentStatePoint = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
@@ -298,8 +309,8 @@ const HSDiagram: React.FC<HSDiagramProps> = ({ cycle, className }) => {
 
   return (
     <div className={`${className || ''} w-full h-full bg-gray-900 rounded-lg overflow-hidden border border-gray-700`}>
-      <canvas 
-        ref={canvasRef} 
+      <canvas
+        ref={canvasRef}
         className="w-full h-full"
       />
     </div>

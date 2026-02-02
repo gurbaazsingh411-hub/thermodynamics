@@ -9,9 +9,9 @@ interface PHDiagramProps {
 
 const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { 
-    fluid, 
-    cycleType, 
+  const {
+    fluid,
+    cycleType,
     useRealGas,
     steamQuality
   } = useThermoStore();
@@ -39,8 +39,8 @@ const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
     }
 
     // Draw cycle or process based on current selection
-    if (cycle && cycleType && cycleType !== 'otto') { // Using 'otto' as default since 'None' is not valid
-      drawCycle(ctx, canvas.width, canvas.height, cycleType);
+    if (cycle) {
+      drawCycle(ctx, canvas.width, canvas.height, cycleType, cycle);
     }
 
     // Draw current state point if no cycle is provided
@@ -86,31 +86,31 @@ const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
     ctx.strokeStyle = '#60A5FA';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 3]); // Dashed line for saturation dome
-    
+
     ctx.beginPath();
-    
+
     // Simplified saturation dome curve (this is a rough approximation)
     // In a real implementation, we'd use actual steam table data
     const centerX = width / 2;
     const centerY = height / 2;
     const radiusX = width * 0.3;
     const radiusY = height * 0.4;
-    
+
     // Draw an ellipse-like shape for the saturation dome
     for (let angle = 0; angle <= Math.PI; angle += 0.01) {
       const x = centerX + radiusX * Math.cos(angle);
       const y = centerY + radiusY * Math.sin(angle);
-      
+
       if (angle === 0) {
         ctx.moveTo(x, y);
       } else {
         ctx.lineTo(x, y);
       }
     }
-    
+
     ctx.stroke();
     ctx.setLineDash([]);
-    
+
     // Label the dome
     ctx.fillStyle = '#93C5FD';
     ctx.font = '12px sans-serif';
@@ -118,7 +118,7 @@ const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
   };
 
   // Function to draw thermodynamic cycle
-  const drawCycle = (ctx: CanvasRenderingContext2D, width: number, height: number, cycleType: CycleType) => {
+  const drawCycle = (ctx: CanvasRenderingContext2D, width: number, height: number, cycleType: CycleType, cycle: ThermodynamicCycle) => {
     // Different drawing logic based on cycle type
     switch (cycleType) {
       case 'rankine':
@@ -128,8 +128,52 @@ const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
         drawRefrigerationCycle(ctx, width, height);
         break;
       default:
-        // Draw other cycles if needed
+        drawGenericCycle(ctx, width, height, cycle);
         break;
+    }
+  };
+
+  const drawGenericCycle = (ctx: CanvasRenderingContext2D, width: number, height: number, cycle: ThermodynamicCycle) => {
+    if (!cycle?.states?.length) return;
+
+    ctx.strokeStyle = '#34D399';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([]);
+
+    // Get min/max for scaling
+    const enthalpies = cycle.states.map(s => s.enthalpy);
+    const pressures = cycle.states.map(s => s.pressure);
+
+    const minH = Math.min(...enthalpies) * 0.9;
+    const maxH = Math.max(...enthalpies) * 1.1;
+    const minP = Math.min(...pressures) * 0.9;
+    const maxP = Math.max(...pressures) * 1.1;
+
+    // Map states to canvas coordinates
+    const points = cycle.states.map(state => ({
+      x: mapValue(state.enthalpy, minH, maxH, 40, width - 40),
+      y: mapValue(state.pressure, minP, maxP, height - 40, 40) // Inverted Y
+    }));
+
+    if (points.length > 1) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+
+      // Draw points
+      points.forEach((p, i) => {
+        ctx.fillStyle = '#34D399';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#FFF';
+        ctx.fillText(`${i + 1}`, p.x + 8, p.y);
+      });
     }
   };
 
@@ -157,11 +201,11 @@ const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
     // Draw the cycle
     ctx.beginPath();
     ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y);
-    
+
     for (let i = 1; i < canvasPoints.length; i++) {
       ctx.lineTo(canvasPoints[i].x, canvasPoints[i].y);
     }
-    
+
     ctx.closePath();
     ctx.stroke();
 
@@ -171,7 +215,7 @@ const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
       ctx.beginPath();
       ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
       ctx.fill();
-      
+
       ctx.fillStyle = '#F3F4F6';
       ctx.font = 'bold 12px sans-serif';
       ctx.fillText(`${index + 1}`, point.x - 5, point.y - 10);
@@ -202,11 +246,11 @@ const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
     // Draw the cycle
     ctx.beginPath();
     ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y);
-    
+
     for (let i = 1; i < canvasPoints.length; i++) {
       ctx.lineTo(canvasPoints[i].x, canvasPoints[i].y);
     }
-    
+
     ctx.closePath();
     ctx.stroke();
 
@@ -216,7 +260,7 @@ const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
       ctx.beginPath();
       ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
       ctx.fill();
-      
+
       ctx.fillStyle = '#F3F4F6';
       ctx.font = 'bold 12px sans-serif';
       ctx.fillText(`${index + 1}`, point.x - 5, point.y - 10);
@@ -250,8 +294,8 @@ const PHDiagram: React.FC<PHDiagramProps> = ({ cycle, className }) => {
 
   return (
     <div className={`${className || ''} w-full h-full bg-gray-900 rounded-lg overflow-hidden border border-gray-700`}>
-      <canvas 
-        ref={canvasRef} 
+      <canvas
+        ref={canvasRef}
         className="w-full h-full"
       />
     </div>
