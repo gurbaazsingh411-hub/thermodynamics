@@ -12,7 +12,9 @@ import {
     Sun,
     Wind,
     ArrowLeftRight,
-    Activity
+    Activity,
+    Lightbulb,
+    Target
 } from 'lucide-react';
 import {
     LineChart,

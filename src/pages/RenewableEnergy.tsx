@@ -9,7 +9,9 @@ import {
     Info,
     Sun,
     Battery,
-    CloudSun
+    CloudSun,
+    Lightbulb,
+    Target
 } from 'lucide-react';
 import {
     LineChart,
@@ -244,41 +246,167 @@ const RenewableEnergy = () => {
                                             animate={{ opacity: 1, y: 0 }}
                                             className="grid grid-cols-1 md:grid-cols-2 gap-6"
                                         >
+                                            {/* Photovoltaic Effect */}
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Sun className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">The Solar Equation & Loss</CardTitle>
+                                                    <CardTitle className="text-warning">The Photovoltaic Effect</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        The electrical power generated is: <strong>P = A · G · η</strong>.
+                                                        Solar cells convert light directly into electricity through the <strong>photovoltaic effect</strong>:
                                                     </p>
-                                                    <ul className="list-disc pl-5 text-xs space-y-1">
-                                                        <li><strong>Irradiance (G):</strong> Solar power per unit area. 1000 W/m² is standard test condition (STC).</li>
-                                                        <li><strong>Temperature Loss:</strong> Counter-intuitively, solar panels perform <em>worse</em> as they get hotter (approx -0.4%/°C).</li>
-                                                        <li><strong>Fill Factor:</strong> A measure of the "squareness" of the I-V curve, indicating cell quality.</li>
-                                                    </ul>
+                                                    <ol className="list-decimal pl-5 text-xs space-y-1">
+                                                        <li>Photons strike the semiconductor material (usually silicon)</li>
+                                                        <li>Photon energy frees electrons from their atomic bonds</li>
+                                                        <li>A p-n junction creates an electric field</li>
+                                                        <li>Freed electrons flow through the circuit as DC current</li>
+                                                    </ol>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-sm my-2">
+                                                        P = A · G · η
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Where A = area (m²), G = irradiance (W/m²), η = efficiency
+                                                    </p>
                                                 </CardContent>
                                             </Card>
 
+                                            {/* Shockley-Queisser Limit */}
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <GraduationCap className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Shockley-Queisser Limit</CardTitle>
+                                                    <CardTitle className="text-warning">Shockley-Queisser Limit (33.7%)</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        The ultimate efficiency for a single p-n junction solar cell is ~33.7%.
+                                                        The maximum theoretical efficiency for a single p-n junction solar cell is <strong>~33.7%</strong>.
                                                     </p>
-                                                    <div className="space-y-1 text-xs outline outline-1 outline-warning/20 p-2 rounded bg-background/50">
-                                                        <p><strong>Why is it limited?</strong></p>
-                                                        <p>1. Blackbody radiation loss.</p>
-                                                        <p>2. Recombination (electrons escaping).</p>
-                                                        <p>3. Spectrum mismatch (some photons have too little/too much energy).</p>
+                                                    <p><strong>Sources of Energy Loss:</strong></p>
+                                                    <ul className="list-disc pl-5 text-xs space-y-1">
+                                                        <li><strong>Spectrum losses (~48%):</strong> Photons below bandgap can't excite electrons; excess energy above bandgap becomes heat</li>
+                                                        <li><strong>Blackbody radiation (~7%):</strong> Hot cells emit infrared radiation</li>
+                                                        <li><strong>Recombination (~10%):</strong> Some electron-hole pairs recombine before collection</li>
+                                                    </ul>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10">
+                                                        <strong>Breaking the limit:</strong> Multi-junction cells stack semiconductors with different bandgaps
+                                                        to capture more of the spectrum. Record efficiency: <strong>47.6%</strong> (6-junction cell, concentrated light)!
                                                     </div>
-                                                    <p className="text-xs italic text-muted-foreground">
-                                                        Multi-junction cells can exceed this, reaching over 47%!
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Panel Technologies */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Target className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Panel Technologies Compared</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <div className="grid grid-cols-3 gap-1 text-xs font-mono">
+                                                        <div className="bg-background/50 p-1 text-center font-bold">Type</div>
+                                                        <div className="bg-background/50 p-1 text-center font-bold">Efficiency</div>
+                                                        <div className="bg-background/50 p-1 text-center font-bold">Cost</div>
+                                                        <div className="p-1 text-center">Mono-Si</div><div className="p-1 text-center text-green-400">20-24%</div><div className="p-1 text-center text-red-400">$$$</div>
+                                                        <div className="p-1 text-center">Poly-Si</div><div className="p-1 text-center text-yellow-400">15-18%</div><div className="p-1 text-center text-yellow-400">$$</div>
+                                                        <div className="p-1 text-center">Thin-film</div><div className="p-1 text-center text-orange-400">10-14%</div><div className="p-1 text-center text-green-400">$</div>
+                                                        <div className="p-1 text-center">Perovskite</div><div className="p-1 text-center text-green-400">25%+</div><div className="p-1 text-center text-muted-foreground">Lab</div>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        <strong>Monocrystalline:</strong> Single crystal, highest efficiency but expensive.<br />
+                                                        <strong>Polycrystalline:</strong> Multiple crystals, good balance.<br />
+                                                        <strong>Thin-film:</strong> Flexible, lightweight, works in low light.<br />
+                                                        <strong>Perovskite:</strong> Emerging technology with rapid efficiency gains!
                                                     </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Temperature Effects */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Info className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Temperature & Efficiency</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        Counter-intuitively, solar panels perform <strong>worse</strong> when hot:
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-sm my-2">
+                                                        η_actual = η_STC × [1 - β(T_cell - 25°C)]
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        <strong>β (temperature coefficient):</strong> Typically -0.3% to -0.5% per °C
+                                                    </p>
+                                                    <p><strong>Example:</strong></p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        At 65°C (40°C above STC), a panel with β = -0.4%/°C loses:<br />
+                                                        40 × 0.4% = <strong>16% of rated power!</strong>
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10">
+                                                        <strong>Tip:</strong> Good ventilation and mounting gaps help panels stay cooler and
+                                                        produce more power on hot days.
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* System Losses */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Battery className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Real-World System Losses</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>A solar system's actual output is affected by many factors:</p>
+                                                    <ul className="list-disc pl-5 text-xs space-y-1 text-muted-foreground">
+                                                        <li><strong>Inverter losses:</strong> 2-4% (DC to AC conversion)</li>
+                                                        <li><strong>Wiring losses:</strong> 1-3%</li>
+                                                        <li><strong>Soiling (dust/dirt):</strong> 2-5% annually</li>
+                                                        <li><strong>Shading:</strong> Variable (even partial shade significantly impacts output)</li>
+                                                        <li><strong>Mismatch:</strong> 1-3% (panels with slightly different outputs)</li>
+                                                        <li><strong>Degradation:</strong> 0.5-1% per year</li>
+                                                    </ul>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10">
+                                                        <strong>Performance Ratio:</strong> Real systems typically achieve 75-85% of
+                                                        their theoretical maximum output.
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Did You Know */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Lightbulb className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Did You Know?</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <div className="space-y-3">
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">☀️</span>
+                                                            <p className="text-xs">
+                                                                <strong>Energy Abundance:</strong> The Sun delivers more energy to Earth
+                                                                in one hour than humanity uses in an entire year!
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🛰️</span>
+                                                            <p className="text-xs">
+                                                                <strong>Space Applications:</strong> The first practical use of solar cells
+                                                                was on the Vanguard 1 satellite in 1958 — it's still orbiting!
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">📉</span>
+                                                            <p className="text-xs">
+                                                                <strong>Price Drop:</strong> Solar panel costs have fallen by 99% since 1976,
+                                                                from $76/watt to less than $0.20/watt today.
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🌍</span>
+                                                            <p className="text-xs">
+                                                                <strong>Global Growth:</strong> Solar capacity doubles approximately every
+                                                                2-3 years. By 2030, solar could be the world's largest electricity source!
+                                                            </p>
+                                                        </div>
+                                                    </div>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
@@ -445,24 +573,35 @@ const RenewableEnergy = () => {
                                             animate={{ opacity: 1, y: 0 }}
                                             className="grid grid-cols-1 md:grid-cols-2 gap-6"
                                         >
+                                            {/* Wind Power Equation */}
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Battery className="w-5 h-5 text-warning" />
-                                                    <CardTitle className="text-warning">Sweep Area & Density</CardTitle>
+                                                    <CardTitle className="text-warning">Wind Power Equation</CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        Available Power: <strong>P = ½ρAv³</strong>
+                                                        The power available in wind is determined by the kinetic energy flux:
                                                     </p>
-                                                    <p>
-                                                        Notice <strong>v³</strong>: Doubling wind speed gives <strong>8x the power</strong>. Area (A) depends on the square of the blade length. Large turbines are exponentially more powerful than small ones.
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground italic border-t border-warning/10 pt-2">
-                                                        Air Density (ρ) decreases at high altitudes, slightly reducing power.
-                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-sm my-2">
+                                                        P = ½ρAv³
+                                                    </div>
+                                                    <p><strong>Why v³ matters:</strong></p>
+                                                    <ul className="list-disc pl-5 text-xs space-y-1 text-muted-foreground">
+                                                        <li>Double wind speed → <strong>8× power</strong></li>
+                                                        <li>Triple wind speed → <strong>27× power</strong></li>
+                                                        <li>This is why turbine siting is critical!</li>
+                                                    </ul>
+                                                    <p><strong>Variables:</strong></p>
+                                                    <ul className="list-disc pl-5 text-xs space-y-1 text-muted-foreground">
+                                                        <li><strong>ρ:</strong> Air density (1.225 kg/m³ at sea level, decreases with altitude)</li>
+                                                        <li><strong>A:</strong> Swept area (πr²) — double blade length = 4× power</li>
+                                                        <li><strong>v:</strong> Wind velocity (most critical factor)</li>
+                                                    </ul>
                                                 </CardContent>
                                             </Card>
 
+                                            {/* Betz Limit */}
                                             <Card className="border-warning/30 bg-warning/5">
                                                 <CardHeader className="flex flex-row items-center gap-2">
                                                     <Wind className="w-5 h-5 text-warning" />
@@ -470,13 +609,135 @@ const RenewableEnergy = () => {
                                                 </CardHeader>
                                                 <CardContent className="text-sm space-y-3">
                                                     <p>
-                                                        Derived by Albert Betz in 1919. A turbine cannot capture 100% of energy because the wind must keep moving to leave the turbine.
+                                                        Derived by Albert Betz in 1919, no turbine can capture more than <strong>59.3%</strong> (16/27) of wind energy.
                                                     </p>
-                                                    <ul className="list-disc pl-5 text-xs space-y-1">
-                                                        <li><strong>Theoretical Max:</strong> 16/27 or 59.3%.</li>
-                                                        <li><strong>Modern HAWTs:</strong> Reach 75-80% of this limit (Cp ≈ 0.45).</li>
-                                                        <li><strong>TSR:</strong> Tip Speed Ratio. Blades must spin at specific speeds relative to wind to maintain high Cp.</li>
+                                                    <p><strong>Physical insight:</strong></p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        If a turbine extracted 100% of energy, air would stop completely behind it.
+                                                        But new air must flow through, so some energy must remain to move air away!
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-xs my-2">
+                                                        C_p = P_turbine / P_available ≤ 16/27 ≈ 0.593
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        <strong>Modern turbines:</strong> Achieve C_p ≈ 0.45-0.50, or about 75-85% of the theoretical max.
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Turbine Types */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Target className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Turbine Types Compared</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p><strong>Horizontal Axis (HAWT):</strong></p>
+                                                    <ul className="list-disc pl-5 text-xs space-y-1 text-muted-foreground">
+                                                        <li>Most common design (99% of utility-scale)</li>
+                                                        <li>2-3 blades, faces into wind</li>
+                                                        <li>Higher efficiency (C_p up to 0.50)</li>
+                                                        <li>Requires yaw mechanism to track wind direction</li>
                                                     </ul>
+                                                    <p className="mt-2"><strong>Vertical Axis (VAWT):</strong></p>
+                                                    <ul className="list-disc pl-5 text-xs space-y-1 text-muted-foreground">
+                                                        <li>Works from any wind direction</li>
+                                                        <li>Lower efficiency (C_p ≈ 0.30-0.35)</li>
+                                                        <li>Simpler design, lower maintenance</li>
+                                                        <li>Better for turbulent urban environments</li>
+                                                    </ul>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Wind Classes */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <CloudSun className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Wind Resource Classes</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>Wind sites are classified by average wind speed at hub height:</p>
+                                                    <div className="grid grid-cols-3 gap-1 text-xs font-mono">
+                                                        <div className="bg-background/50 p-1 text-center font-bold">Class</div>
+                                                        <div className="bg-background/50 p-1 text-center font-bold">Speed (m/s)</div>
+                                                        <div className="bg-background/50 p-1 text-center font-bold">Rating</div>
+                                                        <div className="p-1 text-center">1</div><div className="p-1 text-center">&lt;5.6</div><div className="p-1 text-center text-red-400">Poor</div>
+                                                        <div className="p-1 text-center">2</div><div className="p-1 text-center">5.6-6.4</div><div className="p-1 text-center text-orange-400">Marginal</div>
+                                                        <div className="p-1 text-center">3</div><div className="p-1 text-center">6.4-7.0</div><div className="p-1 text-center text-yellow-400">Fair</div>
+                                                        <div className="p-1 text-center">4-5</div><div className="p-1 text-center">7.0-8.0</div><div className="p-1 text-center text-green-400">Good</div>
+                                                        <div className="p-1 text-center">6-7</div><div className="p-1 text-center">&gt;8.0</div><div className="p-1 text-center text-emerald-400">Excellent</div>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground mt-2">
+                                                        <strong>Height matters:</strong> Wind speed increases with height due to reduced surface friction.
+                                                        Modern turbines have hub heights of 80-140m!
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Capacity Factor */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <GraduationCap className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Capacity Factor</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <p>
+                                                        Wind turbines don't run at full power all the time. <strong>Capacity Factor (CF)</strong>
+                                                        measures actual vs. rated output:
+                                                    </p>
+                                                    <div className="bg-background/80 p-2 rounded font-mono text-center text-xs my-2">
+                                                        CF = Actual Energy / (Rated Power × Time)
+                                                    </div>
+                                                    <p><strong>Typical values:</strong></p>
+                                                    <ul className="list-disc pl-5 text-xs space-y-1 text-muted-foreground">
+                                                        <li><strong>Onshore wind:</strong> 25-40%</li>
+                                                        <li><strong>Offshore wind:</strong> 40-55%</li>
+                                                        <li><strong>Best sites:</strong> Can exceed 60%</li>
+                                                    </ul>
+                                                    <div className="bg-background/80 p-2 rounded text-xs border border-warning/10">
+                                                        <strong>Why not 100%?</strong> Wind varies, turbines need maintenance, and they shut down
+                                                        in extreme weather (too calm or too stormy).
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Did You Know */}
+                                            <Card className="border-warning/30 bg-warning/5">
+                                                <CardHeader className="flex flex-row items-center gap-2">
+                                                    <Lightbulb className="w-5 h-5 text-warning" />
+                                                    <CardTitle className="text-warning">Did You Know?</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="text-sm space-y-3">
+                                                    <div className="space-y-3">
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🌊</span>
+                                                            <p className="text-xs">
+                                                                <strong>Offshore Giants:</strong> The largest wind turbines have blades
+                                                                over 100m long — longer than a football field! They can power 15,000+ homes each.
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🦅</span>
+                                                            <p className="text-xs">
+                                                                <strong>Blade Tips:</strong> Despite appearing slow, blade tips travel at
+                                                                200+ mph (over 300 km/h)! This is why bird collisions are a concern.
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">🏛️</span>
+                                                            <p className="text-xs">
+                                                                <strong>Ancient Technology:</strong> Windmills have been used for over
+                                                                1,000 years. Persia had vertical-axis windmills in 500-900 AD!
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-warning font-bold">⚡</span>
+                                                            <p className="text-xs">
+                                                                <strong>Grid Leader:</strong> Denmark generates over 50% of its electricity
+                                                                from wind — the highest percentage of any country!
+                                                            </p>
+                                                        </div>
+                                                    </div>
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
